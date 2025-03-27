@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Administração</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            overflow-x: hidden;
+        }
+        
+        .sidebar {
+            background-color: var(--primary-color);
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+        
+        .sidebar-header {
+            padding: 20px;
+            background-color: var(--secondary-color);
+        }
+        
+        .sidebar-menu {
+            padding: 0;
+            list-style: none;
+        }
+        
+        .sidebar-menu li {
+            padding: 10px 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .sidebar-menu li:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .sidebar-menu li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+        
+        .sidebar-menu li i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .main-content {
+            margin-left: 250px;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 20px;
+            color: white;
+            border-radius: 10px;
+        }
+        
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .stat-card .label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .bg-primary {
+            background-color: var(--accent-color) !important;
+        }
+        
+        .bg-success {
+            background-color: var(--success-color) !important;
+        }
+        
+        .bg-warning {
+            background-color: var(--warning-color) !important;
+        }
+        
+        .bg-danger {
+            background-color: var(--danger-color) !important;
+        }
+        
+        .btn-primary {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            font-weight: 500;
+        }
+        
+        .badge-primary {
+            background-color: var(--accent-color);
+        }
+        
+        .badge-success {
+            background-color: var(--success-color);
+        }
+        
+        .badge-warning {
+            background-color: var(--warning-color);
+        }
+        
+        .badge-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .nav-tabs .nav-link.active {
+            font-weight: 600;
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .action-btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            top: 12px;
+            left: 15px;
+            color: #6c757d;
+        }
+        
+        .search-box input {
+            padding-left: 40px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-pendente {
+            background-color: var(--warning-color);
+        }
+        
+        .status-em_andamento {
+            background-color: var(--accent-color);
+        }
+        
+        .status-concluido {
+            background-color: var(--success-color);
+        }
+        
+        .ticket-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        
+        .ticket-image:hover {
+            transform: scale(1.5);
+            transition: transform 0.3s;
+            z-index: 100;
+            position: relative;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -250px;
+            }
+            
+            .sidebar.active {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.active {
+                margin-left: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header d-flex justify-content-between align-items-center">
+            <h4 class="mb-0">Admin Panel (Esta Tela Ainda Nao esta Funcional!!!!!!)</h4>
+            <button class="btn btn-sm btn-outline-light d-md-none" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        
+        <div class="sidebar-user text-center py-3">
+            <img src="https://ui-avatars.com/api/?name=Admin&background=3498db&color=fff" alt="User" class="rounded-circle mb-2" width="80">
+            <h6 class="mb-0">Administrador</h6>
+            <small class="text-muted">admin@empresa.com</small>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="active">
+                <a href="#dashboard" data-bs-toggle="tab">
+                    <i class="fas fa-tachometer-alt"></i> Dashboard
+                </a>
+            </li>
+            <li>
+                <a href="#chamados" data-bs-toggle="tab">
+                    <i class="fas fa-ticket-alt"></i> Chamados
+                </a>
+            </li>
+            <li>
+                <a href="#usuarios" data-bs-toggle="tab">
+                    <i class="fas fa-users"></i> Usuários
+                </a>
+            </li>
+            <li>
+                <a href="#servicos" data-bs-toggle="tab">
+                    <i class="fas fa-cubes"></i> Serviços
+                </a>
+            </li>
+            <li>
+                <a href="#pedidos" data-bs-toggle="tab">
+                    <i class="fas fa-shopping-cart"></i> Pedidos
+                </a>
+            </li>
+            <li>
+                <a href="#relatorios" data-bs-toggle="tab">
+                    <i class="fas fa-chart-bar"></i> Relatórios
+                </a>
+            </li>
+            <li>
+                <a href="#configuracoes" data-bs-toggle="tab">
+                    <i class="fas fa-cog"></i> Configurações
+                </a>
+            </li>
+            <li>
+                <a href="#" id="logout">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </a>
+            </li>
+        </ul>
+    </div>
+    
+    <div class="main-content">
+        <div class="container-fluid">
+            <div class="tab-content">
+                <div class="tab-pane fade show active" id="dashboard">
+                    <h4 class="mb-4">Dashboard</h4>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-primary">
+                                <i class="fas fa-ticket-alt"></i>
+                                <div class="value" id="totalTickets">0</div>
+                                <div class="label">Chamados Totais</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-warning">
+                                <i class="fas fa-clock"></i>
+                                <div class="value" id="pendingTickets">0</div>
+                                <div class="label">Pendentes</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-success">
+                                <i class="fas fa-check-circle"></i>
+                                <div class="value" id="resolvedTickets">0</div>
+                                <div class="label">Resolvidos</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card stat-card bg-danger">
+                                <i class="fas fa-users"></i>
+                                <div class="value" id="totalUsers">0</div>
+                                <div class="label">Usuários</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <span>Chamados por Status (Últimos 30 dias)</span>
+                                    <select class="form-select form-select-sm w-auto" id="chartPeriod">
+                                        <option value="7">Últimos 7 dias</option>
+                                        <option value="30" selected>Últimos 30 dias</option>
+                                        <option value="90">Últimos 3 meses</option>
+                                    </select>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="ticketsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    Distribuição de Chamados
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="ticketsPieChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    Últimos Chamados
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover" id="recentTicketsTable">
+                                            <thead>
+                                                <tr>
+                                                    <th>ID</th>
+                                                    <th>Título</th>
+                                                    <th>Criador</th>
+                                                    <th>Data</th>
+                                                    <th>Status</th>
+                                                    <th>Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="chamados">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0">Gerenciamento de Chamados</h4>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newTicketModal">
+                            <i class="fas fa-plus me-2"></i>Novo Chamado
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="search-box w-50">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" id="ticketSearch" placeholder="Pesquisar chamados...">
+                            </div>
+                            <div class="d-flex">
+                                <select class="form-select me-2" id="ticketStatusFilter">
+                                    <option value="">Todos status</option>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="em_andamento">Em andamento</option>
+                                    <option value="concluido">Concluído</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" id="exportTicketsBtn">
+                                    <i class="fas fa-download me-2"></i>Exportar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="ticketsTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Título</th>
+                                            <th>Descrição</th>
+                                            <th>Criador</th>
+                                            <th>Data</th>
+                                            <th>Status</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <nav>
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Próxima</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="usuarios">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0">Gerenciamento de Usuários</h4>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newUserModal">
+                            <i class="fas fa-plus me-2"></i>Novo Usuário
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="search-box w-50">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" id="userSearch" placeholder="Pesquisar usuários...">
+                            </div>
+                            <div>
+                                <select class="form-select" id="userTypeFilter">
+                                    <option value="">Todos os tipos</option>
+                                    <option value="colaborador">Colaborador</option>
+                                    <option value="administrador">Administrador</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="usersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Avatar</th>
+                                            <th>Nome</th>
+                                            <th>Email</th>
+                                            <th>CPF</th>
+                                            <th>Tipo</th>
+                                            <th>Cadastro</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <nav>
+                                <ul class="pagination justify-content-center mb-0">
+                                    <li class="page-item disabled">
+                                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                                    </li>
+                                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                    <li class="page-item">
+                                        <a class="page-link" href="#">Próxima</a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="servicos">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="mb-0">Gerenciamento de Serviços</h4>
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#newServiceModal">
+                            <i class="fas fa-plus me-2"></i>Novo Serviço
+                        </button>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="search-box w-50">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" id="serviceSearch" placeholder="Pesquisar serviços...">
+                            </div>
+                            <div>
+                                <button class="btn btn-outline-secondary" id="exportServicesBtn">
+                                    <i class="fas fa-download me-2"></i>Exportar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="servicesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Nome</th>
+                                            <th>Empresa</th>
+                                            <th>Descrição</th>
+                                            <th>Preço Mensal</th>
+                                            <th>Preço Anual</th>
+                                            <th>Categorias</th>
+                                            <th>Avaliação</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="pedidos">
+                    <h4 class="mb-4">Gerenciamento de Pedidos</h4>
+                    
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div class="search-box w-50">
+                                <i class="fas fa-search"></i>
+                                <input type="text" class="form-control" id="orderSearch" placeholder="Pesquisar pedidos...">
+                            </div>
+                            <div class="d-flex">
+                                <select class="form-select me-2" id="orderStatusFilter">
+                                    <option value="">Todos status</option>
+                                    <option value="pendente">Pendente</option>
+                                    <option value="pago">Pago</option>
+                                    <option value="cancelado">Cancelado</option>
+                                </select>
+                                <button class="btn btn-outline-secondary" id="exportOrdersBtn">
+                                    <i class="fas fa-download me-2"></i>Exportar
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover" id="ordersTable">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Cliente</th>
+                                            <th>Serviços</th>
+                                            <th>Total</th>
+                                            <th>Pagamento</th>
+                                            <th>Status</th>
+                                            <th>Data</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="relatorios">
+                    <h4 class="mb-4">Relatórios e Estatísticas</h4>
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    Filtros do Relatório
+                                </div>
+                                <div class="card-body">
+                                    <form id="reportForm">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Data Inicial</label>
+                                                <input type="date" class="form-control" id="startDate">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Data Final</label>
+                                                <input type="date" class="form-control" id="endDate">
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Tipo de Relatório</label>
+                                                <select class="form-select" id="reportType">
+                                                    <option value="tickets">Chamados</option>
+                                                    <option value="users">Usuários</option>
+                                                    <option value="services">Serviços</option>
+                                                    <option value="orders">Pedidos</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Formato</label>
+                                                <select class="form-select" id="reportFormat">
+                                                    <option value="pdf">PDF</option>
+                                                    <option value="excel">Excel</option>
+                                                    <option value="csv">CSV</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-file-export me-2"></i>Gerar Relatório
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    Estatísticas Rápidas
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card bg-light p-3">
+                                                <small class="text-muted">Chamados Hoje</small>
+                                                <h4 class="mb-0">5</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card bg-light p-3">
+                                                <small class="text-muted">Novos Usuários (7 dias)</small>
+                                                <h4 class="mb-0">12</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card bg-light p-3">
+                                                <small class="text-muted">Pedidos Pendentes</small>
+                                                <h4 class="mb-0">3</h4>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <div class="card bg-light p-3">
+                                                <small class="text-muted">Receita Mensal</small>
+                                                <h4 class="mb-0">R$ 8.750,00</h4>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            Histórico de Relatórios Gerados
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>Data</th>
+                                            <th>Tipo</th>
+                                            <th>Período</th>
+                                            <th>Formato</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>26/03/2025</td>
+                                            <td>Chamados</td>
+                                            <td>01/03/2025 - 25/03/2025</td>
+                                            <td>PDF</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>20/03/2025</td>
+                                            <td>Usuários</td>
+                                            <td>01/01/2025 - 19/03/2025</td>
+                                            <td>Excel</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>15/03/2025</td>
+                                            <td>Pedidos</td>
+                                            <td>01/02/2025 - 14/03/2025</td>
+                                            <td>CSV</td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-download"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-pane fade" id="configuracoes">
+                    <h4 class="mb-4">Configurações do Sistema</h4>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    Configurações Gerais
+                                </div>
+                                <div class="card-body">
+                                    <form id="generalSettingsForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Nome do Sistema</label>
+                                            <input type="text" class="form-control" value="Sistema de Chamados">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Tema</label>
+                                            <select class="form-select">
+                                                <option value="light">Claro</option>
+                                                <option value="dark">Escuro</option>
+                                                <option value="blue">Azul</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Idioma</label>
+                                            <select class="form-select">
+                                                <option value="pt-br">Português (Brasil)</option>
+                                                <option value="en">Inglês</option>
+                                                <option value="es">Espanhol</option>
+                                            </select>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-save me-2"></i>Salvar Configurações
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    Configurações de Email
+                                </div>
+                                <div class="card-body">
+                                    <form id="emailSettingsForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">SMTP Host</label>
+                                            <input type="text" class="form-control" value="smtp.empresa.com">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">SMTP Porta</label>
+                                            <input type="number" class="form-control" value="587">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Email do Sistema</label>
+                                            <input type="email" class="form-control" value="sistema@empresa.com">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Senha</label>
+                                            <input type="password" class="form-control" placeholder="Digite a senha">
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-save me-2"></i>Salvar Configurações
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    Segurança
+                                </div>
+                                <div class="card-body">
+                                    <form id="securitySettingsForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">Forçar Troca de Senha</label>
+                                            <select class="form-select">
+                                                <option value="30">A cada 30 dias</option>
+                                                <option value="60">A cada 60 dias</option>
+                                                <option value="90">A cada 90 dias</option>
+                                                <option value="0">Nunca</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Tentativas de Login</label>
+                                            <input type="number" class="form-control" value="5">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Bloqueio por Tentativas</label>
+                                            <input type="number" class="form-control" value="30" placeholder="Minutos">
+                                        </div>
+                                        <div class="mb-3 form-check">
+                                            <input type="checkbox" class="form-check-input" id="twoFactorAuth" checked>
+                                            <label class="form-check-label" for="twoFactorAuth">Autenticação em Dois Fatores</label>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">
+                                            <i class="fas fa-save me-2"></i>Salvar Configurações
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    Backup do Sistema
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h5>Criar Backup</h5>
+                                            <p class="text-muted">Crie um backup completo do sistema incluindo banco de dados e arquivos.</p>
+                                            <button class="btn btn-primary">
+                                                <i class="fas fa-database me-2"></i>Criar Backup Agora
+                                            </button>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h5>Restaurar Backup</h5>
+                                            <p class="text-muted">Restaurar o sistema a partir de um backup anterior.</p>
+                                            <div class="input-group mb-3">
+                                                <input type="file" class="form-control">
+                                                <button class="btn btn-outline-secondary" type="button">
+                                                    <i class="fas fa-upload me-2"></i>Enviar
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="newTicketModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Chamado</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newTicketForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Título</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Localização</label>
+                                <input type="text" class="form-control">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <textarea class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Anexar Foto</label>
+                            <input type="file" class="form-control" accept="image/*">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Atribuir para</label>
+                            <select class="form-select">
+                                <option value="">Ninguém (deixar pendente)</option>
+                                <option value="1">João Silva</option>
+                                <option value="2">Maria Souza</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Salvar Chamado</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="viewTicketModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes do Chamado <span id="ticketId"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <h4 id="ticketTitle"></h4>
+                            <p id="ticketDescription"></p>
+                            <div class="mb-3">
+                                <span class="badge bg-secondary me-2" id="ticketLocation"></span>
+                                <span class="badge" id="ticketStatus"></span>
+                            </div>
+                            <div>
+                                <small class="text-muted">Criado em: <span id="ticketCreatedAt"></span> por <span id="ticketCreator"></span></small>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <img src="" id="ticketImage" class="img-fluid rounded" alt="Foto do chamado" style="max-height: 150px;">
+                        </div>
+                    </div>
+                    
+                    <h6 class="mb-3">Mensagens</h6>
+                    <div class="ticket-messages mb-4" style="max-height: 200px; overflow-y: auto;">
+                        <!-- Mensagens serão carregadas aqui -->
+                    </div>
+                    
+                    <form id="addMessageForm">
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" placeholder="Adicionar mensagem...">
+                            <button class="btn btn-primary" type="submit">Enviar</button>
+                        </div>
+                    </form>
+                    
+                    <div class="mt-4">
+                        <label class="form-label">Atualizar Status</label>
+                        <select class="form-select" id="updateTicketStatus">
+                            <option value="pendente">Pendente</option>
+                            <option value="em_andamento">Em andamento</option>
+                            <option value="concluido">Concluído</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary">Salvar Alterações</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="newUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Usuário</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newUserForm">
+                        <div class="mb-3">
+                            <label class="form-label">Nome Completo</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">CPF</label>
+                            <input type="text" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Senha</label>
+                            <input type="password" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Usuário</label>
+                            <select class="form-select" required>
+                                <option value="">Selecione...</option>
+                                <option value="colaborador">Colaborador</option>
+                                <option value="administrador">Administrador</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Salvar Usuário</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal fade" id="newServiceModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Novo Serviço</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="newServiceForm">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Nome do Serviço</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Empresa</label>
+                                <input type="text" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descrição</label>
+                            <textarea class="form-control" rows="3" required></textarea>
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Preço Mensal (R$)</label>
+                                <input type="number" step="0.01" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Preço Anual (R$)</label>
+                                <input type="number" step="0.01" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Categorias (separadas por vírgula)</label>
+                            <input type="text" class="form-control" placeholder="Ex: internet, telefonia, cloud">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Badge</label>
+                            <select class="form-select">
+                                <option value="">Nenhum</option>
+                                <option value="popular">Popular</option>
+                                <option value="novidade">Novidade</option>
+                                <option value="promocao">Promoção</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary">Salvar Serviço</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.getElementById('sidebarToggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.querySelector('.main-content').classList.toggle('active');
+        });
+        
+        document.getElementById('logout').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = 'login.html';
+        });
+        
+        $(document).ready(function() {
+            $('#ticketsTable').DataTable({
+                responsive: true,
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                }
+            });
+            
+            $('#usersTable').DataTable({
+                responsive: true,
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                }
+            });
+            
+            $('#servicesTable').DataTable({
+                responsive: true,
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                }
+            });
+            
+            $('#ordersTable').DataTable({
+                responsive: true,
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                }
+            });
+            
+            loadDashboardData();
+            
+            initCharts();
+        });
+        
+        function loadDashboardData() {
+            setTimeout(function() {
+                document.getElementById('totalTickets').textContent = '142';
+                document.getElementById('pendingTickets').textContent = '24';
+                document.getElementById('resolvedTickets').textContent = '98';
+                document.getElementById('totalUsers').textContent = '56';
+                
+                const recentTickets = [
+                    { id: 'CH-1254', title: 'Problema com impressora', creator: 'João Silva', date: '26/03/2025 10:15', status: 'pendente' },
+                    { id: 'CH-1253', title: 'Acesso negado ao sistema', creator: 'Maria Souza', date: '25/03/2025 16:30', status: 'em_andamento' },
+                    { id: 'CH-1252', title: 'Computador não liga', creator: 'Carlos Oliveira', date: '25/03/2025 09:45', status: 'concluido' },
+                    { id: 'CH-1251', title: 'Internet lenta', creator: 'Ana Santos', date: '24/03/2025 14:20', status: 'concluido' },
+                    { id: 'CH-1250', title: 'Software travando', creator: 'Pedro Costa', date: '24/03/2025 11:05', status: 'em_andamento' }
+                ];
+                
+                const tbody = document.querySelector('#recentTicketsTable tbody');
+                tbody.innerHTML = '';
+                
+                recentTickets.forEach(ticket => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${ticket.id}</td>
+                        <td>${ticket.title}</td>
+                        <td>${ticket.creator}</td>
+                        <td>${ticket.date}</td>
+                        <td>
+                            <span class="status-indicator status-${ticket.status.replace('_', '')}"></span>
+                            ${formatStatus(ticket.status)}
+                        </td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary view-ticket-btn" data-id="${ticket.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+                
+                document.querySelectorAll('.view-ticket-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const ticketId = this.getAttribute('data-id');
+                        viewTicket(ticketId);
+                    });
+                });
+            }, 500);
+        }
+        
+        function formatStatus(status) {
+            const statusMap = {
+                'pendente': 'Pendente',
+                'em_andamento': 'Em Andamento',
+                'concluido': 'Concluído'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function viewTicket(ticketId) {
+            const ticket = {
+                id: ticketId,
+                title: 'Problema com impressora',
+                description: 'A impressora do setor financeiro não está respondendo. Já tentei reiniciar mas o problema persiste.',
+                location: 'Setor Financeiro - Sala 203',
+                status: 'pendente',
+                createdAt: '26/03/2025 10:15',
+                creator: 'João Silva',
+                image: 'https://via.placeholder.com/400x300?text=Impressora+Com+Problema'
+            };
+            
+            document.getElementById('ticketId').textContent = ticketId;
+            document.getElementById('ticketTitle').textContent = ticket.title;
+            document.getElementById('ticketDescription').textContent = ticket.description;
+            document.getElementById('ticketLocation').textContent = ticket.location;
+            document.getElementById('ticketStatus').textContent = formatStatus(ticket.status);
+            document.getElementById('ticketStatus').className = 'badge ' + getStatusBadgeClass(ticket.status);
+            document.getElementById('ticketCreatedAt').textContent = ticket.createdAt;
+            document.getElementById('ticketCreator').textContent = ticket.creator;
+            document.getElementById('ticketImage').src = ticket.image;
+            document.getElementById('updateTicketStatus').value = ticket.status;
+            
+            // Preencher mensagens (simulado)
+            const messagesContainer = document.querySelector('.ticket-messages');
+            messagesContainer.innerHTML = `
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between">
+                            <strong>João Silva</strong>
+                            <small class="text-muted">26/03/2025 10:20</small>
+                        </div>
+                        <p class="mb-0">Já foi aberto um chamado técnico para verificar o problema.</p>
+                    </div>
+                </div>
+                <div class="card mb-2">
+                    <div class="card-body p-2">
+                        <div class="d-flex justify-content-between">
+                            <strong>Suporte Técnico</strong>
+                            <small class="text-muted">26/03/2025 11:45</small>
+                        </div>
+                        <p class="mb-0">Vamos enviar um técnico para verificar o equipamento ainda hoje.</p>
+                    </div>
+                </div>
+            `;
+            
+            const modal = new bootstrap.Modal(document.getElementById('viewTicketModal'));
+            modal.show();
+        }
+        
+        function getStatusBadgeClass(status) {
+            const statusClasses = {
+                'pendente': 'bg-warning',
+                'em_andamento': 'bg-primary',
+                'concluido': 'bg-success'
+            };
+            return statusClasses[status] || 'bg-secondary';
+        }
+        
+        function initCharts() {
+            const ticketsCtx = document.getElementById('ticketsChart').getContext('2d');
+            const ticketsChart = new Chart(ticketsCtx, {
+                type: 'line',
+                data: {
+                    labels: ['1 Mar', '5 Mar', '10 Mar', '15 Mar', '20 Mar', '25 Mar', '30 Mar'],
+                    datasets: [
+                        {
+                            label: 'Pendentes',
+                            data: [12, 19, 15, 22, 18, 24, 20],
+                            borderColor: 'rgb(243, 156, 18)',
+                            backgroundColor: 'rgba(243, 156, 18, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Em Andamento',
+                            data: [8, 12, 10, 15, 12, 18, 15],
+                            borderColor: 'rgb(52, 152, 219)',
+                            backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Concluídos',
+                            data: [20, 25, 30, 28, 35, 32, 40],
+                            borderColor: 'rgb(46, 204, 113)',
+                            backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+            
+            const pieCtx = document.getElementById('ticketsPieChart').getContext('2d');
+            const pieChart = new Chart(pieCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Pendentes', 'Em Andamento', 'Concluídos'],
+                    datasets: [{
+                        data: [24, 20, 98],
+                        backgroundColor: [
+                            'rgb(243, 156, 18)',
+                            'rgb(52, 152, 219)',
+                            'rgb(46, 204, 113)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                        }
+                    }
+                }
+            });
+            
+            document.getElementById('chartPeriod').addEventListener('change', function() {
+          
+                const period = this.value;
+                let newData;
+                
+                if (period === '7') {
+                    newData = {
+                        labels: ['24 Mar', '25 Mar', '26 Mar', '27 Mar', '28 Mar', '29 Mar', '30 Mar'],
+                        datasets: [
+                            { data: [18, 20, 24, 22, 20, 18, 20] },
+                            { data: [12, 15, 18, 15, 12, 10, 15] },
+                            { data: [30, 32, 40, 38, 35, 32, 40] }
+                        ]
+                    };
+                } else if (period === '30') {
+                    newData = {
+                        labels: ['1 Mar', '5 Mar', '10 Mar', '15 Mar', '20 Mar', '25 Mar', '30 Mar'],
+                        datasets: [
+                            { data: [12, 19, 15, 22, 18, 24, 20] },
+                            { data: [8, 12, 10, 15, 12, 18, 15] },
+                            { data: [20, 25, 30, 28, 35, 32, 40] }
+                        ]
+                    };
+                } else {
+                    newData = {
+                        labels: ['Jan', 'Fev', 'Mar'],
+                        datasets: [
+                            { data: [120, 110, 90] },
+                            { data: [80, 75, 60] },
+                            { data: [200, 180, 220] }
+                        ]
+                    };
+                }
+                
+                ticketsChart.data.labels = newData.labels;
+                ticketsChart.data.datasets.forEach((dataset, i) => {
+                    dataset.data = newData.datasets[i].data;
+                });
+                ticketsChart.update();
+            });
+        }
+        
+        document.getElementById('exportTicketsBtn').addEventListener('click', function() {
+            alert('Exportando dados de chamados...');
+           
+        });
+        
+        document.getElementById('exportServicesBtn').addEventListener('click', function() {
+            alert('Exportando dados de serviços...');
+          
+        });
+        
+        document.getElementById('exportOrdersBtn').addEventListener('click', function() {
+            alert('Exportando dados de pedidos...');
+        });
+    </script>
+</body>
+</html>

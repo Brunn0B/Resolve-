@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolve+ | Excelência em Manutenção</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.css">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --secondary: #697580;
+            --accent: #fbbc05;
+            --dark: rgba(19,34,55,255);
+            --light: #ffffff;
+            --gray: #5f6368;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--light);
+            overflow-x: hidden;
+        }
+
+        section {
+            padding: 6rem 2rem;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .hero {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            background: linear-gradient(45deg, var(--dark), var(--dark));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('particles.svg') repeat;
+            opacity: 0.1;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            color: var(--gray);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .scroll-down {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--light);
+            font-size: 1.2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-20px); }
+            60% { transform: translateX(-50%) translateY(-10px); }
+        }
+
+        .cta-button {
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 2rem;
+        }
+
+        .cta-button:hover {
+            background: var(--secondary);
+            transform: translateY(-5px);
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .feature-card p {
+            color: var(--gray);
+        }
+
+        .testimonial-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .footer {
+            background: var(--dark);
+            padding: 4rem 2rem;
+            text-align: center;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 1rem;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        .chart-container {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .chart-wrapper {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .chart-wrapper h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--light);
+        }
+
+        .chart-wrapper p {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 1rem;
+        }
+
+        #empresasTable {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 2rem;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 1rem;
+            overflow: hidden;
+            color: black;
+        }
+
+        #empresasTable th, #empresasTable td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #empresasTable th {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: rgb(0, 0, 0);
+        }
+
+        #empresasTable tbody tr:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        #empresasTable a {
+            color: rgb(3, 55, 243);
+            text-decoration: none;
+        }
+
+        #empresasTable a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2.5rem;
+    }
+
+    .hero p {
+        font-size: 1.2rem;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .chart-container {
+        flex-direction: column;
+    }
+
+    #empresasTable {
+        font-size: 0.9rem;
+    }
+
+    #empresasTable th, #empresasTable td {
+        padding: 0.5rem;
+    }
+
+    .cta-button {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+    }
+
+    .scroll-down {
+        font-size: 1rem;
+    }
+
+    .footer {
+        padding: 2rem 1rem;
+    }
+
+    .footer a {
+        margin: 0 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    .cta-button {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.9rem;
+    }
+
+    .scroll-down {
+        font-size: 0.9rem;
+    }
+
+    .footer {
+        padding: 1.5rem 0.5rem;
+    }
+
+    .footer a {
+        margin: 0 0.3rem;
+    }
+
+    #empresasTable {
+        font-size: 0.8rem;
+    }
+
+    #empresasTable th, #empresasTable td {
+        padding: 0.3rem;
+    }
+}
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <div class="hero-content">
+            <div class="logo">
+                <img src="img/Logo Novo.png" alt="Logo Resolve+" style="width: 260px; margin-bottom: 2rem;">
+            </div>
+            <p>
+                A plataforma definitiva para gerenciamento de manutenção em Ambientes Corporativos.
+                Conectamos colaboradores, departamentos e clientes em um único ecossistema inteligente.
+            </p>
+            <button class="cta-button" onclick="window.location.href='Loguin.html'">comece agora</button>
+            <button class="cta-button" id="install-button">Instalar Agora</button>
+        </div>
+        <div class="scroll-down">Role para baixo</div>
+    </section>
+
+    <section id="sobre">
+        <h2>Sobre o Resolve+</h2>
+        <p>
+            O Resolve+ é uma solução completa para a gestão de manutenção em ambientes corporativos.
+            Com foco na eficiência e na comunicação, nossa plataforma permite que colaboradores
+            reportem problemas em tempo real, enquanto o departamento de manutenção gerencia
+            e resolve as ocorrências de forma ágil e organizada.
+        </p>
+    </section>
+
+    <section id="funcionalidades">
+        <h2>Funcionalidades</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Registro de Ocorrências</h3>
+                <p>
+                    Registre problemas com fotos, vídeos e descrições detalhadas.
+                    Tudo em tempo real, diretamente do seu celular.
+                </p>
+            </div>
+            <div class="feature-card">
+                <h3>Comunicação Eficiente</h3>
+                <p>
+                    Envie chamados automaticamente para o departamento de manutenção.
+                    Acompanhe o status de cada solicitação.
+                </p>
+            </div>
+            <div class="feature-card">
+                <h3>Feedback em Tempo Real</h3>
+                <p>
+                    Receba notificações instantâneas sobre o andamento dos chamados.
+                    Mantenha todos informados.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="casos-de-uso">
+        <h2>Casos de Uso</h2>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>Problemas de Iluminação</h3>
+                <p>
+                    Reporte falhas na iluminação de corredores, estacionamentos e áreas comuns.
+                    Resolução rápida e eficiente.
+                </p>
+            </div>
+            <div class="feature-card">
+                <h3>Manutenção de Escadas Rolantes</h3>
+                <p>
+                    Registre problemas em escadas rolantes e elevadores.
+                    Priorize a segurança dos clientes.
+                </p>
+            </div>
+            <div class="feature-card">
+                <h3>Limpeza e Conservação</h3>
+                <p>
+                    Solicite serviços de limpeza em áreas específicas.
+                    Mantenha o shopping sempre impecável.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="depoimentos">
+        <h2>Depoimentos</h2>
+        <div class="feature-grid">
+            <div class="testimonial-card">
+                <p>
+                    "O Resolve+ revolucionou a forma como lidamos com a manutenção no nosso shopping.
+                    A comunicação ficou muito mais eficiente."
+                </p>
+                <span>- João Silva, Gerente</span>
+            </div>
+            <div class="testimonial-card">
+                <p>
+                    "A plataforma é intuitiva e facilita muito o nosso dia a dia.
+                    Recomendo para todos os shoppings!"
+                </p>
+                <span>- Maria Souza, Colaboradora</span>
+            </div>
+        </div>
+    </section>
+
+    <section id="dados-mercado">
+        <h2>Dados Reais de Mercado</h2>
+        <p>
+            Pesquisas mostram que empresas que utilizam sistemas de gerenciamento de manutenção
+            têm resultados significativamente melhores em comparação com aquelas que não utilizam.
+            Veja os comparativos abaixo:
+        </p>
+        <div class="chart-container">
+            <div class="chart-wrapper">
+                <h3>Redução de Custos</h3>
+                <canvas id="costChart" width="200" height="150"></canvas>
+                <p>
+                    Empresas com sistemas de gerenciamento reduzem custos em até <strong>25%</strong>.
+                    Fonte: <a href="https://www.gartner.com" target="_blank">Gartner</a>.
+                </p>
+            </div>
+            <div class="chart-wrapper">
+                <h3>Eficiência Operacional</h3>
+                <canvas id="efficiencyChart" width="200" height="150"></canvas>
+                <p>
+                    A eficiência operacional aumenta em <strong>40%</strong> com o uso de sistemas inteligentes.
+                    Fonte: <a href="https://www.mckinsey.com" target="_blank">McKinsey</a>.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section id="empresas">
+        <h2>Empresas que Utilizam Sistemas Similares</h2>
+        <p>
+            Confira abaixo algumas empresas que utilizam sistemas de gerenciamento de manutenção
+            e os benefícios que obtiveram:
+        </p>
+        <table id="empresasTable">
+            <thead>
+                <tr>
+                    <th>Empresa</th>
+                    <th>Setor</th>
+                    <th>Benefícios</th>
+                    <th>Referência</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Shopping Center Norte</td>
+                    <td>Varejo</td>
+                    <td>Redução de 30% no tempo de resolução de chamados</td>
+                    <td><a href="https://www.shoppingcenternorte.com.br" target="_blank">Link</a></td>
+                </tr>
+                <tr>
+                    <td>Hospital Albert Einstein</td>
+                    <td>Saúde</td>
+                    <td>Melhoria na comunicação entre equipes</td>
+                    <td><a href="https://www.einstein.br" target="_blank">Link</a></td>
+                </tr>
+                <tr>
+                    <td>Itaú Unibanco</td>
+                    <td>Financeiro</td>
+                    <td>Controle centralizado de manutenção predial</td>
+                    <td><a href="https://www.itau.com.br" target="_blank">Link</a></td>
+                </tr>
+                <tr>
+                    <td>American Airlines</td>
+                    <td>Transporte</td>
+                    <td>Redução de custos em 20%</td>
+                    <td><a href="https://www.aa.com" target="_blank">Link</a></td>
+                </tr>
+                <tr>
+                    <td>Tesla</td>
+                    <td>Automotivo</td>
+                    <td>Aumento da eficiência em 35%</td>
+                    <td><a href="https://www.tesla.com" target="_blank">Link</a></td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <footer class="footer">
+        <h2>Contato</h2>
+        <p>Email: contato@resolveplus.com</p>
+        <p>Telefone: (XX) XXXXXXXX</p>
+        <div>
+            <a href="#sobre">Sobre</a>
+            <a href="#funcionalidades">Funcionalidades</a>
+            <a href="#dados-mercado">Dados de Mercado</a>
+            <a href="#empresas">Empresas</a>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script>
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+
+            const installButton = document.getElementById('install-button');
+            installButton.style.display = 'block';
+
+            installButton.addEventListener('click', () => {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('Usuário aceitou a instalação');
+                    } else {
+                        console.log('Usuário recusou a instalação');
+                    }
+                    deferredPrompt = null;
+                });
+            });
+        });
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA instalado com sucesso');
+        });
+
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            document.getElementById('install-button').style.display = 'none';
+            document.getElementById('install-message').innerText = 'O Resolve+ já está instalado no seu dispositivo!';
+            document.getElementById('install-message').style.display = 'block';
+        }
+    </script>
+    <script>
+        const sections = document.querySelectorAll('section');
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        sections.forEach(section => {
+            observer.observe(section);
+        });
+
+        $(document).ready(function() {
+            $('#empresasTable').DataTable({
+                paging: false,
+                searching: false,
+                info: false
+            });
+        });
+
+        const costCtx = document.getElementById('costChart').getContext('2d');
+        const costChart = new Chart(costCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sem Sistema', 'Com Sistema'],
+                datasets: [{
+                    label: 'Custos de Manutenção (R$)',
+                    data: [100000, 75000],
+                    backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)'],
+                    borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+        const efficiencyChart = new Chart(efficiencyCtx, {
+            type: 'line',
+            data: {
+                labels: ['Sem Sistema', 'Com Sistema'],
+                datasets: [{
+                    label: 'Eficiência Operacional (%)',
+                    data: [60, 100],
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    fill: false
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

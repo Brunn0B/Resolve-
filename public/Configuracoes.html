@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --app-container: #f3f6fd;
+            --main-color: #1f1c2e;
+            --secondary-color: #4a4a4a;
+            --link-color: #1f1c2e;
+            --link-color-hover: #c3cff4;
+            --link-color-active: #fff;
+            --link-color-active-bg: #1f1c2e;
+            --projects-section: #fff;
+            --message-box-hover: #fafcff;
+            --message-box-border: #e9ebf0;
+            --more-list-bg: #fff;
+            --more-list-bg-hover: #f6fbff;
+            --more-list-shadow: rgba(209, 209, 209, 0.4);
+            --button-bg: #1f1c24;
+            --search-area-bg: #fff;
+            --star: #1ff1c2e;
+            --message-btn: #fff;
+        }
+
+        .dark {
+            --app-container: #1f1d2b;
+            --main-color: #fff;
+            --secondary-color: rgba(255, 255, 255, 0.8);
+            --projects-section: #1f2937;
+            --link-color: rgba(255, 255, 255, 0.8);
+            --link-color-hover: rgba(195, 207, 244, 0.1);
+            --link-color-active-bg: rgba(195, 207, 244, 0.2);
+            --button-bg: #1f2937;
+            --search-area-bg: #1f2937;
+            --message-box-hover: #243244;
+            --message-box-border: rgba(255, 255, 255, 0.1);
+            --star: #ffd92c;
+            --light-font: rgba(255, 255, 255, 0.8);
+            --more-list-bg: #2f3142;
+            --more-list-bg-hover: rgba(195, 207, 244, 0.1);
+            --more-list-shadow: rgba(195, 207, 244, 0.1);
+            --message-btn: rgba(195, 207, 244, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background-color: var(--app-container);
+            color: var(--main-color);
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .config-container {
+            max-width: 400px;
+            margin: 0 auto;
+            background-color: var(--projects-section);
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(96, 96, 96, 0.1);
+            padding: 20px;
+        }
+
+        .config-container h2 {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: var(--main-color);
+        }
+
+        .config-option {
+            margin-bottom: 20px;
+        }
+
+        .config-option label {
+            font-size: 16px;
+            font-weight: 500;
+            color: var(--main-color);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .config-option select,
+        .config-option input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--message-box-border);
+            border-radius: 5px;
+            font-size: 14px;
+            color: var(--main-color);
+            background-color: var(--search-area-bg);
+        }
+
+        .config-option button {
+            width: 100%;
+            padding: 10px;
+            background-color:rgba(195, 207, 244, 0.2);
+            color: var(--main-color);
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .config-option button:hover {
+            background-color: var(--link-color-hover);
+        }
+
+        .theme-switch {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .theme-switch label {
+            margin-bottom: 0;
+        }
+
+        .theme-switch input[type="checkbox"] {
+            width: auto;
+        }
+        body.dark-theme {
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.moon {
+    transition: fill 0.3s ease;
+}
+    </style>
+</head>
+<body>
+    <div class="config-container">
+        <h2><i class="fas fa-cog"></i> Configurações</h2>
+
+        <div class="config-option">
+            <label for="theme">Tema do Site:</label>
+            <div class="theme-switch">
+                <button class="mode-switch" title="Alternar Tema" onclick="toggleTheme()">
+                    <svg class="moon" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" width="24" height="24" viewBox="0 0 24 24">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="config-option">
+            <button onclick="saveSettings()"><i class="fas fa-save"></i> Salvar Configurações</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            body.classList.toggle('dark');
+        }
+
+        function saveSettings() {
+            const isDarkMode = document.body.classList.contains('dark');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+            alert('Configurações salvas com sucesso!');
+        }
+
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+        }
+
+        applySavedTheme();
+    </script>
+</body>
+</html>

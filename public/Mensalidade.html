@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolve+ | Planos de Manutenção</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #082945;
+            --primary-light: #d1d1d1;
+            --secondary: #0e53029b;
+            --accent: #ffffff;
+            --light: #e9e9e9;
+            --dark: #212529;
+            --success: #414141;
+            --success-light: #e8f8fd;
+            --warning: #ffc107;
+            --gray: #6c757d;
+            --gray-light: #f1f3f5;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+        
+        .app-container {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            min-height: 100vh;
+        }
+        
+        .app-sidebar {
+            background: white;
+            padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid var(--gray-light);
+            margin-bottom: 20px;
+        }
+        
+        .app-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .app-name i {
+            font-size: 1.8rem;
+        }
+        
+        .app-sidebar-nav {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0 10px;
+        }
+        
+        .nav-category {
+            color: var(--gray);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 15px 15px 5px;
+            margin-top: 10px;
+        }
+        
+        .app-sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin: 5px 0;
+            color: var(--dark);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .app-sidebar-link:hover {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+        
+        .app-sidebar-link.active {
+            background-color: var(--primary);
+            color: white;
+            font-weight: 500;
+        }
+        
+        .app-sidebar-link i {
+            font-size: 1.1rem;
+            width: 30px;
+            text-align: center;
+            margin-right: 10px;
+        }
+        
+        /* Header Atualizado */
+        .app-header {
+            background: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .search-wrapper {
+            position: relative;
+            width: 300px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border-radius: 20px;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            background-color: var(--gray-light);
+            border: none;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            background-color: white;
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.2);
+        }
+        
+        .search-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
+        }
+        
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .notification-btn, .profile-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            color: var(--gray);
+            transition: all 0.2s;
+        }
+        
+        .notification-btn:hover, .profile-btn:hover {
+            color: var(--primary);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--success);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .app-content {
+            padding: 25px 30px;
+            background-color: #f5f7fa;
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.8rem;
+            color: var(--dark);
+            font-weight: 700;
+        }
+        
+        .filters-container {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: white;
+            border: 1px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 2px 8px rgba(67, 97, 238, 0.2);
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+        }
+        
+        .service-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #eee;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .service-card.selected {
+            border: 2px solid var(--success);
+            box-shadow: 0 5px 20px rgba(76, 201, 240, 0.3);
+        }
+        
+        .service-header {
+            padding: 18px;
+            border-bottom: 1px solid #eee;
+            background: white;
+            position: relative;
+        }
+        
+        .service-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: var(--success-light);
+            color: var(--success);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .service-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin: 0 0 5px;
+            color: var(--dark);
+        }
+        
+        .service-company {
+            font-size: 0.95rem;
+            color: var(--primary);
+            margin: 0 0 5px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .verified-badge {
+            color: var(--success);
+            font-size: 0.9rem;
+        }
+        
+        .service-location {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 5px;
+            gap: 5px;
+        }
+        
+        .service-body {
+            padding: 18px;
+            flex: 1;
+        }
+        
+        .service-description {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        
+        .service-features {
+            margin-bottom: 20px;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .feature-item i {
+            color: var(--success);
+            margin-right: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .service-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .stars {
+            color: var(--warning);
+            margin-right: 10px;
+            font-size: 0.95rem;
+        }
+        
+        .rating-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        
+        .rating-count {
+            font-size: 0.85rem;
+            color: var(--gray);
+        }
+        
+        .service-pricing {
+            background: var(--gray-light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .price-option {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .price-option:last-child {
+            margin-bottom: 0;
+        }
+        
+        .price-label {
+            font-size: 0.95rem;
+        }
+        
+        .price-value {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .monthly-price {
+            color: var(--primary);
+        }
+        
+        .annual-price {
+            color: var(--success);
+        }
+        
+        .price-discount {
+            background-color: var(--success-light);
+            color: var(--success);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .service-footer {
+            padding: 15px 18px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .frequency-select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+            flex: 1;
+            max-width: 120px;
+            background-color: white;
+            cursor: pointer;
+        }
+        
+        .select-btn {
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 500;
+            flex: 1;
+            white-space: nowrap;
+        }
+        
+        .select-btn:hover {
+            background: var(--secondary);
+            box-shadow: 0 2px 8px rgba(6, 184, 24, 0.3);
+        }
+        
+        .select-btn.selected {
+            background: var(--success);
+        }
+        
+        .select-btn.selected:hover {
+            background: #f41111;
+        }
+        
+        .total-summary {
+            background: rgb(232, 232, 232);
+            padding: 25px;
+            border-radius: 12px;
+            margin-top: 40px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        
+        .total-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .total-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .total-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+        
+        .selected-services {
+            margin-top: 15px;
+        }
+        
+        .selected-service {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        
+        .selected-service:last-child {
+            border-bottom: none;
+        }
+        
+        .service-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .service-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+        
+        .service-frequency {
+            color: var(--gray);
+            font-size: 0.85rem;
+        }
+        
+        .service-price {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .checkout-btn {
+            width: 100%;
+            padding: 14px;
+            background: var(--success);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .checkout-btn:hover {
+            background: #21d50d;
+            box-shadow: 0 4px 12px rgba(76, 201, 240, 0.3);
+        }
+        
+        @media (max-width: 1200px) {
+            .app-container {
+                grid-template-columns: 200px 1fr;
+            }
+        }
+        
+        @media (max-width: 992px) {
+            .app-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .app-sidebar {
+                display: none;
+            }
+            
+            .services-grid {
+                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            }
+            
+            .search-wrapper {
+                width: 200px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .app-header {
+                padding: 15px 20px;
+            }
+            
+            .app-content {
+                padding: 20px;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+            
+            .section-title {
+                font-size: 1.5rem;
+            }
+            
+            .user-profile .user-name {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .header-actions {
+                gap: 10px;
+            }
+            
+            .search-wrapper {
+                display: none;
+            }
+            
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .service-footer {
+                flex-direction: column;
+            }
+            
+            .frequency-select {
+                max-width: 100%;
+                width: 100%;
+            }
+            
+            .select-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+       
+        <div class="app-sidebar">
+            <div class="sidebar-header">
+                <div class="app-name">
+                  
+                    <span> Resolve+</span>
+                </div>
+            </div>
+            
+            <nav class="app-sidebar-nav">
+                <div class="nav-category">Menu Principal</div>
+                <a href="TelaChamados.html" class="app-sidebar-link active">
+                    <i class=" fas fa-ticket-alt"></i>
+                    <span>Chamados</span>
+                </a>
+           <!-- <a href="#" class="app-sidebar-link">
+                    <i class="fas fa-tools"></i>
+                 <span>Serviços</span>
+                </a> --> 
+                <a href="sobre.html" class="app-sidebar-link">
+                    <i class="fas fa-users"></i>
+                    <span>Equipe</span>
+                </a>
+                <a href="Pagamento.html" class="app-sidebar-link">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Pagamentos</span>
+                </a>
+                
+                <div class="nav-category">Suporte</div>
+                <a href="SuporteUsuario.html" class="app-sidebar-link">
+                    <i class="fas fa-headset"></i>
+                    <span>Atendimento</span>
+                </a>
+                
+                <div class="nav-category">Configurações</div>
+                <a href="PerfilUser.html" class="app-sidebar-link">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Perfil</span>
+                </a>
+                <a href="Configuracoes.html" class="app-sidebar-link">
+                    <i class="fas fa-cog"></i>
+                    <span>Configurações</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="app-content">
+            <div class="app-header">
+                <div class="header-actions">
+                    <div class="search-wrapper">
+                        <input class="search-input" type="text" placeholder="Pesquisar serviços...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="user-actions">
+                    <button class="notification-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </button>
+                    
+                    <div class="user-profile">
+                        <div class="user-avatar">JS</div>
+                        <span class="user-name">Sistema Nao Funcional</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="content-header">
+                <h1 class="section-title">Planos de Manutenção</h1>
+            </div>
+            
+            <div class="filters-container">
+                <button class="filter-btn active">Todos</button>
+                <button class="filter-btn">Predial</button>
+                <button class="filter-btn">Residencial</button>
+                <button class="filter-btn">Industrial</button>
+                <button class="filter-btn">Condomínios</button>
+                <button class="filter-btn">Emergencial</button>
+            </div>
+            
+            <div class="services-grid" id="services-container">
+            </div>
+            
+            <div class="total-summary">
+                <div class="total-header">
+                    <h3 class="total-title">Resumo do Pedido</h3>
+                    <div class="total-value">R$ <span id="total-value">0,00</span></div>
+                </div>
+                
+                <div class="selected-services" id="selected-services">
+                    <p style="color: #666; text-align: center;">Nenhum serviço selecionado</p>
+                </div>
+                
+                <button class="checkout-btn" onclick="finalizarCompra()">
+                    <i class="fas fa-check-circle"></i>
+                    Finalizar Compra
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const services = [
+                {
+                    id: 1,
+                    title: "Manutenção Predial Completa",
+                    company: "Altura Segura Manutenções",
+                    location: "Sorocaba/SP",
+                    description: "Serviço completo de manutenção predial com equipe especializada em alpinismo industrial para áreas de difícil acesso.",
+                    features: [
+                        "Limpeza de fachadas",
+                        "Reparos estruturais",
+                        "Inspeções periódicas",
+                        "Equipe certificada"
+                    ],
+                    rating: 4.8,
+                    ratingCount: 124,
+                    monthlyPrice: 2200,
+                    annualPrice: 2200 * 12 * 0.85,
+                    categories: ["predial", "emergencial"],
+                    badge: "Popular"
+                },
+                {
+                    id: 2,
+                    title: "Manutenção de Áreas Comuns",
+                    company: "Condomínio Fácil",
+                    location: "Votorantim/SP",
+                    description: "Manutenção preventiva e corretiva de áreas comuns em condomínios residenciais e comerciais.",
+                    features: [
+                        "Jardins e piscinas",
+                        "Salões de festa",
+                        "Áreas esportivas",
+                        "Vistorias mensais"
+                    ],
+                    rating: 4.6,
+                    ratingCount: 89,
+                    monthlyPrice: 1800,
+                    annualPrice: 1800 * 12 * 0.9, 
+                    categories: ["condomínios"],
+                    badge: "Oferta"
+                },
+                {
+                    id: 3,
+                    title: "Manutenção Residencial Premium",
+                    company: "Casa & Conforto",
+                    location: "Sorocaba/SP",
+                    description: "Pacote completo para manutenção residencial com atendimento 24h para emergências.",
+                    features: [
+                        "Serviços elétricos",
+                        "Reparos hidráulicos",
+                        "Pintura e pequenos reparos",
+                        "Atendimento 24h"
+                    ],
+                    rating: 4.9,
+                    ratingCount: 215,
+                    monthlyPrice: 1200,
+                    annualPrice: 1200 * 12 * 0.88, 
+                    categories: ["residencial", "emergencial"],
+                    badge: "Top"
+                },
+                {
+                    id: 4,
+                    title: "Manutenção Industrial Especializada",
+                    company: "IndManutenção",
+                    location: "Itu/SP",
+                    description: "Serviços especializados para indústrias da região de Sorocaba.",
+                    features: [
+                        "Manutenção de máquinas",
+                        "Estruturas metálicas",
+                        "Sistemas elétricos",
+                        "Prevenção contra incêndios"
+                    ],
+                    rating: 4.7,
+                    ratingCount: 76,
+                    monthlyPrice: 3500,
+                    annualPrice: 3500 * 12 * 0.8, 
+                    categories: ["industrial"],
+                    badge: "Especializado"
+                },
+                {
+                    id: 5,
+                    title: "Limpeza e Conservação de Fachadas",
+                    company: "Limpeza Top",
+                    location: "Sorocaba/SP",
+                    description: "Serviço especializado em limpeza e conservação de fachadas de prédios.",
+                    features: [
+                        "Técnicas por cordas",
+                        "Produtos ecológicos",
+                        "Lavagem profissional",
+                        "Impermeabilização"
+                    ],
+                    rating: 4.5,
+                    ratingCount: 92,
+                    monthlyPrice: 1500,
+                    annualPrice: 1500 * 12 * 0.9,
+                    categories: ["predial"],
+                    badge: null
+                },
+                {
+                    id: 6,
+                    title: "Manutenção de Redes Elétricas",
+                    company: "EletroSafe",
+                    location: "Sorocaba/SP",
+                    description: "Serviços especializados em manutenção de redes elétricas prediais e industriais.",
+                    features: [
+                        "Equipe altamente qualificada",
+                        "Preventiva e corretiva",
+                        "Atendimento rápido",
+                        "Laudo técnico"
+                    ],
+                    rating: 4.8,
+                    ratingCount: 118,
+                    monthlyPrice: 1900,
+                    annualPrice: 1900 * 12 * 0.85,
+                    categories: ["predial", "industrial", "emergencial"],
+                    badge: "Recomendado"
+                },
+                {
+                    id: 7,
+                    title: "Manutenção de Sistemas Hidráulicos",
+                    company: "Água Certa",
+                    location: "Salto/SP",
+                    description: "Pacote completo para manutenção de sistemas hidráulicos residenciais e comerciais.",
+                    features: [
+                        "Detecção de vazamentos",
+                        "Reparos hidráulicos",
+                        "Limpeza de caixas d'água",
+                        "Desentupimentos"
+                    ],
+                    rating: 4.7,
+                    ratingCount: 104,
+                    monthlyPrice: 1600,
+                    annualPrice: 1600 * 12 * 0.9,
+                    categories: ["residencial", "condomínios"],
+                    badge: null
+                },
+                {
+                    id: 8,
+                    title: "Manutenção de Jardins e Áreas Verdes",
+                    company: "Verde Vivo Paisagismo",
+                    location: "Sorocaba/SP",
+                    description: "Serviço completo de manutenção de jardins e áreas verdes para condomínios e residências.",
+                    features: [
+                        "Podas e adubação",
+                        "Sistema de irrigação",
+                        "Controle de pragas",
+                        "Projeto paisagístico"
+                    ],
+                    rating: 4.6,
+                    ratingCount: 87,
+                    monthlyPrice: 900,
+                    annualPrice: 900 * 12 * 0.9,
+                    categories: ["condomínios", "residencial"],
+                    badge: null
+                },
+                {
+                    id: 9,
+                    title: "Manutenção de Sistemas de Ar Condicionado",
+                    company: "Clima Control",
+                    location: "Sorocaba/SP",
+                    description: "Manutenção preventiva e corretiva de sistemas de ar condicionado.",
+                    features: [
+                        "Limpeza profissional",
+                        "Recarga de gás",
+                        "Reparos em unidades",
+                        "Manutenção preventiva"
+                    ],
+                    rating: 4.8,
+                    ratingCount: 132,
+                    monthlyPrice: 1400,
+                    annualPrice: 1400 * 12 * 0.85,
+                    categories: ["predial", "condomínios", "industrial"],
+                    badge: null
+                },
+                {
+                    id: 10,
+                    title: "Manutenção Emergencial 24h",
+                    company: "SOS Reparos",
+                    location: "Região de Sorocaba",
+                    description: "Serviço de pronto atendimento 24 horas para emergências em residências e empresas.",
+                    features: [
+                        "Atendimento 24/7",
+                        "Equipe rápida",
+                        "Vazamentos e elétrica",
+                        "Soluções imediatas"
+                    ],
+                    rating: 4.9,
+                    ratingCount: 203,
+                    monthlyPrice: 2500,
+                    annualPrice: 2500 * 12 * 0.8,
+                    categories: ["emergencial", "residencial", "predial"],
+                    badge: "Emergência"
+                },
+                {
+                    id: 11,
+                    title: "Manutenção de Vias e Calçadas",
+                    company: "Via Segura",
+                    location: "Sorocaba/SP",
+                    description: "Serviços especializados em manutenção de vias internas, calçadas e acessos.",
+                    features: [
+                        "Reparos em asfalto",
+                        "Nivelamento de piso",
+                        "Sinalização",
+                        "Acessibilidade"
+                    ],
+                    rating: 4.5,
+                    ratingCount: 64,
+                    monthlyPrice: 2000,
+                    annualPrice: 2000 * 12 * 0.85,
+                    categories: ["condomínios", "industrial"],
+                    badge: null
+                },
+                {
+                    id: 12,
+                    title: "Manutenção Preventiva Completa",
+                    company: "Prevent Manutenções",
+                    location: "Sorocaba/SP",
+                    description: "Pacote completo de manutenção preventiva para residências e empresas.",
+                    features: [
+                        "Inspeções mensais",
+                        "Relatórios detalhados",
+                        "Checklist completo",
+                        "Prevenção de falhas"
+                    ],
+                    rating: 4.7,
+                    ratingCount: 98,
+                    monthlyPrice: 1800,
+                    annualPrice: 1800 * 12 * 0.82,
+                    categories: ["residencial", "predial"],
+                    badge: "Preventivo"
+                }
+            ];
+
+            const servicesContainer = document.getElementById('services-container');
+            const selectedServicesContainer = document.getElementById('selected-services');
+            const totalValueElement = document.getElementById('total-value');
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            const checkoutBtn = document.querySelector('.checkout-btn');
+            
+            let selectedServices = [];
+            let currentFilter = 'all';
+
+            function renderServices() {
+                servicesContainer.innerHTML = '';
+                
+                const filteredServices = currentFilter === 'all' 
+                    ? services 
+                    : services.filter(service => service.categories.includes(currentFilter));
+                
+                filteredServices.forEach(service => {
+                    const isSelected = selectedServices.some(s => s.id === service.id);
+                    const selectedFrequency = isSelected 
+                        ? selectedServices.find(s => s.id === service.id).frequency 
+                        : 'monthly';
+                    
+                    const serviceCard = document.createElement('div');
+                    serviceCard.className = `service-card ${isSelected ? 'selected' : ''}`;
+                    serviceCard.innerHTML = `
+                        <div class="service-header">
+                            ${service.badge ? `<span class="service-badge">${service.badge}</span>` : ''}
+                            <h3 class="service-title">${service.title}</h3>
+                            <p class="service-company">
+                                ${service.company}
+                                <i class="fas fa-check-circle verified-badge" title="Empresa verificada"></i>
+                            </p>
+                            <p class="service-location">
+                                <i class="fas fa-map-marker-alt"></i> ${service.location}
+                            </p>
+                        </div>
+                        <div class="service-body">
+                            <p class="service-description">${service.description}</p>
+                            
+                            <div class="service-features">
+                                ${service.features.map(feature => `
+                                    <div class="feature-item">
+                                        <i class="fas fa-check"></i>
+                                        <span>${feature}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            
+                            <div class="service-rating">
+                                <div class="stars">
+                                    ${renderStars(service.rating)}
+                                </div>
+                                <span class="rating-value">${service.rating.toFixed(1)}</span>
+                                <span class="rating-count">(${service.ratingCount} avaliações)</span>
+                            </div>
+                            
+                            <div class="service-pricing">
+                                <div class="price-option">
+                                    <span class="price-label">Plano Mensal:</span>
+                                    <span class="price-value monthly-price">R$ ${service.monthlyPrice.toFixed(2)}</span>
+                                </div>
+                                <div class="price-option">
+                                    <span class="price-label">Plano Anual:</span>
+                                    <span class="price-value annual-price">R$ ${service.annualPrice.toFixed(2)}</span>
+                                    <span class="price-discount">${getDiscount(service.monthlyPrice, service.annualPrice)}% OFF</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="service-footer">
+                            <select class="frequency-select" id="frequency-${service.id}">
+                                <option value="monthly" ${selectedFrequency === 'monthly' ? 'selected' : ''}>Mensal</option>
+                                <option value="annual" ${selectedFrequency === 'annual' ? 'selected' : ''}>Anual</option>
+                            </select>
+                            <button class="select-btn ${isSelected ? 'selected' : ''}" onclick="toggleService(${service.id})">
+                                ${isSelected ? '<i class="fas fa-check"></i> Selecionado' : 'Selecionar'}
+                            </button>
+                        </div>
+                    `;
+                    
+                    servicesContainer.appendChild(serviceCard);
+                });
+            }
+            
+            function renderStars(rating) {
+                let stars = '';
+                const fullStars = Math.floor(rating);
+                const hasHalfStar = rating % 1 >= 0.5;
+                
+                for (let i = 0; i < fullStars; i++) {
+                    stars += '<i class="fas fa-star"></i>';
+                }
+                
+                if (hasHalfStar) {
+                    stars += '<i class="fas fa-star-half-alt"></i>';
+                }
+                
+                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+                for (let i = 0; i < emptyStars; i++) {
+                    stars += '<i class="far fa-star"></i>';
+                }
+                
+                return stars;
+            }
+            
+            function getDiscount(monthly, annual) {
+                return Math.round((1 - annual / (monthly * 12)) * 100);
+            }
+            
+            function updateOrderSummary() {
+                if (selectedServices.length === 0) {
+                    selectedServicesContainer.innerHTML = '<p style="color: #666; text-align: center;">Nenhum serviço selecionado</p>';
+                    totalValueElement.textContent = '0,00';
+                    checkoutBtn.disabled = true;
+                    return;
+                }
+                
+                let total = 0;
+                let summaryHTML = '';
+                
+                selectedServices.forEach(service => {
+                    const serviceData = services.find(s => s.id === service.id);
+                    const price = service.frequency === 'annual' ? serviceData.annualPrice : serviceData.monthlyPrice;
+                    total += price;
+                    
+                    summaryHTML += `
+                        <div class="selected-service">
+                            <div class="service-info">
+                                <span class="service-name">${serviceData.title}</span>
+                                <span class="service-frequency">${service.frequency === 'annual' ? 'Plano Anual' : 'Plano Mensal'}</span>
+                            </div>
+                            <span class="service-price">R$ ${price.toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                
+                selectedServicesContainer.innerHTML = summaryHTML;
+                totalValueElement.textContent = total.toFixed(2);
+                checkoutBtn.disabled = false;
+            }
+            
+            window.toggleService = function(id) {
+                const frequencySelect = document.getElementById(`frequency-${id}`);
+                const frequency = frequencySelect.value;
+                
+                const index = selectedServices.findIndex(s => s.id === id);
+                
+                if (index === -1) {
+                    selectedServices.push({ 
+                        id, 
+                        frequency,
+                        servicoId: id,
+                        valor: frequency === 'annual' 
+                            ? services.find(s => s.id === id).annualPrice 
+                            : services.find(s => s.id === id).monthlyPrice
+                    });
+                } else {
+                    if (selectedServices[index].frequency === frequency) {
+                        selectedServices.splice(index, 1);
+                    } else {
+                        selectedServices[index].frequency = frequency;
+                        selectedServices[index].valor = frequency === 'annual' 
+                            ? services.find(s => s.id === id).annualPrice 
+                            : services.find(s => s.id === id).monthlyPrice;
+                    }
+                }
+                
+                renderServices();
+                updateOrderSummary();
+            };
+            
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    filterButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    
+                    currentFilter = button.textContent.toLowerCase();
+                    if (currentFilter === 'todos') currentFilter = 'all';
+                    if (currentFilter === 'condomínios') currentFilter = 'condominios';
+                    
+                    renderServices();
+                });
+            });
+            
+            function checkAuth() {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Você precisa estar logado para acessar esta página.');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+                return true;
+            }
+            
+            window.finalizarCompra = async function() {
+                if (selectedServices.length === 0) {
+                    alert('Por favor, selecione pelo menos um serviço antes de finalizar a compra.');
+                    return;
+                }
+                
+                try {
+                    const token = localStorage.getItem('token');
+                    if (!token) {
+                        alert('Você precisa estar logado para finalizar a compra.');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
+                    // Calcular total
+                    const total = selectedServices.reduce((sum, service) => {
+                        const serviceData = services.find(s => s.id === service.id);
+                        return sum + (service.frequency === 'annual' ? serviceData.annualPrice : serviceData.monthlyPrice);
+                    }, 0);
+                    
+                    const response = await fetch('/api/pedidos', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            servicosSelecionados: selectedServices.map(service => ({
+                                servico: service.servicoId,
+                                frequencia: service.frequency === 'annual' ? 'anual' : 'mensal',
+                                valor: service.valor
+                            })),
+                            metodoPagamento: 'boleto'
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        const error = await response.json();
+                        throw new Error(error.message || 'Erro ao criar pedido');
+                    }
+                    
+                    const pedido = await response.json();
+                    window.location.href = `Pagamento.html?pedidoId=${pedido._id}`;
+                    
+                } catch (error) {
+                    console.error('Erro ao finalizar compra:', error);
+                    alert(`Erro ao finalizar compra: ${error.message}`);
+                }
+            };
+            
+            if (checkAuth()) {
+                renderServices();
+                updateOrderSummary();
+            }
+            
+            document.addEventListener('change', function(e) {
+                if (e.target.classList.contains('frequency-select')) {
+                    const id = parseInt(e.target.id.replace('frequency-', ''));
+                    const frequency = e.target.value;
+                    
+                    const serviceIndex = selectedServices.findIndex(s => s.id === id);
+                    if (serviceIndex !== -1) {
+                        const serviceData = services.find(s => s.id === id);
+                        selectedServices[serviceIndex].frequency = frequency;
+                        selectedServices[serviceIndex].valor = frequency === 'annual' 
+                            ? serviceData.annualPrice 
+                            : serviceData.monthlyPrice;
+                        updateOrderSummary();
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

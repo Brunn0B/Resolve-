@@ -1,0 +1,1412 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Resolve+</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #082945;
+            --primary-light: #d1d1d1;
+            --secondary:#082945;
+            --accent: #ffffff;
+            --light: #e9e9e9;
+            --dark: #212529;
+            --success: #414141;
+            --success-light: #e8f8fd;
+            --warning: #ffc107;
+            --gray: #6c757d;
+            --dark-gray: #495057;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: linear-gradient(135deg, var(--dark), var(--secondary));
+            color: white;
+            padding: 2rem 1.5rem;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .profile-card {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--accent);
+            margin: 0 auto 1rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-edit {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 8px;
+            transform: translateY(100%);
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .avatar:hover .avatar-edit {
+            transform: translateY(0);
+        }
+
+        .avatar-edit input {
+            display: none;
+        }
+
+        .profile-name {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .profile-role {
+            color: var(--accent);
+            font-weight: 500;
+            margin-bottom: 1.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 1.5rem 0;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+
+        .menu {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .menu-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .menu-link:hover, .menu-link.active {
+            background-color: rgba(255,255,255,0.1);
+        }
+
+        .menu-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 2rem;
+        }
+
+        .section {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: none;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .section-title i {
+            color: var(--primary);
+            margin-right: 10px;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: rgba(67, 97, 238, 0.1);
+        }
+
+        /* Form Styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* Credit Card */
+        .credit-card {
+            perspective: 1000px;
+            width: 100%;
+            max-width: 400px;
+            height: 240px;
+            margin: 2rem auto;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .credit-card:hover .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #4361ee, #3a0ca3);
+            color: white;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #3a0ca3, #4361ee);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-type {
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .card-logo {
+            height: 40px;
+        }
+
+        .card-number {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .card-details {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-name {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+        }
+
+        .card-expiry {
+            font-size: 0.9rem;
+        }
+
+        .card-back .card-strip {
+            height: 40px;
+            background-color: #000;
+            margin: 1rem -1.5rem;
+        }
+
+        .card-back .card-cvv {
+            background-color: white;
+            color: #333;
+            padding: 0.5rem;
+            border-radius: 4px;
+            text-align: right;
+            font-family: 'Courier New', monospace;
+            margin-left: auto;
+            width: 60px;
+        }
+
+        .card-back .card-cvv-label {
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            text-align: right;
+        }
+
+        /* Cards List */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .card-item {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            padding: 1.5rem;
+            position: relative;
+            border: 1px solid #eee;
+            transition: transform 0.3s;
+        }
+
+        .card-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .card-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .card-item-logo {
+            height: 30px;
+        }
+
+        .card-item-number {
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            margin: 1rem 0;
+            color: var(--dark);
+        }
+
+        .card-item-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-item-name {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        .card-item-expiry {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+        }
+
+        .card-item-actions {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            display: none;
+        }
+
+        .card-item:hover .card-item-actions {
+            display: flex;
+        }
+
+        .card-item-actions button {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            margin-left: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .card-item-actions button:hover {
+            color: var(--primary);
+        }
+
+        .add-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--gray);
+            cursor: pointer;
+            transition: all 0.3s;
+            min-height: 180px;
+        }
+
+        .add-card:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .add-card i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Call History */
+        .call-history {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+
+        .call-history th, 
+        .call-history td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .call-history th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .call-history tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background-color: rgba(248, 150, 30, 0.1);
+            color: var(--warning);
+        }
+
+        .status-in-progress {
+            background-color: rgba(67, 97, 238, 0.1);
+            color: var(--primary);
+        }
+
+        .status-completed {
+            background-color: rgba(76, 201, 240, 0.1);
+            color: var(--success);
+        }
+
+        /* Responsive */
+        @media (max-width: 992px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                height: auto;
+                position: static;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .section {
+                padding: 1.5rem 1rem;
+            }
+            
+            .credit-card {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="profile-card">
+                <div class="avatar">
+                    <img id="profileImage" src="https://randomuser.me/api/portraits/men/32.jpg" alt="Foto do perfil">
+                    <label class="avatar-edit">
+                        <i class="fas fa-camera"></i>
+                        <input type="file" id="avatarInput" accept="image/*">
+                    </label>
+                </div>
+                <h2 class="profile-name" id="profileName">Carregando...</h2>
+                <p class="profile-role" id="profileRole">Carregando...</p>
+                
+                <div class="profile-stats">
+                    <div class="stat">
+                        <div class="stat-value" id="totalTickets">0</div>
+                        <div class="stat-label">Chamados</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="activeTickets">0</div>
+                        <div class="stat-label">Ativos</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value" id="solvedTickets">0</div>
+                        <div class="stat-label">Resolvidos</div>
+                    </div>
+                </div>
+            </div>
+            
+            <ul class="menu">
+                <li class="menu-item">
+                    <a href="#" class="menu-link active" onclick="showSection('profile')">
+                        <i class="fas fa-user"></i> Perfil
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('security')">
+                        <i class="fas fa-lock"></i> Segurança
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('payment')">
+                        <i class="fas fa-credit-card"></i> Pagamento
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('history')">
+                        <i class="fas fa-history"></i> Histórico
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="#" class="menu-link" onclick="showSection('privacy')">
+                        <i class="fas fa-shield-alt"></i> Privacidade
+                    </a>
+                </li>
+                <li class="menu-item">
+                    <a href="TelaChamados.html" class="menu-link" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Sair
+                    </a>
+                </li>
+            </ul>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Profile Section -->
+            <section id="profile" class="section active">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-user"></i> Informações Pessoais</h2>
+                    <button class="btn btn-primary" onclick="saveProfile()">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                </div>
+                
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nome</label>
+                            <input type="text" id="firstName" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Sobrenome</label>
+                            <input type="text" id="lastName" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Telefone</label>
+                            <input type="tel" id="phone" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CPF</label>
+                            <input type="text" id="cpf" class="form-control" disabled>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Departamento</label>
+                        <select id="department" class="form-control">
+                            <option value="Tecnologia da Informação">Tecnologia da Informação</option>
+                            <option value="Financeiro">Financeiro</option>
+                            <option value="Recursos Humanos">Recursos Humanos</option>
+                            <option value="Operações">Operações</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Biografia</label>
+                        <textarea id="bio" class="form-control" rows="4"></textarea>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- Security Section -->
+            <section id="security" class="section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-lock"></i> Segurança</h2>
+                </div>
+                
+                <form id="securityForm">
+                    <div class="form-group">
+                        <label class="form-label">Senha Atual</label>
+                        <input type="password" id="currentPassword" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Nova Senha</label>
+                            <input type="password" id="newPassword" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirmar Nova Senha</label>
+                            <input type="password" id="confirmPassword" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <button type="button" class="btn btn-primary" onclick="changePassword()">
+                            <i class="fas fa-key"></i> Alterar Senha
+                        </button>
+                    </div>
+                </form>
+                
+                <div class="section-header" style="margin-top: 2rem;">
+                    <h2 class="section-title"><i class="fas fa-shield-alt"></i> Autenticação de Dois Fatores</h2>
+                </div>
+                
+                <div class="form-group">
+                    <p>Adicione uma camada extra de segurança à sua conta ativando a autenticação de dois fatores.</p>
+                    <button class="btn btn-outline" id="toggle2FA">
+                        <i class="fas fa-mobile-alt"></i> Ativar 2FA
+                    </button>
+                </div>
+            </section>
+            
+            <!-- Payment Section -->
+            <section id="payment" class="section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-credit-card"></i> Formas de Pagamento</h2>
+                    <button class="btn btn-primary" onclick="showAddCardModal()">
+                        <i class="fas fa-plus"></i> Adicionar
+                    </button>
+                </div>
+                
+                <!-- Credit Card Preview -->
+                <div class="credit-card">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <div class="card-header">
+                                <span class="card-type">Cartão de Crédito</span>
+                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" alt="Visa" class="card-logo">
+                            </div>
+                            <div class="card-number">•••• •••• •••• <span id="lastFourDigits">4242</span></div>
+                            <div class="card-details">
+                                <span class="card-name" id="cardName">JOÃO SILVA</span>
+                                <span class="card-expiry" id="cardExpiry">12/25</span>
+                            </div>
+                        </div>
+                        <div class="card-back">
+                            <div class="card-strip"></div>
+                            <div class="card-cvv-label">CVV</div>
+                            <div class="card-cvv">•••</div>
+                            <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" alt="Visa" class="card-logo" style="margin-left: auto;">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Cards List -->
+                <div class="cards-grid" id="cardsGrid">
+                    <!-- Cards will be loaded dynamically -->
+                </div>
+            </section>
+            
+            <!-- Call History Section -->
+            <section id="history" class="section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-history"></i> Histórico de Chamados</h2>
+                </div>
+                
+                <table class="call-history">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Descrição</th>
+                            <th>Data</th>
+                            <th>Status</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ticketsTableBody">
+                        <!-- Tickets will be loaded dynamically -->
+                    </tbody>
+                </table>
+            </section>
+            
+            <!-- Privacy Section -->
+            <section id="privacy" class="section">
+                <div class="section-header">
+                    <h2 class="section-title"><i class="fas fa-shield-alt"></i> Configurações de Privacidade</h2>
+                    <button class="btn btn-primary" onclick="savePrivacySettings()">
+                        <i class="fas fa-save"></i> Salvar
+                    </button>
+                </div>
+                
+                <form id="privacyForm">
+                    <div class="form-group">
+                        <label class="form-label">Visibilidade do Perfil</label>
+                        <select id="profileVisibility" class="form-control">
+                            <option value="all">Todos os usuários</option>
+                            <option value="team">Apenas minha equipe</option>
+                            <option value="admins">Apenas administradores</option>
+                            <option value="only_me">Somente eu</option>
+                        </select>
+                    </div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">Informações Pessoais</h3>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="showEmail" style="margin-right: 10px;">
+                            Mostrar email no perfil
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="showPhone" style="margin-right: 10px;">
+                            Mostrar telefone no perfil
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="showDepartment" style="margin-right: 10px;">
+                            Mostrar departamento
+                        </label>
+                    </div>
+                    
+                    <h3 style="margin: 1.5rem 0 1rem;">Atividade</h3>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="showActivity" style="margin-right: 10px;">
+                            Mostrar minha atividade recente
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="showTickets" style="margin-right: 10px;">
+                            Mostrar histórico de chamados
+                        </label>
+                    </div>
+                </form>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Add Card Modal -->
+    <div id="addCardModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; border-radius: 12px; padding: 2rem; width: 100%; max-width: 500px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                <h2 style="font-size: 1.5rem; font-weight: 600;">Adicionar Cartão</h2>
+                <button onclick="hideAddCardModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            
+            <form id="addCardForm" style="margin-bottom: 1.5rem;">
+                <div class="form-group">
+                    <label class="form-label">Número do Cartão</label>
+                    <input type="text" id="cardNumber" class="form-control" placeholder="1234 5678 9012 3456" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Nome no Cartão</label>
+                    <input type="text" id="cardHolderName" class="form-control" placeholder="JOÃO SILVA" required>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">Data de Expiração</label>
+                        <input type="text" id="cardExpiryDate" class="form-control" placeholder="MM/AA" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CVV</label>
+                        <input type="text" id="cardCVV" class="form-control" placeholder="123" required>
+                    </div>
+                </div>
+            </form>
+            
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn btn-outline" onclick="hideAddCardModal()">Cancelar</button>
+                <button class="btn btn-primary" onclick="saveCard()">Salvar Cartão</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Armazenar dados do usuário
+        let currentUser = null;
+        let userTickets = [];
+        let userCards = [];
+        let twoFAEnabled = false;
+
+        // Navigation between sections
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Update active menu item
+            document.querySelectorAll('.menu-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Find corresponding link and mark as active
+            const links = document.querySelectorAll('.menu-link');
+            for (let link of links) {
+                if (link.getAttribute('onclick').includes(sectionId)) {
+                    link.classList.add('active');
+                    break;
+                }
+            }
+            
+            // Load section data if needed
+            if (sectionId === 'history') {
+                loadTickets();
+            } else if (sectionId === 'payment') {
+                loadCards();
+            }
+            
+            return false;
+        }
+        
+        // Add Card Modal
+        function showAddCardModal() {
+            document.getElementById('addCardModal').style.display = 'flex';
+        }
+        
+        function hideAddCardModal() {
+            document.getElementById('addCardModal').style.display = 'none';
+            document.getElementById('addCardForm').reset();
+        }
+        
+        // Save profile
+        async function saveProfile() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('email').value;
+            const phone = document.getElementById('phone').value;
+            const department = document.getElementById('department').value;
+            const bio = document.getElementById('bio').value;
+            
+            try {
+                const response = await fetch('/api/update-profile', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        name: `${firstName} ${lastName}`,
+                        email,
+                        phone,
+                        department,
+                        bio
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao atualizar perfil');
+                }
+                
+                const data = await response.json();
+                alert('Perfil atualizado com sucesso!');
+                loadUserData(); // Recarregar dados do usuário
+            } catch (error) {
+                console.error('Erro ao salvar perfil:', error);
+                alert('Erro ao salvar perfil: ' + error.message);
+            }
+        }
+        
+        // Change password
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (newPassword !== confirmPassword) {
+                alert('As senhas não coincidem!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/change-password', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao alterar senha');
+                }
+                
+                alert('Senha alterada com sucesso!');
+                document.getElementById('securityForm').reset();
+            } catch (error) {
+                console.error('Erro ao alterar senha:', error);
+                alert('Erro ao alterar senha: ' + error.message);
+            }
+        }
+        
+        // Toggle 2FA
+        document.getElementById('toggle2FA').addEventListener('click', async function() {
+            try {
+                const response = await fetch('/api/toggle-2fa', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao alterar 2FA');
+                }
+                
+                const data = await response.json();
+                twoFAEnabled = data.enabled;
+                
+                const button = document.getElementById('toggle2FA');
+                if (twoFAEnabled) {
+                    button.innerHTML = '<i class="fas fa-mobile-alt"></i> Desativar 2FA';
+                    alert('Autenticação de dois fatores ativada com sucesso!');
+                } else {
+                    button.innerHTML = '<i class="fas fa-mobile-alt"></i> Ativar 2FA';
+                    alert('Autenticação de dois fatores desativada com sucesso!');
+                }
+            } catch (error) {
+                console.error('Erro ao alterar 2FA:', error);
+                alert('Erro ao alterar 2FA: ' + error.message);
+            }
+        });
+        
+        // Save card
+        async function saveCard() {
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardHolderName = document.getElementById('cardHolderName').value;
+            const cardExpiryDate = document.getElementById('cardExpiryDate').value;
+            const cardCVV = document.getElementById('cardCVV').value;
+            
+            if (cardNumber.length !== 16 || !/^\d+$/.test(cardNumber)) {
+                alert('Número do cartão inválido!');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/add-card', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        cardNumber,
+                        cardHolderName,
+                        cardExpiryDate,
+                        cardCVV
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao adicionar cartão');
+                }
+                
+                hideAddCardModal();
+                alert('Cartão adicionado com sucesso!');
+                loadCards();
+            } catch (error) {
+                console.error('Erro ao adicionar cartão:', error);
+                alert('Erro ao adicionar cartão: ' + error.message);
+            }
+        }
+        
+        // Load user cards
+        async function loadCards() {
+            try {
+                const response = await fetch('/api/user-cards', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar cartões');
+                }
+                
+                userCards = await response.json();
+                renderCards();
+                
+                // Atualizar preview do cartão principal
+                if (userCards.length > 0) {
+                    const primaryCard = userCards[0];
+                    document.getElementById('lastFourDigits').textContent = primaryCard.lastFour;
+                    document.getElementById('cardName').textContent = primaryCard.holderName.toUpperCase();
+                    document.getElementById('cardExpiry').textContent = primaryCard.expiryDate;
+                }
+            } catch (error) {
+                console.error('Erro ao carregar cartões:', error);
+            }
+        }
+        
+        // Render cards in the grid
+        function renderCards() {
+            const cardsGrid = document.getElementById('cardsGrid');
+            cardsGrid.innerHTML = '';
+            
+            userCards.forEach((card, index) => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'card-item';
+                cardElement.innerHTML = `
+                    <div class="card-item-actions">
+                        <button title="Editar" onclick="editCard('${card._id}')"><i class="fas fa-edit"></i></button>
+                        <button title="Remover" onclick="deleteCard('${card._id}')"><i class="fas fa-trash"></i></button>
+                    </div>
+                    <div class="card-item-header">
+                        <span class="card-type">${card.type || 'Cartão de Crédito'}</span>
+                        <img src="${getCardLogo(card.brand)}" alt="${card.brand}" class="card-item-logo">
+                    </div>
+                    <div class="card-item-number">•••• •••• •••• ${card.lastFour}</div>
+                    <div class="card-item-footer">
+                        <span class="card-item-name">${card.holderName.toUpperCase()}</span>
+                        <span class="card-item-expiry">${card.expiryDate}</span>
+                    </div>
+                `;
+                cardsGrid.appendChild(cardElement);
+            });
+            
+            // Adicionar botão para adicionar novo cartão
+            const addCardElement = document.createElement('div');
+            addCardElement.className = 'card-item add-card';
+            addCardElement.onclick = showAddCardModal;
+            addCardElement.innerHTML = `
+                <i class="fas fa-plus"></i>
+                <span>Adicionar Cartão</span>
+            `;
+            cardsGrid.appendChild(addCardElement);
+        }
+        
+        function getCardLogo(brand) {
+            const logos = {
+                'visa': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg',
+                'mastercard': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg',
+                'amex': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/americanexpress/americanexpress-original.svg',
+                'default': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/creditcard/creditcard-original.svg'
+            };
+            return logos[brand.toLowerCase()] || logos.default;
+        }
+        
+        // Delete card
+        async function deleteCard(cardId) {
+            if (!confirm('Tem certeza que deseja remover este cartão?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/delete-card/${cardId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao remover cartão');
+                }
+                
+                alert('Cartão removido com sucesso!');
+                loadCards();
+            } catch (error) {
+                console.error('Erro ao remover cartão:', error);
+                alert('Erro ao remover cartão: ' + error.message);
+            }
+        }
+        
+        // Load user tickets
+        async function loadTickets() {
+            try {
+                const response = await fetch('/api/user-tickets', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar chamados');
+                }
+                
+                userTickets = await response.json();
+                renderTickets();
+                updateTicketStats();
+            } catch (error) {
+                console.error('Erro ao carregar chamados:', error);
+            }
+        }
+        
+        // Render tickets in the table
+        function renderTickets() {
+            const tableBody = document.getElementById('ticketsTableBody');
+            tableBody.innerHTML = '';
+            
+            userTickets.forEach(ticket => {
+                const row = document.createElement('tr');
+                
+                let statusBadge = '';
+                if (ticket.status === 'pendente') {
+                    statusBadge = '<span class="status-badge status-pending">Pendente</span>';
+                } else if (ticket.status === 'em_andamento') {
+                    statusBadge = '<span class="status-badge status-in-progress">Em Andamento</span>';
+                } else {
+                    statusBadge = '<span class="status-badge status-completed">Concluído</span>';
+                }
+                
+                const formattedDate = new Date(ticket.createdAt).toLocaleDateString('pt-BR');
+                
+                row.innerHTML = `
+                    <td>#CH-${ticket._id.toString().substring(0, 4)}</td>
+                    <td>${ticket.descricao}</td>
+                    <td>${formattedDate}</td>
+                    <td>${statusBadge}</td>
+                    <td><button class="btn btn-outline" style="padding: 0.5rem 1rem;" onclick="viewTicketDetails('${ticket._id}')">Detalhes</button></td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // Update ticket stats in the sidebar
+        function updateTicketStats() {
+            const total = userTickets.length;
+            const active = userTickets.filter(t => t.status === 'em_andamento').length;
+            const solved = userTickets.filter(t => t.status === 'concluido').length;
+            
+            document.getElementById('totalTickets').textContent = total;
+            document.getElementById('activeTickets').textContent = active;
+            document.getElementById('solvedTickets').textContent = solved;
+        }
+        
+        // View ticket details
+        function viewTicketDetails(ticketId) {
+            const ticket = userTickets.find(t => t._id === ticketId);
+            if (ticket) {
+                alert(`Detalhes do chamado:\n\nDescrição: ${ticket.descricao}\nStatus: ${ticket.status}\nData: ${new Date(ticket.createdAt).toLocaleString()}`);
+            }
+        }
+        
+        // Save privacy settings
+        async function savePrivacySettings() {
+            const profileVisibility = document.getElementById('profileVisibility').value;
+            const showEmail = document.getElementById('showEmail').checked;
+            const showPhone = document.getElementById('showPhone').checked;
+            const showDepartment = document.getElementById('showDepartment').checked;
+            const showActivity = document.getElementById('showActivity').checked;
+            const showTickets = document.getElementById('showTickets').checked;
+            
+            try {
+                const response = await fetch('/api/privacy-settings', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({
+                        profileVisibility,
+                        showEmail,
+                        showPhone,
+                        showDepartment,
+                        showActivity,
+                        showTickets
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao salvar configurações de privacidade');
+                }
+                
+                alert('Configurações de privacidade salvas com sucesso!');
+            } catch (error) {
+                console.error('Erro ao salvar configurações de privacidade:', error);
+                alert('Erro ao salvar configurações de privacidade: ' + error.message);
+            }
+        }
+        
+        // Load user data
+        async function loadUserData() {
+            try {
+                const response = await fetch('/api/user-profile', {
+                    headers: {
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
+                    }
+                });
+                
+                if (!response.ok) {
+                    // Se não autorizado, redirecionar para login
+                    if (response.status === 401) {
+                        logout();
+                        return;
+                    }
+                    throw new Error('Erro ao carregar dados do usuário');
+                }
+                
+                currentUser = await response.json();
+                renderUserData();
+                
+                // Carregar dados adicionais
+                loadTickets();
+                loadCards();
+            } catch (error) {
+                console.error('Erro ao carregar dados do usuário:', error);
+                // Se não estiver autenticado, redirecionar para login
+                if (error.message.includes('401')) {
+                    logout();
+                }
+            }
+        }
+        
+        // Render user data
+        function renderUserData() {
+            if (!currentUser) return;
+            
+            // Separar nome e sobrenome
+            const nameParts = currentUser.name.split(' ');
+            const firstName = nameParts[0];
+            const lastName = nameParts.slice(1).join(' ');
+            
+            // Atualizar sidebar
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profileRole').textContent = currentUser.userType === 'administrador' ? 'Administrador' : 'Colaborador';
+            
+            if (currentUser.avatar) {
+                document.getElementById('profileImage').src = currentUser.avatar;
+            }
+            
+            // Atualizar formulário de perfil
+            document.getElementById('firstName').value = firstName;
+            document.getElementById('lastName').value = lastName;
+            document.getElementById('email').value = currentUser.email || '';
+            document.getElementById('phone').value = currentUser.phone || '';
+            document.getElementById('cpf').value = currentUser.cpf || '';
+            document.getElementById('department').value = currentUser.department || 'Tecnologia da Informação';
+            document.getElementById('bio').value = currentUser.bio || '';
+            
+            // Atualizar configurações de privacidade
+            if (currentUser.privacySettings) {
+                const settings = currentUser.privacySettings;
+                document.getElementById('profileVisibility').value = settings.profileVisibility || 'all';
+                document.getElementById('showEmail').checked = settings.showEmail || false;
+                document.getElementById('showPhone').checked = settings.showPhone || false;
+                document.getElementById('showDepartment').checked = settings.showDepartment || false;
+                document.getElementById('showActivity').checked = settings.showActivity || false;
+                document.getElementById('showTickets').checked = settings.showTickets || false;
+            }
+            
+            // Atualizar status do 2FA
+            twoFAEnabled = currentUser.twoFAEnabled || false;
+            const toggle2FABtn = document.getElementById('toggle2FA');
+            toggle2FABtn.innerHTML = twoFAEnabled 
+                ? '<i class="fas fa-mobile-alt"></i> Desativar 2FA' 
+                : '<i class="fas fa-mobile-alt"></i> Ativar 2FA';
+        }
+        
+        // Logout
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            // Verificar autenticação
+            const token = localStorage.getItem('token');
+            if (!token) {
+                logout();
+                return;
+            }
+            
+            // Check for hash in URL to show specific section
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                showSection(hash);
+            }
+            
+            // Carregar dados do usuário
+            loadUserData();
+            
+            // Avatar upload
+            document.getElementById('avatarInput').addEventListener('change', async function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    // Mostrar preview
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        document.getElementById('profileImage').src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                    
+                    // Upload para o servidor
+                    const formData = new FormData();
+                    formData.append('avatar', file);
+                    
+                    try {
+                        const response = await fetch('/api/upload-avatar', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `Bearer ${token}`
+                            },
+                            body: formData
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('Erro ao enviar avatar');
+                        }
+                        
+                        const data = await response.json();
+                        currentUser.avatar = data.avatarUrl;
+                        alert('Foto de perfil atualizada com sucesso!');
+                    } catch (error) {
+                        console.error('Erro ao enviar avatar:', error);
+                        alert('Erro ao atualizar foto de perfil: ' + error.message);
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

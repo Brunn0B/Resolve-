@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Login/Cadastro</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <style>*,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        overflow: hidden;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background-image: linear-gradient(to bottom, rgba(19,34,55,255), rgba(19,34,55,255));
+        background-size:contain;
+    }
+    
+    .forms-section {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+    .forms {
+        display: flex;
+        align-items: flex-start;
+        margin-top: 30px;
+    }
+    
+    .form-wrapper {
+        animation: hideLayer .3s ease-out forwards;
+    }
+    
+    .form-wrapper.is-active {
+        animation: showLayer .3s ease-in forwards;
+    }
+    
+    @keyframes showLayer {
+        50% {
+            z-index: 1;
+        }
+    
+        100% {
+            z-index: 1;
+        }
+    }
+    
+    @keyframes hideLayer {
+        0% {
+            z-index: 1;
+        }
+    
+        49.999% {
+            z-index: 1;
+        }
+    }
+    
+    .switcher {
+        position: relative;
+        cursor: pointer;
+        display: block;
+        margin-right: auto;
+        margin-left: auto;
+        padding: 0;
+        text-transform: uppercase;
+        font-family: inherit;
+        font-size: 16px;
+        letter-spacing: .5px;
+        color: #efeff6;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        transform: translateX(0);
+        transition: all .3s ease-out;
+    }
+    
+    .form-wrapper.is-active .switcher-login {
+        color: #0048ff;
+        transform: translateX(90px);
+    }
+    
+    .form-wrapper.is-active .switcher-signup {
+        color: #002fff;
+        transform: translateX(-90px);
+    }
+    .form {
+        overflow: hidden;
+        min-width: 260px;
+        margin-top: 50px;
+        padding: 30px 25px;
+        border-radius: 5px;
+        transform-origin: top;
+    }
+    
+    .form-login {
+        animation: hideLogin .3s ease-out forwards;
+    }
+    
+    .form-wrapper.is-active .form-login {
+        animation: showLogin .3s ease-in forwards;
+    }
+    
+    @keyframes showLogin {
+        0% {
+            background: #696a6a;
+            transform: translate(40%, 10px);
+        }
+    
+        50% {
+            transform: translate(0, 0);
+        }
+    
+        100% {
+            background-color: #ffffff;
+            transform: translate(35%, -20px);
+        }
+    }
+    
+    @keyframes hideLogin {
+        0% {
+            background-color: #fff;
+            transform: translate(35%, -20px);
+        }
+    
+        50% {
+            transform: translate(0, 0);
+        }
+    
+        100% {
+            background: #d7e7f1;
+            transform: translate(40%, 10px);
+        }
+    }
+    
+    .form-signup {
+        animation: hideSignup .3s ease-out forwards;
+    }
+    
+    .form-wrapper.is-active .form-signup {
+        animation: showSignup .3s ease-in forwards;
+    }
+    
+    @keyframes showSignup {
+        0% {
+            background: #d7e7f1;
+            transform: translate(-40%, 10px) scaleY(.8);
+        }
+    
+        50% {
+            transform: translate(0, 0) scaleY(.8);
+        }
+    
+        100% {
+            background-color: #fff;
+            transform: translate(-35%, -20px) scaleY(1);
+        }
+    }
+    
+    @keyframes hideSignup {
+        0% {
+            background-color: #fff;
+            transform: translate(-35%, -20px) scaleY(1);
+        }
+    
+        50% {
+            transform: translate(0, 0) scaleY(.8);
+        }
+    
+        100% {
+            background: #d7e7f1;
+            transform: translate(-40%, 10px) scaleY(.8);
+        }
+    }
+    
+    .form fieldset {
+        position: relative;
+        opacity: 0;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        transition: all .3s ease-out;
+    }
+    
+    .form-login fieldset {
+        transform: translateX(-50%);
+    }
+    
+    .form-signup fieldset {
+        transform: translateX(50%);
+    }
+    
+    .form-wrapper.is-active fieldset {
+        opacity: 1;
+        transform: translateX(0);
+        transition: opacity .4s ease-in, transform .35s ease-in;
+    }
+    
+    .form legend {
+        position: absolute;
+        overflow: hidden;
+        width: 1px;
+        height: 1px;
+        clip: rect(0 0 0 0);
+    }
+    
+    .input-block {
+        margin-bottom: 20px;
+    }
+    
+    .input-block label {
+        font-size: 14px;
+        color: #000000;
+    }
+    
+    .input-block input {
+        display: block;
+        width: 100%;
+        margin-top: 8px;
+        padding-right: 15px;
+        padding-left: 15px;
+        font-size: 16px;
+        line-height: 40px;
+        background: #252424bf;
+        border: 1px solid #cddbef;
+        border-radius: 2px;
+        color: #fff;
+    }
+    
+    .btn {
+        opacity: 0;
+        display: block;
+        min-width: 280px;
+        margin: 30px auto 10px;
+        font-size: 18px;
+        line-height: 40px;
+        border-radius: 10px;
+        border: none;
+        cursor: pointer;
+        transition: all .3s ease-out;
+        color: #303030;
+        background: #fbfdff;
+        box-shadow: inset 0 0 0 2px #020202;
+        transform: translateX(30%);
+    }
+
+    .modal{
+        color: #fff;
+    }
+    
+    .form-wrapper.is-active .form [type='submit'] {
+        opacity: 1;
+        transform: translateX(0);
+        transition: all .4s ease-in;
+    }</style>
+</head>
+
+<body>
+    <section class="forms-section">
+        <div class="forms">
+            <div class="form-wrapper is-active">
+                <button type="button" class="switcher switcher-login">
+                    Entrar
+                    <span class="underline"></span>
+                </button>
+                <form class="form form-login">
+                    <fieldset>
+                        <legend>Por favor, insira seu e-mail e senha para entrar.</legend>
+                        <div class="input-block">
+                            <label for="login-email">E-mail</label>
+                            <input id="login-email" type="email" required>
+                        </div>
+                        <div class="input-block">
+                            <label for="login-password">Senha</label>
+                            <input id="login-password" type="password" required>
+                        </div>
+                        <button id="forgotPasswordBtn" type="button" class="btnE">Esqueci minha senha</button>
+                        <button type="submit" class="btn">Entrar</button>
+                    </fieldset>
+                </form>
+            </div>
+            <div class="form-wrapper">
+                <button type="button" class="switcher switcher-signup">
+                    Cadastre-se
+                    <span class="underline"></span>
+                </button>
+                <form class="form form-signup">
+                    <fieldset>
+                        <legend>Por favor, insira seu e-mail, nome, CPF, senha e escolha o tipo de usuário para se cadastrar.</legend>
+                        <div class="input-block">
+                            <label for="signup-email">E-mail</label>
+                            <input id="signup-email" type="email" required>
+                        </div>
+                        <div class="input-block">
+                            <label for="signup-name">Nome</label>
+                            <input id="signup-name" type="text" required>
+                        </div>
+                        <div class="input-block">
+                            <label for="signup-cpf">CPF</label>
+                            <input id="signup-cpf" type="text" required>
+                        </div>
+                        <div class="input-block">
+                            <label for="signup-password">Senha</label>
+                            <input id="signup-password" type="password" required>
+                        </div>
+                        <div class="input-block">
+                            <label for="signup-usertype">Tipo de Usuário:</label>
+                            <select id="signup-usertype" required>
+                                <option value="colaborador">Colaborador</option>
+                                <option value="administrador">Administrador</option>
+                            </select>
+                        </div>
+                    </fieldset>
+                    <button type="submit" class="btn">Cadastre-se</button>
+                </form>
+            </div>
+
+            <div id="forgotPasswordModal" class="modal" style="display: none;">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <h2>Esqueci minha senha</h2>
+                    <p>Informe seu CPF para enviar instruções de redefinição de senha.</p>
+                    <form id="forgot-password-form">
+                        <div class="input-block">
+                            <label for="forgot-password-cpf">CPF</label>
+                            <input id="forgot-password-cpf" type="text" required>
+                        </div>
+                        <div class="input-block" id="reset-password-fields" style="display: none;">
+                            <label for="new-password">Nova Senha</label>
+                            <input id="new-password" type="password">
+                        </div>
+                        <div class="input-block" id="confirm-password-fields" style="display: none;">
+                            <label for="confirm-password">Confirmar Senha</label>
+                            <input id="confirm-password" type="password">
+                        </div>
+                        <button id="forgot-password-submit" type="submit" class="btn">Enviar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const switchers = [...document.querySelectorAll('.switcher')];
+    
+            switchers.forEach(item => {
+                item.addEventListener('click', function () {
+                    switchers.forEach(item => item.parentElement.classList.remove('is-active'));
+                    this.parentElement.classList.add('is-active');
+                });
+            });
+    
+const loginForm = document.querySelector('.form-login');
+
+loginForm.addEventListener('submit', async function (event) {
+    event.preventDefault();
+    const email = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+
+    try {
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+            alert(`Login efetuado com sucesso! Bem-vindo, ${data.user.name}.`);
+            localStorage.setItem('token', data.token); // Armazena o token
+            localStorage.setItem('currentUser', JSON.stringify(data.user)); // Armazena o usuário
+            window.location.href = "TelaChamados.html";
+        } else {
+            alert(data.message || 'Falha no login. Verifique suas credenciais.');
+        }
+    } catch (error) {
+        alert('Erro ao fazer login: ' + error.message);
+    }
+});
+            const signupForm = document.querySelector('.form-signup');
+            signupForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const email = document.getElementById('signup-email').value;
+                const name = document.getElementById('signup-name').value;
+                const cpf = document.getElementById('signup-cpf').value;
+                const password = document.getElementById('signup-password').value;
+                const userType = document.getElementById('signup-usertype').value;
+    
+                try {
+                    const response = await fetch('/signup', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ email, name, cpf, password, userType })
+                    });
+    
+                    if (response.ok) {
+                        alert('Cadastro efetuado com sucesso!');
+                        window.location.href = "Loguin.html";
+                    } else {
+                        const data = await response.json();
+                        alert(data.message || 'Erro ao cadastrar usuário.');
+                    }
+                } catch (error) {
+                    alert('Erro ao cadastrar usuário: ' + error.message);
+                }
+            });
+    
+            const forgotPasswordBtn = document.getElementById('forgotPasswordBtn');
+            const forgotPasswordModal = document.getElementById('forgotPasswordModal');
+            const forgotPasswordForm = document.getElementById('forgot-password-form');
+    
+            forgotPasswordBtn.addEventListener('click', function () {
+                forgotPasswordModal.style.display = 'block';
+            });
+    
+            document.querySelector('.close').addEventListener('click', function () {
+                forgotPasswordModal.style.display = 'none';
+            });
+    
+            forgotPasswordForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const cpf = document.getElementById('forgot-password-cpf').value;
+                const newPassword = document.getElementById('new-password').value;
+                const confirmPassword = document.getElementById('confirm-password').value;
+    
+                if (newPassword !== confirmPassword) {
+                    alert('As senhas não coincidem. Por favor, verifique e tente novamente.');
+                    return;
+                }
+    
+                try {
+                    const response = await fetch('/reset-password', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ cpf, newPassword })
+                    });
+    
+                    if (response.ok) {
+                        alert('Senha redefinida com sucesso!');
+                        window.location.href = "Loguin.html";
+                    } else {
+                        const data = await response.json();
+                        alert(data.message || 'Erro ao redefinir senha.');
+                    }
+                } catch (error) {
+                    alert('Erro ao redefinir senha: ' + error.message);
+                }
+            });
+    
+            const cpfInput = document.getElementById('signup-cpf');
+            cpfInput.addEventListener('input', function () {
+                let cpf = this.value.replace(/\D/g, '');
+                cpf = cpf.slice(0, 11);
+                cpf = cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+                this.value = cpf;
+            });
+    
+            const inputFields = document.querySelectorAll('.form input');
+            inputFields.forEach(input => {
+                input.addEventListener('keydown', function (event) {
+                    if (event.key === 'Enter') {
+                        this.closest('form').dispatchEvent(new Event('submit'));
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

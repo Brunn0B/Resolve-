@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolve+ - Equipe Croesus</title>
+    <link rel="stylesheet" href="TelaChamados.css">
+    <link rel="stylesheet" href="EstiloGlobal.css">
+    <style>
+
+        .team-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .team-logo {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 2rem;
+            border-radius: 50%;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0);
+            padding: 1rem;
+        }
+
+        .team-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .team-header h1 {
+            font-size: 2.5rem;
+            color: rgb(116, 113, 113);
+            margin-bottom: 1rem;
+        }
+
+        .team-header p {
+            font-size: 1.2rem;
+            color:rgb(116, 113, 113);
+            margin-bottom: 2rem;
+        }
+
+        .team-members {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .team-member {
+            position: relative;
+            width: 250px;
+            height: 350px;
+            border-radius: 15px;
+            overflow: hidden;
+            perspective: 1000px;
+        }
+
+        .team-member-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .team-member:hover .team-member-inner {
+            transform: rotateY(180deg);
+        }
+
+        .member-front,
+        .member-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .member-front {
+            background-color: rgb(245, 245, 245);
+            color: rgb(255, 255, 255);
+        }
+
+        .member-back {
+            transform: rotateY(180deg);
+            background-color: rgba(40, 40, 40, 0.825);
+            color: white;
+        }
+
+        .member-details h3 {
+            font-size: 1.5rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.737);
+            border-radius: 15px;
+            margin-bottom: 0.5rem;
+        }
+
+        .member-details p {
+            font-size: 1rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.737);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .member-skills {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .member-skills li {
+            background: rgba(0, 0, 0, 0.659);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .team-member {
+                width: 200px;
+                height: 300px;
+            }
+        }
+
+        .app-container {
+            height: 100vh;
+            overflow-y: auto;
+        }
+
+        .app-content {
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="app-header-left">
+                <span class="app-icon"></span>
+                <p class="app-name">Resolve+</p>
+                <div class="search-wrapper">
+                    <input class="search-input" type="text" placeholder="Pesquisar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-search" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="app-header-right">
+                <button class="add-btn" title="Abrir Novo Chamado" onclick="window.location.href = 'abrir-chamado.html';">
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                </button>
+                <button class="notification-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                </button>
+                <button class="profile-btn" onclick="window.location.href = 'PerfilUser.html';">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 19 19">
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                    </svg>
+                    <span>Perfil</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="app-content">
+            <div class="app-sidebar">
+                <a href="TelaChamados.html" class="app-sidebar-link">
+                    <svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-home" viewBox="0 0 24 24">
+                        <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z" />
+                    </svg>
+                </a>
+                
+                <a href="Gerenciador de Chamdos.html" class="app-sidebar-link">
+                    <svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-pie-chart" viewBox="0 0 24 24">
+                        <path d="M21.21 15.89A10 10 0 118 2.83M22 12A10 10 0 0012 2v10z" />
+                    </svg>
+                </a>
+                <a href="" class="app-sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-calendar">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                        <line x1="16" y1="2" x2="16" y2="6" />
+                        <line x1="8" y1="2" x2="8" y2="6" />
+                        <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                </a>
+                <a href="SuporteUsuario.html" onclick="openConfigPopup()" class="app-sidebar-link">
+                    <svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M3 18v-6a9 9 0 0118 0v6" />
+                        <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" />
+                    </svg>
+                </a>
+                <a href="#" class="app-sidebar-link" onclick="openConfigPopup(); return false;">
+                    <svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-settings" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                    </svg>
+                </a>
+            </div>
+
+            <!-- Conteúdo principal da página da equipe -->
+            <div class="team-container">
+                <div class="team-logo">
+                    <img src="img/Logo 2 hd.png" alt="Logo Croesus">
+                </div>
+                
+                <div class="team-header">
+                    <h1>Equipe Croesus</h1>
+                    <p>
+                        A mente por trás do <strong>Resolve+</strong>, combinando tecnologia e inovação
+                        para revolucionar o gerenciamento de manutenção corporativa.
+                    </p>
+                </div>
+
+                <div class="team-members">
+                    <!-- Membro 1: Brunno de Brito Barros -->
+                    <div class="team-member">
+                        <div class="team-member-inner">
+                            <div class="member-front" style="background-image: url('img/Imagens do Grupo/Brunno.jpeg');">
+                                <div class="member-details">
+                                    <h3>Brunno de Brito Barros</h3>
+                                    <p>Desenvolvedor Fullstack & Cybersecurity Enthusiast</p>
+                                    <ul class="member-skills">
+                                        <li>Ethical Hacking</li>
+                                        <li>Cybersecurity</li>
+                                        <li>Penetration Testing</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="member-back">
+                                <h3>Detalhes</h3>
+                                <ul class="member-skills">
+                                    <li>Entusiasta por Ethical Hacking e Cybersecurity</li>
+                                    <li>Experiência em Testes de Penetração e Análise de Vulnerabilidades</li>
+                                    <li>Certificado em LGPD e Segurança da Informação</li>
+                                    <li>Email: brito.brunnob@gmail.com</li>
+                                    <li>LinkedIn: <a href="https://www.linkedin.com/in/brunnodebrito/" target="_blank">https://www.linkedin.com/in/brunnodebrito/</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Membro 2: Gabriel Marcondes de Oliveira -->
+                    <div class="team-member">
+                        <div class="team-member-inner">
+                            <div class="member-front" style="background-image: url('img/Imagens do Grupo/Gabriel.jpeg');">
+                                <div class="member-details">
+                                    <h3>Gabriel Marcondes de Oliveira</h3>
+                                    <p>Desenvolvedor Fullstack</p>
+                                    <ul class="member-skills">
+                                        <li>Mecatrônica</li>
+                                        <li>Redes</li>
+                                        <li>Fronteiras End</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="member-back">
+                                <h3>Detalhes</h3>
+                                <ul class="member-skills">
+                                    <li>Formado em Técnico em Mecatrônica</li>
+                                    <li>Certificado em LGPD e Segurança da Informação</li>
+                                    <li>Entusiasta na área de Redes e Fronteiras End</li>
+                                    <li>Email: gabriel.gmoliveira@gmail.com</li>
+                                    <li>LinkedIn: <a href="https://www.linkedin.com/in/gabriel-marcondes-b1611422a?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=ios_app" target="_blank">https://www.linkedin.com/in/gabriel-marcondes-b1611422a</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Membro 3: Henrique Bertechini Bilia Franco -->
+                    <div class="team-member">
+                        <div class="team-member-inner">
+                            <div class="member-front" style="background-image: url('img/Imagens do Grupo/Henrique.jpg');">
+                                <div class="member-details">
+                                    <h3>Henrique Bertechini Bilia Franco</h3>
+                                    <p>Desenvolvedor Java</p>
+                                    <ul class="member-skills">
+                                        <li>Java</li>
+                                        <li>HTML</li>
+                                        <li>CSS</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="member-back">
+                                <h3>Detalhes</h3>
+                                <ul class="member-skills">
+                                    <li>Formando em Análise e Desenvolvimento de Sistemas</li>
+                                    <li>Entusiasta em Java, HTML e CSS</li>
+                                    <li>Email: henrique.biliafranco@gmail.com</li>
+                                    <li>LinkedIn: <a href="https://www.linkedin.com/in/henrique-bertechini-bilia-franco-59b14a235/" target="_blank">https://www.linkedin.com/in/henrique-bertechini-bilia-franco-59b14a235/</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                
+                    <!-- Membro 4: Vanessa Mendes -->
+                    <div class="team-member">
+                        <div class="team-member-inner">
+                            <div class="member-front" style="background-image: url('img/Imagens do Grupo/Vanessa.jpeg');">
+                                <div class="member-details">
+                                    <h3>Vanessa Mendes</h3>
+                                    <p>Gestora Administrativa</p>
+                                    <ul class="member-skills">
+                                        <li>Gestão de TI</li>
+                                        <li>Shopping Centers</li>
+                                        <li>Idiomas</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="member-back">
+                                <h3>Detalhes</h3>
+                                <ul class="member-skills">
+                                    <li>Mais de 20 anos de experiência em redes de Shopping Centers na Suíça</li>
+                                    <li>Formanda em Gestão de TI</li>
+                                    <li>Entusiasta pelo aprendizado de idiomas e voluntária no Clube Poliglota de Sorocaba</li>
+                                    <li>Possui 2 MBA's e 5 graduações</li>
+                                    <li>Email: mendesvanessa.ch@gmail.com</li>
+                                    <li>LinkedIn: <a href="https://www.linkedin.com/in/vanessa-mendes-58785122/" target="_blank">https://www.linkedin.com/in/vanessa-mendes-58785122/</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="EstiloGlobal.js"></script>
+</body>
+</html>

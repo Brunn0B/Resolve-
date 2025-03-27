@@ -1,0 +1,209 @@
+@import url("https://fonts.googleapis.com/css?family=DM+Sans:400,500,700&display=swap");
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --app-container: #f3f6fd;
+    --main-color: #1f1c2e;
+    --secondary-color: #4a4a4a;
+    --link-color: #1f1c2e;
+    --link-color-hover: #c3cff4;
+    --link-color-active: #fff;
+    --link-color-active-bg: #1f1c2e;
+    --projects-section: #fff;
+    --message-box-hover: #fafcff;
+    --message-box-border: #e9ebf0;
+    --button-bg: #1f1c24;
+    --search-area-bg: #fff;
+    --message-btn: #fff;
+}
+
+.dark:root {
+    --app-container: #1f1d2b;
+    --main-color: #fff;
+    --secondary-color: rgba(255, 255, 255, 0.8);
+    --projects-section: #1f2937;
+    --link-color: rgba(255, 255, 255, 0.8);
+    --link-color-hover: rgba(195, 207, 244, 0.1);
+    --link-color-active-bg: rgba(195, 207, 244, 0.2);
+    --button-bg: #1f2937;
+    --search-area-bg: #1f2937;
+    --message-box-hover: #243244;
+    --message-box-border: rgba(255, 255, 255, 0.1);
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--app-container);
+    color: var(--main-color);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    transition: background-color 0.3s ease;
+    
+}
+
+.app-container {
+    background-color: var(--projects-section);
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.app-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.app-header-left {
+    display: flex;
+    align-items: center;
+}
+
+.app-icon {
+    width: 26px;
+    height: 2px;
+    border-radius: 4px;
+    background-color: var(--main-color);
+    position: relative;
+}
+
+.app-icon:before, .app-icon:after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 2px;
+    border-radius: 4px;
+    background-color: var(--main-color);
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.app-icon:before {
+    top: -6px;
+}
+
+.app-icon:after {
+    bottom: -6px;
+}
+
+.app-name {
+    font-size: 20px;
+    font-weight: 700;
+    margin-left: 10px;
+    color: var(--main-color);
+}
+
+.mode-switch {
+    background-color: transparent;
+    border: none;
+    color: var(--main-color);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.projects-section {
+    background-color: var(--projects-section);
+    border-radius: 20px;
+    padding: 20px;
+}
+
+.projects-section-header {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    color: var(--main-color);
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+    color: var(--main-color);
+}
+
+input[type="text"],
+textarea,
+select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--message-box-border);
+    border-radius: 8px;
+    background-color: var(--search-area-bg);
+    color: var(--main-color);
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus,
+textarea:focus,
+select:focus {
+    border-color: var(--link-color-hover);
+    outline: none;
+}
+
+textarea {
+    resize: vertical;
+}
+
+input[type="file"] {
+    padding: 10px;
+    border: 1px solid var(--message-box-border);
+    border-radius: 8px;
+    background-color: var(--search-area-bg);
+    color: var(--main-color);
+}
+
+.btn-capture,
+.btn-submit {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    background-color: var(--button-bg);
+    color: var(--message-btn);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-capture:hover,
+.btn-submit:hover {
+    background-color: var(--link-color-hover);
+}
+
+#fotoCapturada {
+    margin-top: 10px;
+    border-radius: 8px;
+    border: 1px solid var(--message-box-border);
+}
+
+.back-arrow {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 34px;
+    color: #f20000;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .back-arrow:hover {
+    color: #3f51b5;
+  }

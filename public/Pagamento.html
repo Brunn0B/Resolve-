@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolve+ | Finalizar Compra</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+      :root {
+            --primary: #082945;
+            --primary-light: #d1d1d1;
+            --secondary: #0e53029b;
+            --accent: #ffffff;
+            --light: #e9e9e9;
+            --dark: #212529;
+            --success: #414141;
+            --success-light: #e8f8fd;
+            --warning: #ffc107;
+            --danger: #f72585;
+            --gray: #6c757d;
+            --gray-light: #f1f3f5;
+        }
+        
+        body {
+            font-family: 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .checkout-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .checkout-steps {
+            display: flex;
+            flex: 1;
+            justify-content: space-between;
+            position: relative;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--gray-light);
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-bottom: 8px;
+            border: 3px solid white;
+        }
+        
+        .step.active .step-number {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .step-title {
+            font-size: 0.9rem;
+            color: var(--gray);
+            text-align: center;
+        }
+        
+        .step.active .step-title {
+            color: var(--primary);
+            font-weight: 500;
+        }
+        
+        .step.completed .step-title {
+            color: var(--success);
+        }
+        
+        .progress-bar {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: var(--gray-light);
+            z-index: 1;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: var(--success);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .checkout-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+        
+        .main-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .section-title i {
+            color: var(--primary);
+        }
+        
+        .payment-methods {
+            margin-bottom: 30px;
+        }
+        
+        .payment-option {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 1px solid var(--gray-light);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .payment-option.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .payment-radio {
+            margin-right: 15px;
+        }
+        
+        .payment-info {
+            flex: 1;
+        }
+        
+        .payment-title {
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+        
+        .payment-description {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .payment-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-left: 15px;
+        }
+        
+        .card-form {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background-color: var(--gray-light);
+            border-radius: 8px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+        }
+        
+        .card-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .card-images {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .card-image {
+            height: 24px;
+            opacity: 0.5;
+        }
+        
+        .card-image.active {
+            opacity: 1;
+        }
+        
+        .confirmation-message {
+            text-align: center;
+            padding: 30px 0;
+        }
+        
+        .confirmation-icon {
+            font-size: 5rem;
+            color: var(--success);
+            margin-bottom: 20px;
+        }
+        
+        .confirmation-title {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: var(--dark);
+        }
+        
+        .confirmation-text {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .order-details {
+            background-color: var(--gray-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .detail-label {
+            color: var(--gray);
+        }
+        
+        .detail-value {
+            font-weight: 500;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary);
+        }
+        
+        .btn-outline {
+            background: none;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background-color: #3aa8d8;
+        }
+        
+        .sidebar-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 30px;
+        }
+        
+        .order-summary {
+            margin-bottom: 25px;
+        }
+        
+        .order-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .order-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .secure-payment {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .checkout-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar-section {
+                position: static;
+            }
+            
+            .card-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        .boleto-preview {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+        }
+        
+        .boleto-code-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        #boleto-code {
+            font-family: monospace;
+            font-size: 1.1rem;
+            padding: 10px;
+            background-color: var(--gray-light);
+            border-radius: 4px;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="checkout-header">
+            <div class="checkout-steps">
+                <div class="step completed">
+                    <div class="step-number">1</div>
+                    <div class="step-title">Carrinho</div>
+                </div>
+                <div class="step completed">
+                    <div class="step-number">2</div>
+                    <div class="step-title">Dados</div>
+                </div>
+                <div class="step active" id="step3">
+                    <div class="step-number">3</div>
+                    <div class="step-title">Pagamento</div>
+                </div>
+                <div class="step" id="step4">
+                    <div class="step-number">4</div>
+                    <div class="step-title">Confirmação</div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="checkout-progress"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="checkout-content">
+            <div class="main-section" id="payment-section">
+                <h2 class="section-title">
+                    <i class="fas fa-credit-card"></i>
+                    Método de Pagamento
+                </h2>
+                
+                <div class="payment-methods">
+                    <div class="payment-option" onclick="selectPaymentMethod(this, 'card')">
+                        <div class="payment-radio">
+                            <i class="far fa-circle"></i>
+                        </div>
+                        <div class="payment-info">
+                            <div class="payment-title">Cartão de Crédito</div>
+                            <div class="payment-description">Parcelamento em até 12x</div>
+                        </div>
+                        <div class="payment-icon">
+                            <i class="far fa-credit-card"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="card-form" id="card-form">
+                        <!-- Formulário do cartão -->
+                    </div>
+                    
+                    <div class="payment-option selected" onclick="selectPaymentMethod(this, 'boleto')">
+                        <div class="payment-radio">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="payment-info">
+                            <div class="payment-title">Boleto Bancário</div>
+                            <div class="payment-description">Pagamento em até 3 dias úteis</div>
+                        </div>
+                        <div class="payment-icon">
+                            <i class="fas fa-barcode"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="boleto-preview" id="boleto-preview">
+                        <h3>Boleto Bancário</h3>
+                        <p>Vencimento: <span id="boleto-due-date"></span></p>
+                        <div class="boleto-code-container">
+                            <p id="boleto-code"></p>
+                            <button class="btn btn-outline" onclick="copyBoletoCode()">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                        <p>Ou pague diretamente pelo link:</p>
+                        <a href="#" id="boleto-link" class="btn btn-primary" target="_blank">
+                            <i class="fas fa-external-link-alt"></i> Pagar Boleto
+                        </a>
+                    </div>
+                    
+                    <div class="payment-option" onclick="selectPaymentMethod(this, 'pix')">
+                        <div class="payment-radio">
+                            <i class="far fa-circle"></i>
+                        </div>
+                        <div class="payment-info">
+                            <div class="payment-title">PIX</div>
+                            <div class="payment-description">Pagamento instantâneo</div>
+                        </div>
+                        <div class="payment-icon">
+                            <i class="fas fa-qrcode"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary" style="width: 100%; padding: 14px; margin-top: 20px;" onclick="confirmPayment()">
+                    <i class="fas fa-check-circle"></i> Confirmar Pagamento
+                </button>
+            </div>
+            
+            <div class="main-section" id="confirmation-section" style="display: none;">
+                <div class="confirmation-message">
+                    <div class="confirmation-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h2 class="confirmation-title">Compra realizada com sucesso!</h2>
+                    <p class="confirmation-text">
+                        Obrigado por escolher os serviços da Resolve+. Seu pedido foi processado com sucesso 
+                        e em breve você receberá um e-mail com todos os detalhes da sua contratação.
+                    </p>
+                    
+                    <div class="order-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Número do Pedido:</span>
+                            <span class="detail-value" id="order-number"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Data:</span>
+                            <span class="detail-value" id="order-date"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Método de Pagamento:</span>
+                            <span class="detail-value" id="payment-method"></span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Valor Total:</span>
+                            <span class="detail-value" id="order-total"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <a href="Mensalidade.html" class="btn btn-primary">
+                            <i class="fas fa-home"></i> Voltar ao Início
+                        </a>
+                        <a href="#" class="btn btn-outline">
+                            <i class="fas fa-file-alt"></i> Ver Contrato
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="sidebar-section">
+                <h2 class="section-title" style="font-size: 1.2rem;">
+                    <i class="fas fa-shopping-cart"></i>
+                    Resumo do Pedido
+                </h2>
+                
+                <div class="order-summary" id="order-summary">
+                </div>
+                
+                <div class="order-total">
+                    <span>Total</span>
+                    <span id="order-total-sidebar">R$ 0,00</span>
+                </div>
+                
+                <div class="secure-payment">
+                    <i class="fas fa-lock"></i>
+                    <span>Pagamento 100% seguro</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateProgress(percent) {
+            document.getElementById('checkout-progress').style.width = percent + '%';
+        }
+        
+        function selectPaymentMethod(element, method) {
+            document.querySelectorAll('.payment-option').forEach(opt => {
+                opt.classList.remove('selected');
+                opt.querySelector('.payment-radio i').className = 'far fa-circle';
+            });
+            
+            element.classList.add('selected');
+            element.querySelector('.payment-radio i').className = 'fas fa-check-circle';
+            
+            document.querySelectorAll('.card-form, .boleto-preview').forEach(form => {
+                form.style.display = 'none';
+            });
+            
+            if (method === 'card') {
+                document.getElementById('card-form').style.display = 'block';
+            } else if (method === 'boleto') {
+                document.getElementById('boleto-preview').style.display = 'block';
+            }
+        }
+        
+        function copyBoletoCode() {
+            const code = document.getElementById('boleto-code').textContent;
+            navigator.clipboard.writeText(code.replace(/\s/g, ''));
+            alert('Código copiado!');
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR');
+        }
+        
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            }).format(value);
+        }
+
+        document.addEventListener('DOMContentLoaded', async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const pedidoId = urlParams.get('pedidoId');
+            
+            if (!pedidoId) {
+                alert('Pedido não encontrado');
+                window.location.href = 'Mensalidade.html';
+                return;
+            }
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`/api/pedidos/${pedidoId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao carregar pedido');
+                
+                const pedido = await response.json();
+                renderPedido(pedido);
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao carregar pedido: ' + error.message);
+                window.location.href = 'servicos.html';
+            }
+        });
+        
+        function renderPedido(pedido) {
+            const resumoContainer = document.getElementById('order-summary');
+            resumoContainer.innerHTML = '';
+            
+            pedido.servicos.forEach(servico => {
+                const item = document.createElement('div');
+                item.className = 'order-item';
+                item.innerHTML = `
+                    <span>${servico.servico?.nome || 'Serviço'} (${servico.frequencia === 'anual' ? 'Anual' : 'Mensal'})</span>
+                    <span>${formatCurrency(servico.valor)}</span>
+                `;
+                resumoContainer.appendChild(item);
+            });
+            
+            document.getElementById('order-total-sidebar').textContent = formatCurrency(pedido.total);
+            document.getElementById('order-total').textContent = formatCurrency(pedido.total);
+            
+            if (pedido.metodoPagamento === 'boleto' && pedido.boleto) {
+                document.getElementById('boleto-code').textContent = pedido.boleto.codigo;
+                document.getElementById('boleto-due-date').textContent = formatDate(pedido.boleto.vencimento);
+                document.getElementById('boleto-link').href = pedido.boleto.url;
+                document.getElementById('boleto-preview').style.display = 'block';
+                
+                selectPaymentMethod(document.querySelector('[onclick*="boleto"]'), 'boleto');
+            }
+            
+            document.getElementById('order-number').textContent = pedido._id;
+            document.getElementById('order-date').textContent = formatDate(pedido.dataPedido);
+            document.getElementById('payment-method').textContent = 
+                pedido.metodoPagamento === 'boleto' ? 'Boleto Bancário' : 
+                pedido.metodoPagamento === 'card' ? 'Cartão de Crédito' : 
+                'PIX';
+        }
+        
+        function confirmPayment() {
+            const btn = document.querySelector('#payment-section .btn-primary');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                updateProgress(100);
+                
+                document.getElementById('step3').classList.remove('active');
+                document.getElementById('step3').classList.add('completed');
+                document.getElementById('step4').classList.add('active');
+                
+                document.getElementById('payment-section').style.display = 'none';
+                document.getElementById('confirmation-section').style.display = 'block';
+                
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pagamento';
+                btn.disabled = false;
+            }, 2000);
+        }
+        
+        
+        updateProgress(66);
+    </script>
+</body>
+</html>

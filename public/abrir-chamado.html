@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abrir Chamado - Resolve+</title>
+    <link rel="stylesheet" href="abrir-chamado.css">
+    <link href="https://fonts.googleapis.com/css?family=DM+Sans:400,500,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="EstiloGlobal.css">
+    <style>
+        .camera-preview {
+            width: 100%;
+            max-width: 350px;
+            margin: 1rem auto;
+            border-radius: 8px;
+            overflow: hidden;
+            display: none;
+            position: relative;
+            aspect-ratio: 4/3;
+        }
+
+        .camera-preview video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .camera-controls {
+            margin-top: 1rem;
+            text-align: center;
+        }
+
+        .btn-capture {
+            background-color: #191919;
+            color: white;
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+
+        .btn-capture:hover {
+            color: #191919;
+            background-color: #ffffff;
+        }
+
+        .captured-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin: 1rem auto;
+            display: none;
+            object-fit: contain;
+        }
+
+        #reiniciarCamera {
+            background-color: #f44336;
+            margin-left: 0.5rem;
+        }
+
+        #reiniciarCamera:hover {
+            background-color: #d32f2f;
+        }
+
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .camera-controls button {
+            flex: 1;
+            max-width: 150px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="app-header-left">
+                <span class="app-icon"></span>
+                <p class="app-name">Resolve+</p>
+                <a href="TelaChamados.html" class="back-arrow">←</a>
+            </div>
+           
+        </div>
+        <div class="app-content">
+            <div class="projects-section">
+                <div class="projects-section-header">
+                    <p>Abrir Novo Chamado</p>
+                </div>
+                <form id="chamadoForm">
+                    <div class="form-group">
+                        <label for="titulo">Título do Chamado:</label>
+                        <input type="text" id="titulo" name="titulo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao">Descrição:</label>
+                        <textarea id="descricao" name="descricao" rows="4" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="localizacao">Localização:</label>
+                        <select id="localizacao" name="localizacao" required>
+                            <option value="">Selecione...</option>
+                            <option value="corredor">Corredor Principal</option>
+                            <option value="loja">Dentro de uma Loja</option>
+                            <option value="estacionamento">Estacionamento</option>
+                            <option value="alimentacao">Praça de Alimentação</option>
+                            <option value="jardim">Jardim</option>
+                            <option value="outro">Outro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Selecionar Foto:</label>
+                        <input type="file" id="selecionarFoto" accept="image/*" style="display: none;">
+                        <button type="button" id="botaoSelecionarFoto" class="btn-capture">Selecionar Foto</button>
+                        <img id="imagemSelecionada" class="captured-image" alt="Imagem Selecionada" style="display: none;">
+                    </div>
+                    <div class="form-group">
+                        <label>Capturar Foto:</label>
+                        <button type="button" id="iniciarCamera" class="btn-capture">Iniciar Câmera</button>
+                        <div class="camera-preview" id="cameraPreview">
+                            <video id="video" autoplay></video>
+                        </div>
+                        <div class="camera-controls" id="cameraControls" style="display: none;">
+                            <button type="button" id="capturarFoto" class="btn-capture">Tirar Foto</button>
+                            <button type="button" id="reiniciarCamera" class="btn-capture" style="display: none;">Tentar Novamente</button>
+                        </div>
+                        <canvas id="canvas" style="display: none;"></canvas>
+                        <img id="fotoCapturada" class="captured-image" alt="Foto Capturada">
+                    </div>
+                    <button type="submit" class="btn-submit">Abrir Chamado</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="EstiloGlobal.js"></script>
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const fotoCapturada = document.getElementById('fotoCapturada');
+        const cameraPreview = document.getElementById('cameraPreview');
+        const cameraControls = document.getElementById('cameraControls');
+        const iniciarCameraBtn = document.getElementById('iniciarCamera');
+        const capturarFotoBtn = document.getElementById('capturarFoto');
+        const reiniciarCameraBtn = document.getElementById('reiniciarCamera');
+        const selecionarFotoInput = document.getElementById('selecionarFoto');
+        const botaoSelecionarFoto = document.getElementById('botaoSelecionarFoto');
+        const imagemSelecionada = document.getElementById('imagemSelecionada');
+
+        botaoSelecionarFoto.addEventListener('click', () => {
+            selecionarFotoInput.click();
+        });
+
+        
+        selecionarFotoInput.addEventListener('change', (event) => {
+            const arquivo = event.target.files[0];
+            if (arquivo) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    imagemSelecionada.src = e.target.result;
+                    imagemSelecionada.style.display = 'block';
+                };
+                reader.readAsDataURL(arquivo);
+            }
+        });
+
+        let stream;
+
+        async function iniciarCamera() {
+            try {
+                const constraints = {
+                    video: {
+                        facingMode: 'environment',
+                        width: { ideal: 1280 },
+                        height: { ideal: 720 }
+                    }
+                };
+
+                stream = await navigator.mediaDevices.getUserMedia(constraints);
+                video.srcObject = stream;
+                cameraPreview.style.display = 'block';
+                cameraControls.style.display = 'flex';
+                iniciarCameraBtn.style.display = 'none';
+            } catch (error) {
+                alert('Erro ao acessar a câmera: ' + error.message);
+            }
+        }
+        function capturarFoto() {
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            fotoCapturada.src = canvas.toDataURL('image/png');
+            fotoCapturada.style.display = 'block';
+            cameraPreview.style.display = 'none';
+            capturarFotoBtn.style.display = 'none';
+            reiniciarCameraBtn.style.display = 'inline-block';
+        }
+
+        function reiniciarCamera() {
+            fotoCapturada.style.display = 'none';
+            cameraPreview.style.display = 'block';
+            capturarFotoBtn.style.display = 'inline-block';
+            reiniciarCameraBtn.style.display = 'none';
+        }
+
+        function pararCamera() {
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+            }
+        }
+
+        iniciarCameraBtn.addEventListener('click', iniciarCamera);
+        capturarFotoBtn.addEventListener('click', capturarFoto);
+        reiniciarCameraBtn.addEventListener('click', reiniciarCamera);
+        window.addEventListener('beforeunload', pararCamera);
+
+        document.getElementById('chamadoForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    const token = localStorage.getItem('token'); // Recupera o token
+
+    if (!currentUser || !currentUser._id || !token) {
+        alert('Usuário não está logado. Faça login novamente.');
+        window.location.href = 'Login.html';
+        return;
+    }
+
+    const titulo = document.getElementById('titulo').value;
+    const descricao = document.getElementById('descricao').value;
+    const localizacao = document.getElementById('localizacao').value;
+    const fotoCapturada = document.getElementById('fotoCapturada').src;
+    const imagemSelecionada = document.getElementById('imagemSelecionada').src;
+
+    if (!titulo || !descricao || !localizacao) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+
+    try {
+        const response = await fetch('/abrir-chamado', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` // Envia o token no cabeçalho
+            },
+            body: JSON.stringify({
+                titulo,
+                descricao,
+                localizacao,
+                foto: fotoCapturada || imagemSelecionada || null,
+                criador: currentUser._id 
+            })
+        });
+
+        if (response.ok) {
+            alert('Chamado aberto com sucesso!');
+            window.location.href = 'TelaChamados.html';
+        } else {
+            const data = await response.json();
+            alert(data.message || 'Erro ao criar chamado.');
+        }
+    } catch (error) {
+        alert('Erro ao criar chamado: ' + error.message);
+    }
+});
+ </script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resolve+ - Dashboard</title>
+    <link rel="stylesheet" href="TelaChamados.css">
+    <link rel="stylesheet" href="EstiloGlobal.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="app-header">
+            <div class="app-header-left">
+                <span class="app-icon"></span>
+                <p class="app-name">Resolve+</p>
+                <div class="search-wrapper">
+                    <input class="search-input" type="text" placeholder="Pesquisar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-search" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="M21 21l-4.35-4.35"></path>
+                    </svg>
+                </div>
+            </div>
+            <div class="app-header-right">
+                <button class="add-btn" title="Abrir Novo Chamado" onclick="window.location.href = 'abrir-chamado.html';">
+                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-plus">
+                        <line x1="12" y1="5" x2="12" y2="19" />
+                        <line x1="5" y1="12" x2="19" y2="12" />
+                    </svg>
+                </button>
+                <button class="notification-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                </button>
+                <button class="profile-btn" onclick="window.location.href = 'PerfilUser.html';">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 19 19">
+                        <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                        <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+                    </svg>
+                    <span>Perfil</span>
+                </button>
+            </div>
+        </div>
+        <div class="app-content">
+            <div class="app-sidebar">
+                <a href="Gerenciador de Chamdos.html" class="app-sidebar-link">
+                    <svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-pie-chart" viewBox="0 0 24 24">
+                        <path d="M21.21 15.89A10 10 0 118 2.83M22 12A10 10 0 0012 2v10z" />
+                    </svg>
+                </a>
+                <a href="Mensalidade.html" class="app-sidebar-link">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-clipboard">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                        <path d="M9 13h6"></path>
+                        <path d="M9 17h6"></path>
+                    </svg>
+                    
+                </a>
+                <a href="SuporteUsuario.html"onclick="openConfigPopup()" class="app-sidebar-link">
+                    <svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M3 18v-6a9 9 0 0118 0v6" />
+                        <path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z" />
+                    </svg>
+                </a>
+                <a href="sobre.html" class="app-sidebar-link">
+                    <svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-info" viewBox="0 0 24 24">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z" />
+                    </svg>
+                </a>
+                
+                <a href="#" class="app-sidebar-link" onclick="openConfigPopup(); return false;">
+                    <svg class="link-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-settings" viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                    </svg>
+                </a>
+            </div>
+            <div class="projects-section">
+                <div class="projects-section-header">
+                    <p>Chamados</p>
+                    <p class="time"></p>
+                </div>
+                <div class="projects-section-line">
+                    <div class="projects-status">
+    <div class="item-status">
+        <span class="status-number" id="em-andamento">0</span>
+        <span class="status-type">Em Andamento</span>
+    </div>
+    <div class="item-status">
+        <span class="status-number" id="pendentes">0</span>
+        <span class="status-type">Pendentes</span>
+    </div>
+    <div class="item-status">
+        <span class="status-number" id="total-chamados">0</span>
+        <span class="status-type">Total de Chamados</span>
+    </div>
+</div>
+                    <div class="view-actions">
+                        <button class="view-btn list-view" title="Visualização em Lista">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list">
+                                <line x1="8" y1="6" x2="21" y2="6" />
+                                <line x1="8" y1="12" x2="21" y2="12" />
+                                <line x1="8" y1="18" x2="21" y2="18" />
+                                <line x1="3" y1="6" x2="3.01" y2="6" />
+                                <line x1="3" y1="12" x2="3.01" y2="12" />
+                                <line x1="3" y1="18" x2="3.01" y2="18" />
+                            </svg>
+                        </button>
+                        <button class="view-btn grid-view active" title="Visualização em Grade">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-grid">
+                                <rect x="3" y="3" width="7" height="7" />
+                                <rect x="14" y="3" width="7" height="7" />
+                                <rect x="14" y="14" width="7" height="7" />
+                                <rect x="3" y="14" width="7" height="7" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="project-boxes jsGridView" id="chamados-container">
+                    <div class="project-box-header">
+                        <span>${new Date(chamado.createdAt).toLocaleDateString()}</span>
+                        <div class="more-wrapper">
+                            <button class="project-btn-more" id="btn-more-${chamado._id}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-vertical">
+                                    <circle cx="12" cy="12" r="1" />
+                                    <circle cx="12" cy="5" r="1" />
+                                    <circle cx="12" cy="19" r="1" />
+                                </svg>
+                            </button>
+                            <div class="more-options" id="more-options-${chamado._id}">
+                                <button class="option" data-status="pendente">Pendente</button>
+                                <button class="option" data-status="em_andamento">Em Andamento</button>
+                                <button class="option" data-status="concluido">Concluído</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+            <div class="messages-section">
+                <button class="messages-close">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x-circle">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="15" y1="9" x2="9" y2="15" />
+                        <line x1="9" y1="9" x2="15" y2="15" />
+                    </svg>
+                </button>
+                <div class="projects-section-header">
+                    <p>Mensagens</p>
+                </div>
+                <div class="messages" id="messages-container">
+              
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="EstiloGlobal.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+ 
+    async function atualizarContadores() {
+        try {
+            const response = await fetch('/contar-chamados');
+            if (!response.ok) {
+                throw new Error('Erro ao buscar dados dos chamados');
+            }
+            const { totalChamados, emAndamento, pendentes } = await response.json();
+
+            document.getElementById('em-andamento').textContent = emAndamento;
+            document.getElementById('pendentes').textContent = pendentes;
+            document.getElementById('total-chamados').textContent = totalChamados;
+        } catch (error) {
+            console.error('Erro ao atualizar contadores:', error);
+        }
+    }
+
+   
+    atualizarContadores();
+
+    setInterval(atualizarContadores, 30000);
+});
+     </script>
+    <script src="TelaChamados.js"></script>
+</body>
+</html>

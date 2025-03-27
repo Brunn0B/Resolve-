@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carregando Resolve+</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap">
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --secondary: #34a853;
+            --accent: #fbbc05;
+            --dark: #202124;
+            --light: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: var(--dark);
+            color: var(--light);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .loading-container {
+            text-align: center;
+        }
+
+        .loading-text {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: var(--light);
+        }
+
+        .loading-animation {
+            display: inline-block;
+            position: relative;
+            width: 80px;
+            height: 80px;
+        }
+
+        .loading-animation div {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--primary);
+            animation: loading 1.2s linear infinite;
+        }
+
+        .loading-animation div:nth-child(1) {
+            top: 8px;
+            left: 8px;
+            animation-delay: 0s;
+        }
+
+        .loading-animation div:nth-child(2) {
+            top: 8px;
+            left: 32px;
+            animation-delay: -0.4s;
+        }
+
+        .loading-animation div:nth-child(3) {
+            top: 8px;
+            left: 56px;
+            animation-delay: -0.8s;
+        }
+
+        .loading-animation div:nth-child(4) {
+            top: 32px;
+            left: 8px;
+            animation-delay: -0.4s;
+        }
+
+        .loading-animation div:nth-child(5) {
+            top: 32px;
+            left: 32px;
+            animation-delay: -0.8s;
+        }
+
+        .loading-animation div:nth-child(6) {
+            top: 32px;
+            left: 56px;
+            animation-delay: -1.2s;
+        }
+
+        .loading-animation div:nth-child(7) {
+            top: 56px;
+            left: 8px;
+            animation-delay: -0.8s;
+        }
+
+        .loading-animation div:nth-child(8) {
+            top: 56px;
+            left: 32px;
+            animation-delay: -1.2s;
+        }
+
+        .loading-animation div:nth-child(9) {
+            top: 56px;
+            left: 56px;
+            animation-delay: -1.6s;
+        }
+
+        @keyframes loading {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(0.5);
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-container">
+        <div class="loading-text">Carregando Resolve+</div>
+        <div class="loading-animation">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <script>
+        setTimeout(() => {
+            window.location.href = "/public/Tela.html";
+        }, 3000);
+    </script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyAmIyUO9nkvF9U27vWRqLq12YyYJ3L0IQ8",
+          authDomain: "resolve-mais.firebaseapp.com",
+          projectId: "resolve-mais",
+          storageBucket: "resolve-mais.firebasestorage.app",
+          messagingSenderId: "1084571815489",
+          appId: "1:1084571815489:web:3f963f3f6b3f419046c0c0"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+      </script>
+</body>
+</html>
