@@ -13,6 +13,7 @@
             --accent: #fbbc05;
             --dark: #202124;
             --light: #ffffff;
+            --progress: #4285f4;
         }
 
         * {
@@ -34,135 +35,196 @@
 
         .loading-container {
             text-align: center;
+            max-width: 400px;
+            width: 90%;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .logo {
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 1.5rem;
+            position: relative;
+            background-image: url('/public/img/Logo%20Novo.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            animation: fadeIn 1s ease-out, float 3s ease-in-out infinite;
         }
 
         .loading-text {
-            font-size: 2rem;
-            margin-bottom: 2rem;
+            font-size: 1.8rem;
+            margin: 1rem 0 1.5rem;
             color: var(--light);
-        }
-
-        .loading-animation {
-            display: inline-block;
+            font-weight: 500;
             position: relative;
-            width: 80px;
-            height: 80px;
+            animation: fadeIn 1.2s ease-out;
         }
 
-        .loading-animation div {
+        .loading-text::after {
+            content: "...";
             position: absolute;
-            width: 16px;
-            height: 16px;
-            border-radius: 50%;
-            background: var(--primary);
-            animation: loading 1.2s linear infinite;
+            animation: dots 1.5s infinite steps(3);
         }
 
-        .loading-animation div:nth-child(1) {
-            top: 8px;
-            left: 8px;
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 2rem;
+            animation: fadeIn 1.4s ease-out;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+            animation: progress 2.5s ease-in-out infinite;
+        }
+
+        .loading-dots {
+            display: flex;
+            justify-content: center;
+            margin-top: 2rem;
+            gap: 8px;
+            animation: fadeIn 1.6s ease-out;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.6;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+
+        .dot:nth-child(1) {
             animation-delay: 0s;
         }
 
-        .loading-animation div:nth-child(2) {
-            top: 8px;
-            left: 32px;
-            animation-delay: -0.4s;
+        .dot:nth-child(2) {
+            animation-delay: 0.2s;
         }
 
-        .loading-animation div:nth-child(3) {
-            top: 8px;
-            left: 56px;
-            animation-delay: -0.8s;
+        .dot:nth-child(3) {
+            animation-delay: 0.4s;
         }
 
-        .loading-animation div:nth-child(4) {
-            top: 32px;
-            left: 8px;
-            animation-delay: -0.4s;
+        .status-text {
+            margin-top: 1.5rem;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+            animation: fadeInOut 3s infinite, fadeIn 1.8s ease-out;
         }
 
-        .loading-animation div:nth-child(5) {
-            top: 32px;
-            left: 32px;
-            animation-delay: -0.8s;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        .loading-animation div:nth-child(6) {
-            top: 32px;
-            left: 56px;
-            animation-delay: -1.2s;
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
-        .loading-animation div:nth-child(7) {
-            top: 56px;
-            left: 8px;
-            animation-delay: -0.8s;
+        @keyframes dots {
+            0%, 20% { content: "."; }
+            40% { content: ".."; }
+            60%, 100% { content: "..."; }
         }
 
-        .loading-animation div:nth-child(8) {
-            top: 56px;
-            left: 32px;
-            animation-delay: -1.2s;
+        @keyframes progress {
+            0% { width: 0%; }
+            50% { width: 80%; }
+            100% { width: 100%; }
         }
 
-        .loading-animation div:nth-child(9) {
-            top: 56px;
-            left: 56px;
-            animation-delay: -1.6s;
-        }
-
-        @keyframes loading {
-            0%, 100% {
-                transform: scale(1);
+        @keyframes bounce {
+            0%, 80%, 100% { 
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            40% { 
+                transform: translateY(-10px);
                 opacity: 1;
             }
-            50% {
-                transform: scale(0.5);
-                opacity: 0.5;
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @media (max-width: 480px) {
+            .logo {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .loading-text {
+                font-size: 1.5rem;
             }
         }
     </style>
 </head>
 <body>
     <div class="loading-container">
+        <div class="logo"></div>
         <div class="loading-text">Carregando Resolve+</div>
-        <div class="loading-animation">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+        
+        <div class="loading-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
         </div>
+        
+        <div class="progress-container">
+            <div class="progress-bar"></div>
+        </div>
+        
+        <div class="status-text">Inicializando serviços...</div>
     </div>
 
     <script>
+        const statusTexts = [
+            "Inicializando serviços...",
+            "Carregando recursos...",
+            "Otimizando performance...",
+            "Quase pronto...",
+            "Preparando sua experiência..."
+        ];
+        
+        const statusElement = document.querySelector('.status-text');
+        let currentStatus = 0;
+        
+        const statusInterval = setInterval(() => {
+            currentStatus = (currentStatus + 1) % statusTexts.length;
+            statusElement.textContent = statusTexts[currentStatus];
+        }, 1800);
+        
+        let progress = 0;
+        const progressBar = document.querySelector('.progress-bar');
+        const progressInterval = setInterval(() => {
+            progress += Math.random() * 10;
+            if (progress > 100) progress = 100;
+            progressBar.style.width = progress + '%';
+            
+            if (progress >= 100) {
+                clearInterval(progressInterval);
+            }
+        }, 300);
+        
         setTimeout(() => {
+            clearInterval(statusInterval);
+            clearInterval(progressInterval);
             window.location.href = "/public/index.html";
-        }, 3000);
+        }, 3500);
     </script>
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.5.0/firebase-app.js";
-        // TODO: Add SDKs for Firebase products that you want to use
-        // https://firebase.google.com/docs/web/setup#available-libraries
-      
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-          apiKey: "AIzaSyAmIyUO9nkvF9U27vWRqLq12YyYJ3L0IQ8",
-          authDomain: "resolve-mais.firebaseapp.com",
-          projectId: "resolve-mais",
-          storageBucket: "resolve-mais.firebasestorage.app",
-          messagingSenderId: "1084571815489",
-          appId: "1:1084571815489:web:3f963f3f6b3f419046c0c0"
-        };
-      
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-      </script>
 </body>
 </html>
