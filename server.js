@@ -4,31 +4,27 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const multer = require('multer'); // Adicionado multer
+const multer = require('multer'); 
 require('dotenv').config();
 const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 5000;
-const JWT_SECRET = process.env.JWT_SECRET || 'sua_chave_secreta';
+const JWT_SECRET = process.env.JWT_SECRET || 'Chave_secreta$$%';
 
-// Configuração do CORS
 app.use(cors({
   origin: '*', 
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Conexão com o MongoDB
 const uri = process.env.MONGODB_URI;
 mongoose.connect(uri)
   .then(() => console.log('Conectado ao MongoDB Atlas'))
   .catch(err => console.error('Erro ao conectar ao MongoDB Atlas:', err));
 
-// Middleware para parsear JSON
 app.use(bodyParser.json());
 
-// Servir arquivos estáticos (para o PWA)
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Modelos do MongoDB
@@ -70,17 +66,24 @@ const mensagemSchema = new mongoose.Schema({
 const chamadoSchema = new mongoose.Schema({
   titulo: String,
   descricao: String,
-  localizacao: String,
+  localizacao: {
+    type: { type: String, enum: ['predefined', 'gps'], required: true },
+    value: String, // para tipo 'predefined'
+    coordinates: {
+      latitude: Number,
+      longitude: Number,
+      accuracy: Number
+    }
+  },
   foto: String,
   criador: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: { type: String, enum: ['pendente', 'em_andamento', 'concluido'], default: 'pendente' },
   createdAt: { type: Date, default: Date.now },
-  mensagens: [mensagemSchema] // Adicionado array de mensagens
+  mensagens: [mensagemSchema]
 });
 
 const Chamado = mongoose.model('Chamado', chamadoSchema);
 
-// Middleware de autenticação
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -99,7 +102,6 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Rotas do servidor
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
 
@@ -278,7 +280,6 @@ app.get('/contar-chamados', async (req, res) => {
   }
 });
 
-// Modelos para serviços e pagamentos
 const servicoSchema = new mongoose.Schema({
   nome: { type: String, required: true },
   empresa: { type: String, required: true },
@@ -313,7 +314,6 @@ const pedidoSchema = new mongoose.Schema({
 
 const Pedido = mongoose.model('Pedido', pedidoSchema);
 
-// Rotas para serviços e pagamentos
 app.get('/api/servicos', async (req, res) => {
   try {
     const servicos = await Servico.find();
@@ -368,7 +368,6 @@ app.get('/api/pedidos/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Rotas adicionais para o perfil
 app.get('/api/user-profile', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId)
@@ -442,7 +441,6 @@ app.post('/api/toggle-2fa', authenticateToken, async (req, res) => {
   }
 });
 
-// Rotas para cartões de crédito
 const cardSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   cardNumber: { type: String, required: true },
@@ -511,7 +509,6 @@ app.delete('/api/delete-card/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Rotas para tickets/chamados
 app.get('/api/user-tickets', authenticateToken, async (req, res) => {
   try {
     const tickets = await Chamado.find({ criador: req.user.userId })
@@ -522,7 +519,6 @@ app.get('/api/user-tickets', authenticateToken, async (req, res) => {
   }
 });
 
-// Configuração do Multer para upload de avatares
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     const uploadDir = 'public/uploads/avatars';
@@ -539,7 +535,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -549,7 +545,6 @@ const upload = multer({
   }
 });
 
-// Rota para upload de avatar (mantida apenas uma versão)
 app.post('/api/upload-avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
   try {
     if (!req.file) {
@@ -588,10 +583,8 @@ app.post('/api/upload-avatar', authenticateToken, upload.single('avatar'), async
   }
 });
 
-// Certifique-se de servir os arquivos estáticos da pasta uploads
 app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
 
-// Configurações de privacidade
 app.post('/api/privacy-settings', authenticateToken, async (req, res) => {
   try {
     const {
@@ -624,19 +617,18 @@ app.post('/api/privacy-settings', authenticateToken, async (req, res) => {
   }
 });
 
-// Rota para servir o PWA
+
+
+
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'TelaInicio.html'));
 });
-
-// Middleware para erros
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ message: 'Erro interno do servidor.' });
 });
 
 
-// Modelo para armazenar conversas de suporte
 const supportConversationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   messages: [{
@@ -652,7 +644,6 @@ const supportConversationSchema = new mongoose.Schema({
 
 const SupportConversation = mongoose.model('SupportConversation', supportConversationSchema);
 
-// Base de conhecimento para o suporte
 const supportKnowledgeBase = {
   'senha': {
     responses: [
@@ -696,20 +687,16 @@ const supportKnowledgeBase = {
   }
 };
 
-// Rota principal do suporte
 app.post('/api/support', authenticateToken, async (req, res) => {
   try {
     const { message } = req.body;
     const userId = req.user.userId;
 
-    // Classificação simples da mensagem
     const intent = classifySupportIntent(message);
     
-    // Obter resposta da base de conhecimento
     const knowledge = supportKnowledgeBase[intent] || supportKnowledgeBase['sistema'];
     const response = knowledge.responses[Math.floor(Math.random() * knowledge.responses.length)];
     
-    // Salvar a conversa no banco de dados
     const conversation = await SupportConversation.findOneAndUpdate(
       { userId },
       {
@@ -724,7 +711,6 @@ app.post('/api/support', authenticateToken, async (req, res) => {
       { upsert: true, new: true }
     );
 
-    // Adicionar resposta do bot à conversa
     await SupportConversation.updateOne(
       { _id: conversation._id },
       {
@@ -754,7 +740,6 @@ app.post('/api/support', authenticateToken, async (req, res) => {
   }
 });
 
-// Função para classificar a intenção do usuário
 function classifySupportIntent(message) {
   const lowerMsg = message.toLowerCase();
   
@@ -763,10 +748,9 @@ function classifySupportIntent(message) {
   if (/dados|informação|informacao|cadastro/.test(lowerMsg)) return 'dados';
   if (/sistema|lento|travando|erro|bug/.test(lowerMsg)) return 'sistema';
   
-  return 'sistema'; // padrão
+  return 'sistema';
 }
 
-// Rota para obter histórico de suporte
 app.get('/api/support/history', authenticateToken, async (req, res) => {
   try {
     const conversations = await SupportConversation.find({ userId: req.user.userId })
@@ -779,7 +763,64 @@ app.get('/api/support/history', authenticateToken, async (req, res) => {
   }
 });
 
-// Iniciar o servidor
+
+app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
+  try {
+    const { orderId, paymentMethod, cardId, installments } = req.body;
+    
+    if (!orderId || !paymentMethod) {
+      return res.status(400).json({ message: 'Dados de pagamento incompletos' });
+    }
+    const pedido = await Pedido.findById(orderId);
+    if (!pedido) {
+      return res.status(404).json({ message: 'Pedido não encontrado' });
+    }
+
+    if (pedido.usuario.toString() !== req.user.userId) {
+      return res.status(403).json({ message: 'Acesso não autorizado' });
+    }
+
+    if (paymentMethod === 'card') {
+      if (cardId) {
+        const card = await Card.findOne({ _id: cardId, userId: req.user.userId });
+        if (!card) {
+          return res.status(400).json({ message: 'Cartão não encontrado' });
+        }
+      }
+      pedido.status = 'pago';
+      pedido.metodoPagamento = 'Cartão de Crédito';
+      
+    } else if (paymentMethod === 'boleto') {
+      pedido.status = 'pendente';
+      pedido.metodoPagamento = 'Boleto Bancário';
+      
+    } else if (paymentMethod === 'pix') {
+      pedido.status = 'pago';
+      pedido.metodoPagamento = 'PIX';
+      pedido.pix = {
+        key: '123e4567-e89b-12d3-a456-426614174000',
+        expirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 horas
+        qrCode: `00020101021226860014br.gov.bcb.pix2561qrcodepix.gerencianet.com.br/123456789520400005303986540520.005802BR5925EMPRESA DE EXEMPLO6008BRASILIA62070503***6304`
+      };
+    }
+
+    await pedido.save();
+
+    res.json({
+      success: true,
+      order: pedido,
+      message: 'Pagamento confirmado com sucesso'
+    });
+
+  } catch (error) {
+    console.error('Erro ao confirmar pagamento:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao processar pagamento: ' + error.message 
+    });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
 });

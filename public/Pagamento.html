@@ -5,8 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Resolve+ | Finalizar Compra</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <style>
-      :root {
+        :root {
             --primary: #082945;
             --primary-light: #d1d1d1;
             --secondary: #0e53029b;
@@ -412,6 +415,120 @@
             border-radius: 4px;
             flex: 1;
         }
+        
+        .boleto-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .boleto-qrcode {
+            margin: 20px auto;
+            text-align: center;
+        }
+        
+        .installments-select {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+        }
+        
+        .saved-cards {
+            margin-top: 15px;
+        }
+        
+        .saved-card {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+        
+        .saved-card:hover {
+            border-color: var(--primary);
+        }
+        
+        .saved-card.selected {
+            border-color: var(--primary);
+            background-color: var(--primary-light);
+        }
+        
+        .card-brand {
+            margin-left: 10px;
+            font-weight: 500;
+        }
+        
+        .card-number {
+            margin-left: auto;
+            color: var(--gray);
+        }
+        
+        .no-cards-message {
+            padding: 15px;
+            background-color: var(--gray-light);
+            border-radius: 6px;
+            text-align: center;
+            color: var(--gray);
+        }
+        
+        .add-card-btn {
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        /* Estilos para o PIX */
+        .pix-preview {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            display: none;
+            text-align: center;
+        }
+        
+        .pix-key-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        #pix-key {
+            font-family: monospace;
+            font-size: 1.1rem;
+            padding: 10px;
+            background-color: var(--gray-light);
+            border-radius: 4px;
+            flex: 1;
+        }
+        
+        .pix-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            justify-content: center;
+        }
+        
+        .pix-qrcode {
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        /* Estilo para o código de barras */
+        .barcode-container {
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .barcode {
+            height: 50px;
+        }
     </style>
 </head>
 <body>
@@ -448,7 +565,7 @@
                 </h2>
                 
                 <div class="payment-methods">
-                    <div class="payment-option" onclick="selectPaymentMethod(this, 'card')">
+                    <div class="payment-option" data-method="card">
                         <div class="payment-radio">
                             <i class="far fa-circle"></i>
                         </div>
@@ -462,10 +579,52 @@
                     </div>
                     
                     <div class="card-form" id="card-form">
-                        <!-- Formulário do cartão -->
+                        <div class="saved-cards" id="saved-cards">
+                            <!-- Cartões salvos serão inseridos aqui -->
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Número do Cartão</label>
+                            <input type="text" class="form-input" id="card-number" placeholder="0000 0000 0000 0000" maxlength="19">
+                            <div class="card-images">
+                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/visa/visa-original.svg" class="card-image" id="visa">
+                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mastercard/mastercard-original.svg" class="card-image" id="mastercard">
+                                <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/American_Express_logo_%282018%29.svg/1200px-American_Express_logo_%282018%29.svg.png" class="card-image" style="height: 20px;" id="amex">
+                                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/apple/apple-original.svg" class="card-image" id="elo">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Nome no Cartão</label>
+                            <input type="text" class="form-input" id="card-name" placeholder="Como escrito no cartão">
+                        </div>
+                        
+                        <div class="card-row">
+                            <div class="form-group">
+                                <label class="form-label">Validade</label>
+                                <input type="text" class="form-input" id="card-expiry" placeholder="MM/AA" maxlength="5">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">CVV</label>
+                                <input type="text" class="form-input" id="card-cvv" placeholder="000" maxlength="4">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Parcelamento</label>
+                            <select class="installments-select" id="installments">
+                                <!-- Opções de parcelamento serão inseridas aqui -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>
+                                <input type="checkbox" id="save-card"> Salvar este cartão para compras futuras
+                            </label>
+                        </div>
                     </div>
                     
-                    <div class="payment-option selected" onclick="selectPaymentMethod(this, 'boleto')">
+                    <div class="payment-option selected" data-method="boleto">
                         <div class="payment-radio">
                             <i class="fas fa-check-circle"></i>
                         </div>
@@ -483,17 +642,25 @@
                         <p>Vencimento: <span id="boleto-due-date"></span></p>
                         <div class="boleto-code-container">
                             <p id="boleto-code"></p>
-                            <button class="btn btn-outline" onclick="copyBoletoCode()">
+                            <button class="btn btn-outline" id="copy-boleto-btn">
                                 <i class="fas fa-copy"></i> Copiar
                             </button>
                         </div>
+                        <div class="barcode-container">
+                            <svg id="boleto-barcode" class="barcode"></svg>
+                        </div>
                         <p>Ou pague diretamente pelo link:</p>
-                        <a href="#" id="boleto-link" class="btn btn-primary" target="_blank">
-                            <i class="fas fa-external-link-alt"></i> Pagar Boleto
-                        </a>
+                        <div class="boleto-actions">
+                            <a href="#" id="boleto-link" class="btn btn-primary" target="_blank">
+                                <i class="fas fa-external-link-alt"></i> Pagar Boleto
+                            </a>
+                            <button class="btn btn-outline" id="download-boleto-btn">
+                                <i class="fas fa-file-pdf"></i> Baixar Boleto
+                            </button>
+                        </div>
                     </div>
                     
-                    <div class="payment-option" onclick="selectPaymentMethod(this, 'pix')">
+                    <div class="payment-option" data-method="pix">
                         <div class="payment-radio">
                             <i class="far fa-circle"></i>
                         </div>
@@ -505,9 +672,27 @@
                             <i class="fas fa-qrcode"></i>
                         </div>
                     </div>
+
+                    <div class="pix-preview" id="pix-preview">
+                        <h3>Pagamento via PIX</h3>
+                        <p>Vencimento: <span id="pix-due-date"></span></p>
+                        <div class="pix-qrcode" id="pix-qrcode"></div>
+                        <p>Ou copie a chave PIX abaixo:</p>
+                        <div class="pix-key-container">
+                            <p id="pix-key"></p>
+                            <button class="btn btn-outline" id="copy-pix-btn">
+                                <i class="fas fa-copy"></i> Copiar
+                            </button>
+                        </div>
+                        <div class="pix-actions">
+                            <button class="btn btn-primary" id="screenshot-btn">
+                                <i class="fas fa-camera"></i> Tirar Print
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 
-                <button class="btn btn-primary" style="width: 100%; padding: 14px; margin-top: 20px;" onclick="confirmPayment()">
+                <button id="confirm-payment-btn" class="btn btn-primary" style="width: 100%; padding: 14px; margin-top: 20px;">
                     <i class="fas fa-check-circle"></i> Confirmar Pagamento
                 </button>
             </div>
@@ -576,11 +761,24 @@
     </div>
 
     <script>
+        // Inicializa o jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // Variáveis globais
+        let currentOrder = null;
+        let userCards = [];
+        let selectedCard = null;
+        let selectedPaymentMethod = 'boleto';
+        let currentUser = null;
+        
+        // Funções principais
         function updateProgress(percent) {
             document.getElementById('checkout-progress').style.width = percent + '%';
         }
         
         function selectPaymentMethod(element, method) {
+            selectedPaymentMethod = method;
+            
             document.querySelectorAll('.payment-option').forEach(opt => {
                 opt.classList.remove('selected');
                 opt.querySelector('.payment-radio i').className = 'far fa-circle';
@@ -589,21 +787,37 @@
             element.classList.add('selected');
             element.querySelector('.payment-radio i').className = 'fas fa-check-circle';
             
-            document.querySelectorAll('.card-form, .boleto-preview').forEach(form => {
+            document.querySelectorAll('.card-form, .boleto-preview, .pix-preview').forEach(form => {
                 form.style.display = 'none';
             });
             
             if (method === 'card') {
                 document.getElementById('card-form').style.display = 'block';
+                checkSavedCards();
             } else if (method === 'boleto') {
                 document.getElementById('boleto-preview').style.display = 'block';
+                if (currentOrder && currentOrder.boleto) {
+                    document.getElementById('boleto-code').textContent = currentOrder.boleto.codigo;
+                    document.getElementById('boleto-due-date').textContent = formatDate(currentOrder.boleto.vencimento);
+                    document.getElementById('boleto-link').href = currentOrder.boleto.url;
+                    
+                    // Gera o código de barras
+                    JsBarcode("#boleto-barcode", currentOrder.boleto.codigo.replace(/\s/g, ''), {
+                        format: "CODE128",
+                        lineColor: "#000000",
+                        width: 2,
+                        height: 50,
+                        displayValue: false
+                    });
+                }
+            } else if (method === 'pix') {
+                document.getElementById('pix-preview').style.display = 'block';
+                if (currentOrder && currentOrder.pix) {
+                    document.getElementById('pix-key').textContent = currentOrder.pix.key;
+                    document.getElementById('pix-due-date').textContent = formatDate(currentOrder.pix.expirationDate);
+                    generateQRCode(currentOrder.pix.qrCode, 'pix-qrcode');
+                }
             }
-        }
-        
-        function copyBoletoCode() {
-            const code = document.getElementById('boleto-code').textContent;
-            navigator.clipboard.writeText(code.replace(/\s/g, ''));
-            alert('Código copiado!');
         }
         
         function formatDate(dateString) {
@@ -617,17 +831,269 @@
                 currency: 'BRL'
             }).format(value);
         }
-
-        document.addEventListener('DOMContentLoaded', async function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const pedidoId = urlParams.get('pedidoId');
+        
+        function generateBoletoPDF() {
+            if (!currentOrder || !currentOrder.boleto || !currentUser) return;
             
-            if (!pedidoId) {
-                alert('Pedido não encontrado');
-                window.location.href = 'Mensalidade.html';
+            const doc = new jsPDF();
+            
+            // Cabeçalho
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 0);
+            doc.text('BOLETO BANCÁRIO', 105, 20, null, null, 'center');
+            
+            // Logo (simulado)
+            doc.setFontSize(12);
+            doc.text('Resolve+', 20, 30);
+            doc.setFontSize(10);
+            doc.text('Soluções em Serviços', 20, 35);
+            
+            // Linha divisória
+            doc.setDrawColor(0);
+            doc.setLineWidth(0.5);
+            doc.line(20, 40, 190, 40);
+            
+            // Dados do beneficiário
+            doc.setFontSize(10);
+            doc.text('Beneficiário:', 20, 50);
+            doc.text('Resolve+ Soluções em Serviços LTDA', 50, 50);
+            
+            doc.text('CNPJ:', 20, 55);
+            doc.text('12.345.678/0001-99', 50, 55);
+            
+            // Dados do pagador
+            doc.text('Pagador:', 20, 65);
+            doc.text(currentUser.name, 50, 65);
+            
+            doc.text('CPF:', 20, 70);
+            doc.text(currentUser.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'), 50, 70);
+            
+            // Dados do boleto
+            doc.text('Vencimento:', 20, 80);
+            doc.text(formatDate(currentOrder.boleto.vencimento), 50, 80);
+            
+            doc.text('Valor:', 20, 85);
+            doc.text(formatCurrency(currentOrder.total), 50, 85);
+            
+            doc.text('Número do Documento:', 20, 90);
+            doc.text(currentOrder._id, 50, 90);
+            
+            // Código de barras
+            doc.setFontSize(8);
+            doc.text('Código de barras:', 20, 100);
+            
+            // Adiciona o código de barras (simulado)
+            const barcodeText = currentOrder.boleto.codigo.replace(/\s/g, '');
+            doc.setFontSize(12);
+            doc.text(barcodeText, 20, 105);
+            
+            // Linha de corte
+            doc.setFontSize(8);
+            doc.setTextColor(150, 150, 150);
+            doc.text('-------------------------------------------------------------------', 105, 150, null, null, 'center');
+            doc.text('Corte aqui', 105, 155, null, null, 'center');
+            
+            // Recibo do pagador
+            doc.setFontSize(10);
+            doc.setTextColor(0, 0, 0);
+            doc.text('Recibo do Pagador', 105, 165, null, null, 'center');
+            
+            doc.setFontSize(8);
+            doc.text('Nome: ___________________________________________________', 20, 175);
+            doc.text('CPF/CNPJ: ______________________________________________', 20, 180);
+            doc.text('Endereço: ______________________________________________', 20, 185);
+            doc.text('Data: ____/____/________   Assinatura: _________________', 20, 190);
+            
+            // Instruções
+            doc.setFontSize(8);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Instruções:', 20, 200);
+            doc.text('- Pagável em qualquer banco até o vencimento', 20, 205);
+            doc.text('- Após o vencimento, pagável apenas na Resolve+', 20, 210);
+            doc.text('- Multa de 2% após o vencimento', 20, 215);
+            doc.text('- Juros de 1% ao mês', 20, 220);
+            
+            // Salva o PDF
+            doc.save(`boleto-resolveplus-${currentOrder._id}.pdf`);
+        }
+        
+        function generateQRCode(text, elementId) {
+            try {
+                const element = document.getElementById(elementId);
+                element.innerHTML = '';
+                
+                new QRCode(element, {
+                    text: text,
+                    width: 150,
+                    height: 150,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (error) {
+                console.error('Erro ao gerar QR Code:', error);
+                document.getElementById(elementId).innerHTML = 
+                    '<p>Erro ao gerar QR Code. Por favor, copie a chave manualmente.</p>';
+            }
+        }
+        
+        async function checkSavedCards() {
+            try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    renderSavedCards([]);
+                    return;
+                }
+                
+                const response = await fetch('/api/user-cards', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao buscar cartões');
+                
+                const cards = await response.json();
+                renderSavedCards(cards);
+            } catch (error) {
+                console.error('Erro ao buscar cartões:', error);
+                renderSavedCards([]);
+            }
+        }
+        
+        function renderSavedCards(cards) {
+            const container = document.getElementById('saved-cards');
+            container.innerHTML = '';
+            
+            if (cards.length === 0) {
+                container.innerHTML = `
+                    <div class="no-cards-message">
+                        Nenhum cartão salvo encontrado
+                    </div>
+                    <button class="btn btn-outline add-card-btn" id="add-card-btn">
+                        <i class="fas fa-plus"></i> Adicionar Cartão
+                    </button>
+                `;
                 return;
             }
             
+            const title = document.createElement('p');
+            title.textContent = 'Cartões salvos:';
+            title.style.fontWeight = '500';
+            title.style.marginBottom = '10px';
+            container.appendChild(title);
+            
+            cards.forEach(card => {
+                const cardElement = document.createElement('div');
+                cardElement.className = 'saved-card';
+                cardElement.dataset.cardId = card._id;
+                
+                cardElement.innerHTML = `
+                    <i class="fab fa-cc-${card.brand}"></i>
+                    <span class="card-brand">${card.holderName}</span>
+                    <span class="card-number">**** **** **** ${card.lastFour}</span>
+                `;
+                
+                container.appendChild(cardElement);
+            });
+            
+            const addCardBtn = document.createElement('button');
+            addCardBtn.className = 'btn btn-outline add-card-btn';
+            addCardBtn.id = 'add-card-btn';
+            addCardBtn.innerHTML = '<i class="fas fa-plus"></i> Adicionar outro cartão';
+            container.appendChild(addCardBtn);
+        }
+        
+        function updateInstallments(total) {
+            const select = document.getElementById('installments');
+            select.innerHTML = '';
+            
+            const maxInstallments = 12;
+            const minInstallmentValue = 10;
+            
+            let availableInstallments = maxInstallments;
+            
+            while (availableInstallments > 1) {
+                if (total / availableInstallments >= minInstallmentValue) {
+                    break;
+                }
+                availableInstallments--;
+            }
+            
+            for (let i = 1; i <= availableInstallments; i++) {
+                const option = document.createElement('option');
+                const installmentValue = total / i;
+                
+                if (i === 1) {
+                    option.text = `À vista - ${formatCurrency(total)}`;
+                } else {
+                    option.text = `${i}x de ${formatCurrency(installmentValue)} (${formatCurrency(total)})`;
+                }
+                
+                option.value = i;
+                select.appendChild(option);
+            }
+        }
+        
+        async function validateCard() {
+            if (selectedCard) return true;
+            
+            const cardNumber = document.getElementById('card-number').value.replace(/\s/g, '');
+            const cardName = document.getElementById('card-name').value.trim();
+            const cardExpiry = document.getElementById('card-expiry').value;
+            const cardCvv = document.getElementById('card-cvv').value;
+            
+            if (cardNumber.length < 16 || !/^\d+$/.test(cardNumber)) {
+                alert('Número do cartão inválido');
+                return false;
+            }
+            
+            if (cardName.length < 3) {
+                alert('Nome no cartão inválido');
+                return false;
+            }
+            
+            if (!/^\d{2}\/\d{2}$/.test(cardExpiry)) {
+                alert('Data de validade inválida (use MM/AA)');
+                return false;
+            }
+            
+            if (cardCvv.length < 3 || !/^\d+$/.test(cardCvv)) {
+                alert('CVV inválido');
+                return false;
+            }
+            
+            if (document.getElementById('save-card').checked) {
+                try {
+                    const token = localStorage.getItem('token');
+                    const response = await fetch('/api/add-card', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({
+                            cardNumber: cardNumber,
+                            cardHolderName: cardName,
+                            cardExpiryDate: cardExpiry,
+                            cardCVV: cardCvv
+                        })
+                    });
+                    
+                    if (!response.ok) throw new Error('Erro ao salvar cartão');
+                    
+                    const newCard = await response.json();
+                    selectedCard = newCard;
+                } catch (error) {
+                    console.error('Erro ao salvar cartão:', error);
+                    alert('Erro ao salvar cartão: ' + error.message);
+                }
+            }
+            
+            return true;
+        }
+        
+        async function loadOrder(pedidoId) {
             try {
                 const token = localStorage.getItem('token');
                 const response = await fetch(`/api/pedidos/${pedidoId}`, {
@@ -639,70 +1105,223 @@
                 if (!response.ok) throw new Error('Erro ao carregar pedido');
                 
                 const pedido = await response.json();
-                renderPedido(pedido);
+                return pedido;
             } catch (error) {
-                console.error('Erro:', error);
-                alert('Erro ao carregar pedido: ' + error.message);
-                window.location.href = 'servicos.html';
+                console.error('Erro ao carregar pedido:', error);
+                throw error;
             }
-        });
+        }
         
-        function renderPedido(pedido) {
-            const resumoContainer = document.getElementById('order-summary');
-            resumoContainer.innerHTML = '';
-            
-            pedido.servicos.forEach(servico => {
-                const item = document.createElement('div');
-                item.className = 'order-item';
-                item.innerHTML = `
-                    <span>${servico.servico?.nome || 'Serviço'} (${servico.frequencia === 'anual' ? 'Anual' : 'Mensal'})</span>
-                    <span>${formatCurrency(servico.valor)}</span>
-                `;
-                resumoContainer.appendChild(item);
+        async function loadUserProfile() {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/user-profile', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (!response.ok) throw new Error('Erro ao carregar perfil');
+                
+                const user = await response.json();
+                return user;
+            } catch (error) {
+                console.error('Erro ao carregar perfil:', error);
+                throw error;
+            }
+        }
+        
+        async function confirmPayment() {
+  if (selectedPaymentMethod === 'card' && !await validateCard()) {
+    return;
+  }
+  
+  const btn = document.getElementById('confirm-payment-btn');
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+  btn.disabled = true;
+  
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch('/api/confirm-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        orderId: currentOrder._id,
+        paymentMethod: selectedPaymentMethod,
+        cardId: selectedCard?._id,
+        installments: document.getElementById('installments').value
+      })
+    });
+    
+    if (!response.ok) {
+      // Tentar extrair a mensagem de erro do JSON, se possível
+      let errorMsg = 'Erro ao confirmar pagamento';
+      try {
+        const errorData = await response.json();
+        errorMsg = errorData.message || errorMsg;
+      } catch (e) {
+        // Se não conseguir parsear como JSON, usar o status text
+        errorMsg = response.statusText || errorMsg;
+      }
+      throw new Error(errorMsg);
+    }
+    
+    const result = await response.json();
+    
+    // Restante do seu código de sucesso...
+    
+  } catch (error) {
+    console.error('Erro ao confirmar pagamento:', error);
+    
+    // Mostrar mensagem mais amigável
+    let errorMessage = error.message;
+    if (error.message.includes('Failed to fetch')) {
+      errorMessage = 'Erro de conexão com o servidor. Verifique sua internet.';
+    } else if (error.message.includes('404')) {
+      errorMessage = 'Serviço indisponível no momento. Tente novamente mais tarde.';
+    }
+    
+    alert('Erro ao confirmar pagamento: ' + errorMessage);
+  } finally {
+    btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pagamento';
+    btn.disabled = false;
+  }
+}
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Configura eventos
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.addEventListener('click', () => {
+                    const method = option.getAttribute('data-method');
+                    selectPaymentMethod(option, method);
+                });
+            });
+
+            document.getElementById('copy-boleto-btn').addEventListener('click', () => {
+                const code = document.getElementById('boleto-code').textContent;
+                navigator.clipboard.writeText(code.replace(/\s/g, ''));
+                alert('Código copiado!');
+            });
+
+            document.getElementById('download-boleto-btn').addEventListener('click', generateBoletoPDF);
+            document.getElementById('copy-pix-btn').addEventListener('click', () => {
+                const key = document.getElementById('pix-key').textContent;
+                navigator.clipboard.writeText(key);
+                alert('Chave PIX copiada!');
+            });
+
+            document.getElementById('screenshot-btn').addEventListener('click', () => {
+                alert('Agora você pode tirar um print da tela para salvar o QR Code do PIX');
+            });
+
+            document.getElementById('confirm-payment-btn').addEventListener('click', confirmPayment);
+
+            document.getElementById('add-card-btn')?.addEventListener('click', () => {
+                document.getElementById('card-number').value = '';
+                document.getElementById('card-name').value = '';
+                document.getElementById('card-expiry').value = '';
+                document.getElementById('card-cvv').value = '';
+                
+                document.getElementById('card-number').disabled = false;
+                document.getElementById('card-name').disabled = false;
+                document.getElementById('card-expiry').disabled = false;
+                document.getElementById('card-cvv').disabled = false;
+                
+                document.getElementById('card-number').focus();
+            });
+
+            // Formatação automática dos campos do cartão
+            document.getElementById('card-number').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\s/g, '');
+                if (value.length > 16) value = value.substring(0, 16);
+                
+                document.querySelectorAll('.card-image').forEach(img => {
+                    img.classList.remove('active');
+                });
+                
+                if (/^4/.test(value)) {
+                    document.getElementById('visa').classList.add('active');
+                } else if (/^5[1-5]/.test(value)) {
+                    document.getElementById('mastercard').classList.add('active');
+                } else if (/^3[47]/.test(value)) {
+                    document.getElementById('amex').classList.add('active');
+                } else if (/^6/.test(value)) {
+                    document.getElementById('elo').classList.add('active');
+                }
+                
+                value = value.replace(/(\d{4})/g, '$1 ').trim();
+                e.target.value = value;
             });
             
-            document.getElementById('order-total-sidebar').textContent = formatCurrency(pedido.total);
-            document.getElementById('order-total').textContent = formatCurrency(pedido.total);
-            
-            if (pedido.metodoPagamento === 'boleto' && pedido.boleto) {
-                document.getElementById('boleto-code').textContent = pedido.boleto.codigo;
-                document.getElementById('boleto-due-date').textContent = formatDate(pedido.boleto.vencimento);
-                document.getElementById('boleto-link').href = pedido.boleto.url;
-                document.getElementById('boleto-preview').style.display = 'block';
+            document.getElementById('card-expiry').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                if (value.length > 4) value = value.substring(0, 4);
                 
-                selectPaymentMethod(document.querySelector('[onclick*="boleto"]'), 'boleto');
+                if (value.length > 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2);
+                }
+                
+                e.target.value = value;
+            });
+            
+            document.getElementById('card-cvv').addEventListener('input', function(e) {
+                let value = e.target.value.replace(/\D/g, '');
+                e.target.value = value;
+            });
+
+            // Carrega os dados
+            const urlParams = new URLSearchParams(window.location.search);
+            const pedidoId = urlParams.get('pedidoId');
+            
+            if (!pedidoId) {
+                alert('Pedido não encontrado');
+                window.location.href = 'Mensalidade.html';
+                return;
             }
             
-            document.getElementById('order-number').textContent = pedido._id;
-            document.getElementById('order-date').textContent = formatDate(pedido.dataPedido);
-            document.getElementById('payment-method').textContent = 
-                pedido.metodoPagamento === 'boleto' ? 'Boleto Bancário' : 
-                pedido.metodoPagamento === 'card' ? 'Cartão de Crédito' : 
-                'PIX';
-        }
-        
-        function confirmPayment() {
-            const btn = document.querySelector('#payment-section .btn-primary');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
-            btn.disabled = true;
-            
-            setTimeout(() => {
-                updateProgress(100);
+            try {
+                currentUser = await loadUserProfile();
+                currentOrder = await loadOrder(pedidoId);
                 
-                document.getElementById('step3').classList.remove('active');
-                document.getElementById('step3').classList.add('completed');
-                document.getElementById('step4').classList.add('active');
+                // Renderiza o pedido
+                const resumoContainer = document.getElementById('order-summary');
+                resumoContainer.innerHTML = '';
                 
-                document.getElementById('payment-section').style.display = 'none';
-                document.getElementById('confirmation-section').style.display = 'block';
+                currentOrder.servicos.forEach(servico => {
+                    const item = document.createElement('div');
+                    item.className = 'order-item';
+                    item.innerHTML = `
+                        <span>${servico.servico?.nome || 'Serviço'} (${servico.frequencia === 'anual' ? 'Anual' : 'Mensal'})</span>
+                        <span>${formatCurrency(servico.valor)}</span>
+                    `;
+                    resumoContainer.appendChild(item);
+                });
                 
-                btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pagamento';
-                btn.disabled = false;
-            }, 2000);
-        }
-        
-        
-        updateProgress(66);
+                document.getElementById('order-total-sidebar').textContent = formatCurrency(currentOrder.total);
+                document.getElementById('order-total').textContent = formatCurrency(currentOrder.total);
+                
+                document.getElementById('order-number').textContent = currentOrder._id;
+                document.getElementById('order-date').textContent = formatDate(currentOrder.dataPedido);
+                
+                updateInstallments(currentOrder.total);
+                
+                const defaultMethod = currentOrder.metodoPagamento || 'boleto';
+                const defaultOption = document.querySelector(`.payment-option[data-method="${defaultMethod}"]`);
+                if (defaultOption) {
+                    selectPaymentMethod(defaultOption, defaultMethod);
+                }
+                
+            } catch (error) {
+                console.error('Erro:', error);
+                alert('Erro ao carregar dados: ' + error.message);
+                window.location.href = 'servicos.html';
+            }
+
+            updateProgress(66);
+        });
     </script>
 </body>
 </html>

@@ -4,19 +4,332 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Abrir Chamado - Resolve+</title>
-    <link rel="stylesheet" href="abrir-chamado.css">
-    <link href="https://fonts.googleapis.com/css?family=DM+Sans:400,500,700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="EstiloGlobal.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary: #1b3053;
+            --primary-dark: #364279;
+            --secondary: #626262;
+            --success: #72f04c;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --info: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+            --white: #ffffff;
+            --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            color: var(--dark);
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Layout Principal */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Cabeçalho Moderno */
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: var(--white);
+            box-shadow: var(--card-shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .app-header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .app-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .app-logo-img {
+            height: 32px;
+            width: auto;
+        }
+
+        .app-name {
+            font-weight: 700;
+            font-size: 1.25rem;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+
+        .back-arrow {
+            color: var(--primary);
+            text-decoration: none;
+            font-size: 1.5rem;
+            margin-left: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        /* Conteúdo Principal - Layout de Duas Colunas */
+        .app-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .form-column {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .map-column {
+            flex: 1;
+            display: none;
+            background: var(--light);
+            border-left: 1px solid var(--light-gray);
+        }
+
+        @media (min-width: 1200px) {
+            .map-column {
+                display: block;
+            }
+        }
+
+        .form-container {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+            text-align: center;
+        }
+
+        /* Formulário */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark);
+        }
+
+        .form-label .required {
+            color: var(--danger);
+        }
+
+        .form-input, .form-textarea, .form-select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        }
+
+        .form-textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        /* Seção de Localização */
+        .location-section {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .location-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .location-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .location-type input[type="radio"] {
+            accent-color: var(--primary);
+        }
+
+        .location-details {
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .location-details.active {
+            display: block;
+        }
+
+        .location-coordinates {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .location-coordinates input {
+            flex: 1;
+        }
+
+        .get-location-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .get-location-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Seção de Fotos */
+        .photo-section {
+            margin: 1.5rem 0;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 8px;
+        }
+
+        .photo-section-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: var(--dark);
+            font-weight: 600;
+        }
+
+        .photo-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .photo-option {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .photo-buttons {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #d32f2f;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #3aa8d8;
+        }
+
+        /* Visualização da câmera */
         .camera-preview {
             width: 100%;
-            max-width: 350px;
+            max-width: 500px;
             margin: 1rem auto;
             border-radius: 8px;
             overflow: hidden;
             display: none;
             position: relative;
             aspect-ratio: 4/3;
+            background: var(--dark);
         }
 
         .camera-preview video {
@@ -26,120 +339,297 @@
         }
 
         .camera-controls {
-            margin-top: 1rem;
-            text-align: center;
-        }
-
-        .btn-capture {
-            background-color: #191919;
-            color: white;
-            padding: 0.8rem 1.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s;
-        }
-
-        .btn-capture:hover {
-            color: #191919;
-            background-color: #ffffff;
-        }
-
-        .captured-image {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            margin: 1rem auto;
-            display: none;
-            object-fit: contain;
-        }
-
-        #reiniciarCamera {
-            background-color: #f44336;
-            margin-left: 0.5rem;
-        }
-
-        #reiniciarCamera:hover {
-            background-color: #d32f2f;
-        }
-
-        .camera-controls {
             display: flex;
             justify-content: center;
             gap: 0.5rem;
             margin-top: 1rem;
         }
 
-        .camera-controls button {
-            flex: 1;
-            max-width: 150px;
+        /* Imagens capturadas/selecionadas */
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 8px;
+            margin: 1rem auto;
+            display: none;
+            object-fit: contain;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Mapa */
+        #map {
+            height: 100%;
+            width: 100%;
+            border-radius: 0;
+        }
+
+        .map-container {
+            position: relative;
+            height: 100%;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .map-btn {
+            background: var(--white);
+            border: none;
+            border-radius: 4px;
+            padding: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Botão de submit */
+        .submit-section {
+            margin-top: auto;
+            padding-top: 2rem;
+            text-align: center;
+        }
+
+        .btn-submit {
+            background: var(--success);
+            color: white;
+            padding: 0.9rem 2rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .btn-submit:hover {
+            background: #3aa8d8;
+            transform: translateY(-2px);
+        }
+
+        /* Estilos para o input file escondido */
+        .hidden-file-input {
+            display: none;
+        }
+
+        /* Estilo para quando há uma imagem selecionada */
+        .has-image {
+            border: 2px dashed var(--primary);
+            padding: 1rem;
+            border-radius: 8px;
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        /* Status da localização */
+        .location-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .location-status i {
+            font-size: 1rem;
+        }
+
+        .location-acquired {
+            color: var(--success);
+        }
+
+        .location-error {
+            color: var(--danger);
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            .form-column {
+                padding: 1rem;
+            }
+            
+            .form-container {
+                padding: 1.5rem;
+            }
+            
+            .photo-buttons {
+                flex-direction: column;
+            }
+            
+            .photo-buttons .btn {
+                width: 100%;
+            }
+        }
+
+        /* Loading spinner */
+        .loading-spinner {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            color: var(--gray);
+        }
+
+        .fa-spin {
+            animation: fa-spin 2s infinite linear;
+        }
+
+        @keyframes fa-spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
 <body>
     <div class="app-container">
-        <div class="app-header">
+        <header class="app-header">
             <div class="app-header-left">
-                <span class="app-icon"></span>
-                <p class="app-name">Resolve+</p>
-                <a href="TelaChamados.html" class="back-arrow">←</a>
-            </div>
-           
-        </div>
-        <div class="app-content">
-            <div class="projects-section">
-                <div class="projects-section-header">
-                    <p>Abrir Novo Chamado</p>
+                <div class="app-logo">
+                    <img src="img/Logo_Novo-removebg-preview.png" alt="Logo Resolve+" class="app-logo-img">
+                    <span class="app-name">Resolve+</span>
                 </div>
-                <form id="chamadoForm">
-                    <div class="form-group">
-                        <label for="titulo">Título do Chamado:</label>
-                        <input type="text" id="titulo" name="titulo" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="descricao">Descrição:</label>
-                        <textarea id="descricao" name="descricao" rows="4" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="localizacao">Localização:</label>
-                        <select id="localizacao" name="localizacao" required>
-                            <option value="">Selecione...</option>
-                            <option value="corredor">Corredor Principal</option>
-                            <option value="loja">Dentro de uma Loja</option>
-                            <option value="estacionamento">Estacionamento</option>
-                            <option value="alimentacao">Praça de Alimentação</option>
-                            <option value="jardim">Jardim</option>
-                            <option value="outro">Outro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label>Selecionar Foto:</label>
-                        <input type="file" id="selecionarFoto" accept="image/*" style="display: none;">
-                        <button type="button" id="botaoSelecionarFoto" class="btn-capture">Selecionar Foto</button>
-                        <img id="imagemSelecionada" class="captured-image" alt="Imagem Selecionada" style="display: none;">
-                    </div>
-                    <div class="form-group">
-                        <label>Capturar Foto:</label>
-                        <button type="button" id="iniciarCamera" class="btn-capture">Iniciar Câmera</button>
-                        <div class="camera-preview" id="cameraPreview">
-                            <video id="video" autoplay></video>
+                <a href="TelaChamados.html" class="back-arrow">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+            </div>
+        </header>
+
+        <div class="app-content">
+            <div class="form-column">
+                <div class="form-container">
+                    <h1 class="form-title">Abrir Novo Chamado</h1>
+                    
+                    <form id="chamadoForm">
+                        <div class="form-group">
+                            <label for="titulo" class="form-label">Título do Chamado <span class="required">*</span></label>
+                            <input type="text" id="titulo" name="titulo" class="form-input" placeholder="Descreva brevemente o problema" required>
                         </div>
-                        <div class="camera-controls" id="cameraControls" style="display: none;">
-                            <button type="button" id="capturarFoto" class="btn-capture">Tirar Foto</button>
-                            <button type="button" id="reiniciarCamera" class="btn-capture" style="display: none;">Tentar Novamente</button>
+                        
+                        <div class="form-group">
+                            <label for="descricao" class="form-label">Descrição Detalhada <span class="required">*</span></label>
+                            <textarea id="descricao" name="descricao" class="form-textarea" placeholder="Forneça todos os detalhes relevantes sobre o problema..." required></textarea>
                         </div>
-                        <canvas id="canvas" style="display: none;"></canvas>
-                        <img id="fotoCapturada" class="captured-image" alt="Foto Capturada">
+                        
+                        <div class="location-section">
+                            <h3 class="photo-section-title">Localização do Problema <span class="required">*</span></h3>
+                            
+                            <div class="location-options">
+                                <div class="location-type">
+                                    <input type="radio" id="locationTypePredefined" name="locationType" value="predefined" checked>
+                                    <label for="locationTypePredefined">Selecionar localização pré-definida</label>
+                                </div>
+                                
+                                <div class="location-type">
+                                    <input type="radio" id="locationTypeGPS" name="locationType" value="gps">
+                                    <label for="locationTypeGPS">Usar minha localização atual (GPS)</label>
+                                </div>
+                                
+                                <div id="predefinedLocationDetails" class="location-details active">
+                                    <select id="localizacao" name="localizacao" class="form-select" required>
+                                        <option value="">Selecione a localização...</option>
+                                        <option value="corredor">Corredor Principal</option>
+                                        <option value="loja">Dentro de uma Loja</option>
+                                        <option value="estacionamento">Estacionamento</option>
+                                        <option value="alimentacao">Praça de Alimentação</option>
+                                        <option value="jardim">Jardim</option>
+                                        <option value="outro">Outro</option>
+                                    </select>
+                                </div>
+                                
+                                <div id="gpsLocationDetails" class="location-details">
+                                    <button type="button" id="getLocationBtn" class="get-location-btn">
+                                        <i class="fas fa-location-arrow"></i> Obter Localização
+                                    </button>
+                                    <div class="location-status" id="locationStatus">
+                                        <i class="fas fa-info-circle"></i>
+                                        <span>Clique no botão para obter sua localização</span>
+                                    </div>
+                                    <input type="hidden" id="latitude" name="latitude">
+                                    <input type="hidden" id="longitude" name="longitude">
+                                    <input type="hidden" id="accuracy" name="accuracy">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="photo-section">
+                            <h3 class="photo-section-title">Adicionar Foto do Problema</h3>
+                            <p style="margin-bottom: 1rem; color: var(--gray);">Adicione uma foto para ajudar na identificação do problema (opcional)</p>
+                            
+                            <div class="photo-options">
+                                <div class="photo-option">
+                                    <label class="form-label">Selecionar do dispositivo</label>
+                                    <div class="photo-buttons">
+                                        <input type="file" id="selecionarFoto" accept="image/*" class="hidden-file-input">
+                                        <button type="button" id="botaoSelecionarFoto" class="btn btn-secondary">
+                                            <i class="fas fa-folder-open"></i> Escolher Arquivo
+                                        </button>
+                                        <span id="fileName" style="align-self: center; color: var(--gray);"></span>
+                                    </div>
+                                    <img id="imagemSelecionada" class="image-preview" alt="Imagem Selecionada">
+                                </div>
+                                
+                                <div class="photo-option">
+                                    <label class="form-label">Ou capturar foto agora</label>
+                                    <div class="photo-buttons">
+                                        <button type="button" id="iniciarCamera" class="btn btn-secondary">
+                                            <i class="fas fa-camera"></i> Usar Câmera
+                                        </button>
+                                    </div>
+                                    
+                                    <div class="camera-preview" id="cameraPreview">
+                                        <video id="video" autoplay></video>
+                                    </div>
+                                    
+                                    <div class="camera-controls" id="cameraControls" style="display: none;">
+                                        <button type="button" id="capturarFoto" class="btn btn-primary">
+                                            <i class="fas fa-camera"></i> Capturar
+                                        </button>
+                                        <button type="button" id="reiniciarCamera" class="btn btn-danger" style="display: none;">
+                                            <i class="fas fa-redo"></i> Tentar Novamente
+                                        </button>
+                                    </div>
+                                    
+                                    <canvas id="canvas" style="display: none;"></canvas>
+                                    <img id="fotoCapturada" class="image-preview" alt="Foto Capturada">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="submit-section">
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-paper-plane"></i> Abrir Chamado
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="map-column">
+                <div class="map-container">
+                    <div id="map"></div>
+                    <div class="map-controls">
+                        <button id="locateMeBtn" class="map-btn" title="Centralizar em minha localização">
+                            <i class="fas fa-location-arrow"></i>
+                        </button>
                     </div>
-                    <button type="submit" class="btn-submit">Abrir Chamado</button>
-                </form>
+                </div>
             </div>
         </div>
     </div>
 
-    <script src="EstiloGlobal.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
     <script>
+        // Elementos da interface
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const fotoCapturada = document.getElementById('fotoCapturada');
@@ -151,26 +641,211 @@
         const selecionarFotoInput = document.getElementById('selecionarFoto');
         const botaoSelecionarFoto = document.getElementById('botaoSelecionarFoto');
         const imagemSelecionada = document.getElementById('imagemSelecionada');
+        const fileName = document.getElementById('fileName');
+        const chamadoForm = document.getElementById('chamadoForm');
+        const getLocationBtn = document.getElementById('getLocationBtn');
+        const locationStatus = document.getElementById('locationStatus');
+        const locationTypeRadios = document.querySelectorAll('input[name="locationType"]');
+        const predefinedLocationDetails = document.getElementById('predefinedLocationDetails');
+        const gpsLocationDetails = document.getElementById('gpsLocationDetails');
+        const latitudeInput = document.getElementById('latitude');
+        const longitudeInput = document.getElementById('longitude');
+        const accuracyInput = document.getElementById('accuracy');
+        const locateMeBtn = document.getElementById('locateMeBtn');
 
+        // Variáveis para mapa
+        let map;
+        let userMarker;
+        let userCircle;
+
+        // Inicializar o mapa se a coluna do mapa estiver visível
+        if (document.querySelector('.map-column').style.display !== 'none') {
+            initMap();
+        }
+
+        function initMap() {
+            // Coordenadas padrão (centro do Brasil)
+            const defaultCoords = [-15.7942, -47.8825];
+            
+            map = L.map('map').setView(defaultCoords, 15);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            
+            // Adicionar marcador inicial
+            userMarker = L.marker(defaultCoords, {
+                draggable: true,
+                icon: L.divIcon({
+                    className: 'user-marker',
+                    html: '<div style="background-color: var(--primary); width: 24px; height: 24px; border-radius: 50%; border: 3px solid white;"></div>',
+                    iconSize: [30, 30],
+                    iconAnchor: [15, 15]
+                })
+            }).addTo(map);
+            
+            // Adicionar círculo de precisão
+            userCircle = L.circle(defaultCoords, {
+                color: '#4361ee',
+                fillColor: '#4361ee',
+                fillOpacity: 0.2,
+                radius: 100
+            }).addTo(map);
+            
+            // Evento para quando o marcador é movido
+            userMarker.on('dragend', function(e) {
+                const marker = e.target;
+                const position = marker.getLatLng();
+                
+                // Atualizar inputs de coordenadas
+                latitudeInput.value = position.lat;
+                longitudeInput.value = position.lng;
+                accuracyInput.value = 10; // Precisão estimada quando arrastado
+                
+                // Atualizar círculo de precisão
+                userCircle.setLatLng(position).setRadius(10);
+            });
+            
+            // Centralizar no usuário quando clicar no botão
+            locateMeBtn.addEventListener('click', function() {
+                getLocation(true);
+            });
+        }
+
+        // Alternar entre tipos de localização
+        locationTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                if (this.value === 'predefined') {
+                    predefinedLocationDetails.classList.add('active');
+                    gpsLocationDetails.classList.remove('active');
+                    document.getElementById('localizacao').required = true;
+                } else {
+                    predefinedLocationDetails.classList.remove('active');
+                    gpsLocationDetails.classList.add('active');
+                    document.getElementById('localizacao').required = false;
+                }
+            });
+        });
+
+        // Obter localização GPS
+        getLocationBtn.addEventListener('click', function() {
+            getLocation();
+        });
+
+        function getLocation(centerMap = false) {
+            if (!navigator.geolocation) {
+                updateLocationStatus('error', 'Geolocalização não suportada pelo navegador');
+                return;
+            }
+
+            updateLocationStatus('loading', 'Obtendo localização...');
+            
+            navigator.geolocation.getCurrentPosition(
+                function(position) {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+                    
+                    // Atualizar inputs
+                    latitudeInput.value = lat;
+                    longitudeInput.value = lng;
+                    accuracyInput.value = accuracy;
+                    
+                    // Atualizar status
+                    updateLocationStatus('success', `Localização obtida (precisão: ${Math.round(accuracy)} metros)`);
+                    
+                    // Atualizar mapa se estiver visível
+                    if (map) {
+                        const userCoords = [lat, lng];
+                        
+                        if (centerMap) {
+                            map.setView(userCoords, 17);
+                        }
+                        
+                        // Atualizar marcador e círculo
+                        userMarker.setLatLng(userCoords);
+                        userCircle.setLatLng(userCoords).setRadius(accuracy);
+                    }
+                },
+                function(error) {
+                    let errorMessage;
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = "Permissão para acessar a localização foi negada";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = "Informações de localização não estão disponíveis";
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = "A requisição para obter localização expirou";
+                            break;
+                        case error.UNKNOWN_ERROR:
+                            errorMessage = "Ocorreu um erro desconhecido";
+                            break;
+                    }
+                    updateLocationStatus('error', errorMessage);
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+            );
+        }
+
+        function updateLocationStatus(status, message) {
+            const icon = locationStatus.querySelector('i');
+            const text = locationStatus.querySelector('span');
+            
+            // Remover todas as classes de status
+            locationStatus.className = 'location-status';
+            icon.className = 'fas';
+            
+            // Adicionar classes baseadas no status
+            if (status === 'success') {
+                locationStatus.classList.add('location-acquired');
+                icon.classList.add('fa-check-circle');
+            } else if (status === 'error') {
+                locationStatus.classList.add('location-error');
+                icon.classList.add('fa-exclamation-circle');
+            } else if (status === 'loading') {
+                icon.classList.add('fa-spinner', 'fa-spin');
+            } else {
+                icon.classList.add('fa-info-circle');
+            }
+            
+            text.textContent = message;
+        }
+
+        // Variável para armazenar o stream da câmera
+        let stream;
+
+        // Evento para selecionar foto do dispositivo
         botaoSelecionarFoto.addEventListener('click', () => {
             selecionarFotoInput.click();
         });
 
-        
+        // Mostrar preview da imagem selecionada
         selecionarFotoInput.addEventListener('change', (event) => {
             const arquivo = event.target.files[0];
             if (arquivo) {
+                fileName.textContent = arquivo.name;
+                
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     imagemSelecionada.src = e.target.result;
                     imagemSelecionada.style.display = 'block';
+                    
+                    // Resetar foto da câmera se houver
+                    if (fotoCapturada.style.display === 'block') {
+                        resetarCamera();
+                    }
                 };
                 reader.readAsDataURL(arquivo);
             }
         });
 
-        let stream;
-
+        // Iniciar câmera
         async function iniciarCamera() {
             try {
                 const constraints = {
@@ -186,10 +861,20 @@
                 cameraPreview.style.display = 'block';
                 cameraControls.style.display = 'flex';
                 iniciarCameraBtn.style.display = 'none';
+                
+                // Resetar imagem selecionada se houver
+                if (imagemSelecionada.style.display === 'block') {
+                    imagemSelecionada.style.display = 'none';
+                    fileName.textContent = '';
+                    selecionarFotoInput.value = '';
+                }
             } catch (error) {
                 alert('Erro ao acessar a câmera: ' + error.message);
+                console.error('Erro na câmera:', error);
             }
         }
+
+        // Capturar foto da câmera
         function capturarFoto() {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -199,77 +884,148 @@
             fotoCapturada.style.display = 'block';
             cameraPreview.style.display = 'none';
             capturarFotoBtn.style.display = 'none';
-            reiniciarCameraBtn.style.display = 'inline-block';
+            reiniciarCameraBtn.style.display = 'block';
+            
+            // Parar a câmera após captura
+            pararCamera();
         }
 
+        // Reiniciar captura de foto
         function reiniciarCamera() {
             fotoCapturada.style.display = 'none';
             cameraPreview.style.display = 'block';
-            capturarFotoBtn.style.display = 'inline-block';
+            capturarFotoBtn.style.display = 'block';
             reiniciarCameraBtn.style.display = 'none';
+            
+            // Reiniciar a câmera
+            iniciarCamera();
         }
 
+        // Resetar completamente a câmera
+        function resetarCamera() {
+            fotoCapturada.style.display = 'none';
+            cameraPreview.style.display = 'none';
+            cameraControls.style.display = 'none';
+            capturarFotoBtn.style.display = 'block';
+            reiniciarCameraBtn.style.display = 'none';
+            iniciarCameraBtn.style.display = 'block';
+            
+            pararCamera();
+        }
+
+        // Parar a câmera
         function pararCamera() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
+                video.srcObject = null;
+                stream = null;
             }
         }
 
+        // Event listeners
         iniciarCameraBtn.addEventListener('click', iniciarCamera);
         capturarFotoBtn.addEventListener('click', capturarFoto);
         reiniciarCameraBtn.addEventListener('click', reiniciarCamera);
         window.addEventListener('beforeunload', pararCamera);
 
-        document.getElementById('chamadoForm').addEventListener('submit', async function (event) {
-    event.preventDefault();
+        // Enviar formulário
+        chamadoForm.addEventListener('submit', async function (event) {
+            event.preventDefault();
 
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const token = localStorage.getItem('token'); // Recupera o token
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const token = localStorage.getItem('token');
 
-    if (!currentUser || !currentUser._id || !token) {
-        alert('Usuário não está logado. Faça login novamente.');
-        window.location.href = 'Login.html';
-        return;
-    }
+            if (!currentUser || !currentUser._id || !token) {
+                alert('Usuário não está logado. Faça login novamente.');
+                window.location.href = 'Login.html';
+                return;
+            }
 
-    const titulo = document.getElementById('titulo').value;
-    const descricao = document.getElementById('descricao').value;
-    const localizacao = document.getElementById('localizacao').value;
-    const fotoCapturada = document.getElementById('fotoCapturada').src;
-    const imagemSelecionada = document.getElementById('imagemSelecionada').src;
+            const titulo = document.getElementById('titulo').value;
+            const descricao = document.getElementById('descricao').value;
+            const localizacao = document.getElementById('localizacao').value;
+            const fotoCapturada = document.getElementById('fotoCapturada').src;
+            const imagemSelecionada = document.getElementById('imagemSelecionada').src;
+            const locationType = document.querySelector('input[name="locationType"]:checked').value;
+            
+            // Validar campos obrigatórios
+            if (!titulo || !descricao) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+                return;
+            }
+            
+            // Validar localização baseada no tipo selecionado
+            if (locationType === 'predefined' && !localizacao) {
+                alert('Por favor, selecione uma localização.');
+                return;
+            }
+            
+            if (locationType === 'gps' && (!latitudeInput.value || !longitudeInput.value)) {
+                alert('Por favor, obtenha sua localização GPS antes de enviar.');
+                return;
+            }
 
-    if (!titulo || !descricao || !localizacao) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
-        return;
-    }
+            // Preparar objeto de localização
+            let locationData = {};
+            if (locationType === 'predefined') {
+                locationData = {
+                    type: 'predefined',
+                    value: localizacao
+                };
+            } else {
+                locationData = {
+                    type: 'gps',
+                    coordinates: {
+                        latitude: latitudeInput.value,
+                        longitude: longitudeInput.value,
+                        accuracy: accuracyInput.value
+                    }
+                };
+            }
 
-    try {
-        const response = await fetch('/abrir-chamado', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` // Envia o token no cabeçalho
-            },
-            body: JSON.stringify({
-                titulo,
-                descricao,
-                localizacao,
-                foto: fotoCapturada || imagemSelecionada || null,
-                criador: currentUser._id 
-            })
+            try {
+                // Mostrar feedback visual de carregamento
+                const submitBtn = document.querySelector('.btn-submit');
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+                submitBtn.disabled = true;
+
+                const response = await fetch('/abrir-chamado', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        titulo,
+                        descricao,
+                        localizacao: locationData,
+                        foto: fotoCapturada || imagemSelecionada || null,
+                        criador: currentUser._id 
+                    })
+                });
+
+                // Restaurar botão
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+
+                if (response.ok) {
+                    alert('Chamado aberto com sucesso!');
+                    window.location.href = 'TelaChamados.html';
+                } else {
+                    const data = await response.json();
+                    alert(data.message || 'Erro ao criar chamado.');
+                }
+            } catch (error) {
+                alert('Erro ao criar chamado: ' + error.message);
+                console.error('Erro:', error);
+                
+                // Restaurar botão em caso de erro
+                const submitBtn = document.querySelector('.btn-submit');
+                submitBtn.innerHTML = originalBtnText;
+                submitBtn.disabled = false;
+            }
         });
-
-        if (response.ok) {
-            alert('Chamado aberto com sucesso!');
-            window.location.href = 'TelaChamados.html';
-        } else {
-            const data = await response.json();
-            alert(data.message || 'Erro ao criar chamado.');
-        }
-    } catch (error) {
-        alert('Erro ao criar chamado: ' + error.message);
-    }
-});
- </script>
+    </script>
 </body>
 </html>
