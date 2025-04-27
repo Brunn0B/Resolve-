@@ -3,10 +3,10 @@
 
 - **Menbros da Equipe**
 
-- **Brunno de Brito Barros** Desenvolvedor Fullstack & Cybersecurity Enthusiast
-- **Gabriel Marcondes de Oliveira** Desenvolvedor Fullstack
-- **Henrique Bertechini Bilia Franco** Desenvolvedor Java
-- **Vanessa Mendes** Gestora Administrativa
+- **Brunno de Brito Barros** : Desenvolvedor Fullstack & Cybersecurity Enthusiast
+- **Gabriel Marcondes de Oliveira** : Desenvolvedor Fullstack
+- **Henrique Bertechini Bilia Franco** : Desenvolvedor Java
+- **Vanessa Mendes** : Gestora Administrativa
 
 
 # Resolve+
