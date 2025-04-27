@@ -1,3 +1,14 @@
+# Equipe Croesus 
+- <img src="/public/img/Logo 2 hd.png" alt="Logo do Projeto" width="200"/>
+
+- **Menbros da Equipe**
+
+- **Brunno de Brito Barros**Desenvolvedor Fullstack & Cybersecurity Enthusiast
+- **Gabriel Marcondes de Oliveira**Desenvolvedor Fullstack
+- **Henrique Bertechini Bilia Franco**Desenvolvedor Java
+- **Vanessa Mendes**Gestora Administrativa
+
+
 # Resolve+
 
 **Resolve+** é uma plataforma de gerenciamento de chamados e suporte técnico, projetada para otimizar a resolução de problemas em ambientes corporativos. Com uma interface intuitiva e funcionalidades avançadas, o Resolve+ permite que usuários e administradores acompanhem, gerenciem e resolvam chamados de forma eficiente.

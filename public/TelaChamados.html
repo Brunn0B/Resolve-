@@ -1035,7 +1035,7 @@
 
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Elementos da interface
+        
         const elements = {
             mobileMenuBtn: document.getElementById('mobileMenuBtn'),
             appSidebar: document.getElementById('appSidebar'),
@@ -1060,7 +1060,6 @@
             cancelConfigBtn: document.getElementById('cancelConfigBtn')
         };
 
-        // 1. Carregar perfil do usuário
         async function carregarPerfilUsuario() {
             try {
                 const response = await fetch('/api/user-profile', {
@@ -1078,7 +1077,6 @@
                 return user;
             } catch (error) {
                 console.error('Erro ao carregar perfil:', error);
-                // Mostra 'US' como fallback
                 elements.profileInitials.textContent = 'US';
                 elements.profileName.textContent = 'Usuário';
                 return null;
@@ -1088,7 +1086,6 @@
         function atualizarHeaderUsuario(user) {
             if (!user) return;
             
-            // Pegar iniciais do nome
             const initials = user.name.split(' ')
                              .map(n => n[0])
                              .join('')
@@ -1098,7 +1095,6 @@
             elements.profileInitials.textContent = initials;
             elements.profileName.textContent = user.name;
             
-            // Se tiver avatar
             if (user.avatar) {
                 elements.profileInitials.style.backgroundImage = `url(${user.avatar})`;
                 elements.profileInitials.style.backgroundSize = 'cover';
@@ -1106,14 +1102,11 @@
             }
         }
 
-        // 2. Configurar controles de visualização
         function configurarVisualizacao() {
             if (!elements.listViewBtn || !elements.gridViewBtn || !elements.chamadosContainer) return;
 
-            // Estado inicial (grade ativa)
             let visualizacaoAtual = 'grid';
             
-            // Alternar para lista
             elements.listViewBtn.addEventListener('click', function() {
                 if (visualizacaoAtual === 'list') return;
                 
@@ -1124,7 +1117,6 @@
                 visualizacaoAtual = 'list';
             });
 
-            // Alternar para grade
             elements.gridViewBtn.addEventListener('click', function() {
                 if (visualizacaoAtual === 'grid') return;
                 
@@ -1136,7 +1128,6 @@
             });
         }
 
-        // 3. Atualizar hora atual
         function atualizarHora() {
             const now = new Date();
             const options = { 
@@ -1150,7 +1141,6 @@
             elements.currentTime.textContent = now.toLocaleDateString('pt-BR', options);
         }
 
-        // 4. Menu mobile
         function configurarMenuMobile() {
             if (elements.mobileMenuBtn && elements.appSidebar) {
                 elements.mobileMenuBtn.addEventListener('click', function() {
@@ -1159,7 +1149,6 @@
             }
         }
 
-        // 5. Painel de mensagens
         function configurarPainelMensagens() {
             if (elements.notificationBtn && elements.messagesPanel && elements.messagesClose) {
                 elements.notificationBtn.addEventListener('click', function() {
@@ -1172,16 +1161,13 @@
             }
         }
 
-        // 6. Modal de configurações
         function configurarModalConfig() {
             if (elements.configLink && elements.configModal && elements.configClose) {
-                // Abrir modal
                 elements.configLink.addEventListener('click', function(e) {
                     e.preventDefault();
                     elements.configModal.classList.add('show');
                 });
 
-                // Fechar modal
                 elements.configClose.addEventListener('click', function() {
                     elements.configModal.classList.remove('show');
                 });
@@ -1190,29 +1176,23 @@
                     elements.configModal.classList.remove('show');
                 });
 
-                // Clicar fora do modal
                 elements.configModal.addEventListener('click', function(e) {
                     if (e.target === elements.configModal) {
                         elements.configModal.classList.remove('show');
                     }
                 });
 
-                // Salvar configurações
                 elements.saveConfigBtn.addEventListener('click', function() {
-                    // Implementar lógica de salvamento aqui
                     alert('Configurações salvas com sucesso!');
                     elements.configModal.classList.remove('show');
                 });
             }
         }
 
-        // 7. Função principal para carregar chamados
         async function carregarChamados() {
             try {
-                // Mostrar estado de carregamento
                 elements.chamadosContainer.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Carregando chamados...</div>';
                 
-                // Buscar chamados da API
                 const response = await fetch('/buscar-chamados');
                 
                 if (!response.ok) {
@@ -1221,13 +1201,10 @@
                 
                 const chamados = await response.json();
 
-                // Limpar container
                 elements.chamadosContainer.innerHTML = '';
 
-                // Atualizar contadores
                 atualizarContadores(chamados);
 
-                // Renderizar cada chamado
                 chamados.forEach(chamado => {
                     renderizarChamado(chamado);
                 });
@@ -1238,7 +1215,6 @@
             }
         }
 
-        // Atualizar os contadores de status
         function atualizarContadores(chamados) {
             const counts = {
                 total: chamados.length,
@@ -1252,7 +1228,6 @@
             if (elements.totalChamados) elements.totalChamados.textContent = counts.total;
         }
 
-        // Renderizar um chamado na lista principal
         function renderizarChamado(chamado) {
             const nomeCriador = chamado.criador && chamado.criador.name ? chamado.criador.name : 'Usuário Anônimo';
             const statusClass = getStatusClass(chamado.status);
@@ -1287,11 +1262,9 @@
 
             elements.chamadosContainer.insertAdjacentHTML('beforeend', chamadoHTML);
 
-            // Configurar eventos para o chamado recém-adicionado
             configurarEventosChamado(chamado._id);
         }
 
-        // Configurar eventos para um chamado específico
         function configurarEventosChamado(chamadoId) {
             const moreBtn = document.querySelector(`.chamado-more-btn[data-id="${chamadoId}"]`);
             const optionsMenu = document.getElementById(`options-${chamadoId}`);
@@ -1300,18 +1273,15 @@
                 moreBtn.addEventListener('click', function(e) {
                     e.stopPropagation();
                     
-                    // Esconder todos os outros menus
                     document.querySelectorAll('.chamado-options').forEach(menu => {
                         if (menu !== optionsMenu) {
                             menu.style.display = 'none';
                         }
                     });
                     
-                    // Alternar o menu atual
                     optionsMenu.style.display = optionsMenu.style.display === 'block' ? 'none' : 'block';
                 });
 
-                // Configurar eventos para as opções
                 const options = optionsMenu.querySelectorAll('.chamado-option');
                 options.forEach(option => {
                     option.addEventListener('click', async function() {
@@ -1319,7 +1289,6 @@
                         
                         try {
                             await atualizarStatus(chamadoId, status);
-                            // Recarregar os chamados após atualização
                             await carregarChamados();
                         } catch (error) {
                             console.error('Erro ao atualizar status:', error);
@@ -1330,14 +1299,12 @@
             }
         }
 
-        // Clicar fora fecha os menus de opções
         document.addEventListener('click', function() {
             document.querySelectorAll('.chamado-options').forEach(menu => {
                 menu.style.display = 'none';
             });
         });
 
-        // Atualizar status de um chamado
         async function atualizarStatus(chamadoId, status) {
             try {
                 const response = await fetch(`/atualizar-status/${chamadoId}`, {
@@ -1359,7 +1326,6 @@
             }
         }
 
-        // Helper: obter classe CSS para o status
         function getStatusClass(status) {
             switch (status) {
                 case 'pendente': return 'status-pendente';
@@ -1369,7 +1335,6 @@
             }
         }
 
-        // Helper: formatar texto do status
         function formatStatus(status) {
             switch (status) {
                 case 'pendente': return 'Pendente';
@@ -1379,26 +1344,20 @@
             }
         }
 
-        // Iniciar a aplicação
         async function iniciarAplicacao() {
-            // Carregar perfil do usuário
             await carregarPerfilUsuario();
             
-            // Configurar controles
             configurarVisualizacao();
             configurarMenuMobile();
             configurarPainelMensagens();
             configurarModalConfig();
             
-            // Atualizar hora e configurar intervalo
             atualizarHora();
-            setInterval(atualizarHora, 60000); // Atualizar a cada minuto
+            setInterval(atualizarHora, 60000); 
             
-            // Carregar chamados
             await carregarChamados();
         }
 
-        // Iniciar
         iniciarAplicacao();
     });
     </script>

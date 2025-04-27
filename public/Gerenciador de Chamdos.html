@@ -226,6 +226,96 @@
             z-index: 100;
             position: relative;
         }
+
+        .message-card {
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .message-body {
+            padding: 12px;
+        }
+        
+        .message-time {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+        
+        .ticket-details-row {
+            margin-bottom: 15px;
+        }
+        
+        .ticket-detail-label {
+            font-weight: 600;
+            color: #495057;
+        }
+        
+        .ticket-detail-value {
+            color: #212529;
+        }
+        
+        .status-selector {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+        
+        .assignee-selector {
+            width: 100%;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ced4da;
+        }
+        
+        .priority-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .priority-high {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        
+        .priority-medium {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        
+        .priority-low {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .loading-spinner {
+            color: white;
+            font-size: 2rem;
+        }
         
         @media (max-width: 768px) {
             .sidebar {
@@ -249,52 +339,33 @@
 <body>
     <div class="sidebar">
         <div class="sidebar-header d-flex justify-content-between align-items-center">
-            <h4 class="mb-0">Admin Panel (Esta Tela Ainda Nao esta Funcional!!!!!!)</h4>
+            <h4 class="mb-0">Gerenciador de Chamados</h4>
             <button class="btn btn-sm btn-outline-light d-md-none" id="sidebarToggle">
                 <i class="fas fa-bars"></i>
             </button>
         </div>
         
         <div class="sidebar-user text-center py-3">
-            <img src="https://ui-avatars.com/api/?name=Admin&background=3498db&color=fff" alt="User" class="rounded-circle mb-2" width="80">
-            <h6 class="mb-0">Administrador</h6>
-            <small class="text-muted">admin@empresa.com</small>
+            <img id="userAvatar" src="https://ui-avatars.com/api/?name=Admin&background=3498db&color=fff" alt="User" class="rounded-circle mb-2" width="80">
+            <h6 class="mb-0" id="userName">Carregando...</h6>
+            <small class="text-muted" id="userEmail">admin@empresa.com</small>
         </div>
         
         <ul class="sidebar-menu">
-            <li class="active">
-                <a href="#dashboard" data-bs-toggle="tab">
-                    <i class="fas fa-tachometer-alt"></i> Dashboard
-                </a>
-            </li>
+           
             <li>
-                <a href="#chamados" data-bs-toggle="tab">
+                <a href="TelaChamados.html" data-bs-toggle="tab">
                     <i class="fas fa-ticket-alt"></i> Chamados
                 </a>
             </li>
             <li>
-                <a href="#usuarios" data-bs-toggle="tab">
+                <a href="PerfilUser.html" data-bs-toggle="tab">
                     <i class="fas fa-users"></i> Usuários
                 </a>
             </li>
             <li>
-                <a href="#servicos" data-bs-toggle="tab">
+                <a href="Mensalidade.html" data-bs-toggle="tab">
                     <i class="fas fa-cubes"></i> Serviços
-                </a>
-            </li>
-            <li>
-                <a href="#pedidos" data-bs-toggle="tab">
-                    <i class="fas fa-shopping-cart"></i> Pedidos
-                </a>
-            </li>
-            <li>
-                <a href="#relatorios" data-bs-toggle="tab">
-                    <i class="fas fa-chart-bar"></i> Relatórios
-                </a>
-            </li>
-            <li>
-                <a href="#configuracoes" data-bs-toggle="tab">
-                    <i class="fas fa-cog"></i> Configurações
                 </a>
             </li>
             <li>
@@ -568,191 +639,6 @@
                     </div>
                 </div>
                 
-                <div class="tab-pane fade" id="pedidos">
-                    <h4 class="mb-4">Gerenciamento de Pedidos</h4>
-                    
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <div class="search-box w-50">
-                                <i class="fas fa-search"></i>
-                                <input type="text" class="form-control" id="orderSearch" placeholder="Pesquisar pedidos...">
-                            </div>
-                            <div class="d-flex">
-                                <select class="form-select me-2" id="orderStatusFilter">
-                                    <option value="">Todos status</option>
-                                    <option value="pendente">Pendente</option>
-                                    <option value="pago">Pago</option>
-                                    <option value="cancelado">Cancelado</option>
-                                </select>
-                                <button class="btn btn-outline-secondary" id="exportOrdersBtn">
-                                    <i class="fas fa-download me-2"></i>Exportar
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover" id="ordersTable">
-                                    <thead>
-                                        <tr>
-                                            <th>ID</th>
-                                            <th>Cliente</th>
-                                            <th>Serviços</th>
-                                            <th>Total</th>
-                                            <th>Pagamento</th>
-                                            <th>Status</th>
-                                            <th>Data</th>
-                                            <th>Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="tab-pane fade" id="relatorios">
-                    <h4 class="mb-4">Relatórios e Estatísticas</h4>
-                    
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    Filtros do Relatório
-                                </div>
-                                <div class="card-body">
-                                    <form id="reportForm">
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Data Inicial</label>
-                                                <input type="date" class="form-control" id="startDate">
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Data Final</label>
-                                                <input type="date" class="form-control" id="endDate">
-                                            </div>
-                                        </div>
-                                        <div class="row mb-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Tipo de Relatório</label>
-                                                <select class="form-select" id="reportType">
-                                                    <option value="tickets">Chamados</option>
-                                                    <option value="users">Usuários</option>
-                                                    <option value="services">Serviços</option>
-                                                    <option value="orders">Pedidos</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Formato</label>
-                                                <select class="form-select" id="reportFormat">
-                                                    <option value="pdf">PDF</option>
-                                                    <option value="excel">Excel</option>
-                                                    <option value="csv">CSV</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <button type="submit" class="btn btn-primary w-100">
-                                            <i class="fas fa-file-export me-2"></i>Gerar Relatório
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header">
-                                    Estatísticas Rápidas
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card bg-light p-3">
-                                                <small class="text-muted">Chamados Hoje</small>
-                                                <h4 class="mb-0">5</h4>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card bg-light p-3">
-                                                <small class="text-muted">Novos Usuários (7 dias)</small>
-                                                <h4 class="mb-0">12</h4>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card bg-light p-3">
-                                                <small class="text-muted">Pedidos Pendentes</small>
-                                                <h4 class="mb-0">3</h4>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <div class="card bg-light p-3">
-                                                <small class="text-muted">Receita Mensal</small>
-                                                <h4 class="mb-0">R$ 8.750,00</h4>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-header">
-                            Histórico de Relatórios Gerados
-                        </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-hover">
-                                    <thead>
-                                        <tr>
-                                            <th>Data</th>
-                                            <th>Tipo</th>
-                                            <th>Período</th>
-                                            <th>Formato</th>
-                                            <th>Ações</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>26/03/2025</td>
-                                            <td>Chamados</td>
-                                            <td>01/03/2025 - 25/03/2025</td>
-                                            <td>PDF</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-download"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>20/03/2025</td>
-                                            <td>Usuários</td>
-                                            <td>01/01/2025 - 19/03/2025</td>
-                                            <td>Excel</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-download"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>15/03/2025</td>
-                                            <td>Pedidos</td>
-                                            <td>01/02/2025 - 14/03/2025</td>
-                                            <td>CSV</td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-primary">
-                                                    <i class="fas fa-download"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
                 <div class="tab-pane fade" id="configuracoes">
                     <h4 class="mb-4">Configurações do Sistema</h4>
                     
@@ -859,37 +745,6 @@
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="row mt-4">
-                        <div class="col-md-12">
-                            <div class="card">
-                                <div class="card-header">
-                                    Backup do Sistema
-                                </div>
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h5>Criar Backup</h5>
-                                            <p class="text-muted">Crie um backup completo do sistema incluindo banco de dados e arquivos.</p>
-                                            <button class="btn btn-primary">
-                                                <i class="fas fa-database me-2"></i>Criar Backup Agora
-                                            </button>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h5>Restaurar Backup</h5>
-                                            <p class="text-muted">Restaurar o sistema a partir de um backup anterior.</p>
-                                            <div class="input-group mb-3">
-                                                <input type="file" class="form-control">
-                                                <button class="btn btn-outline-secondary" type="button">
-                                                    <i class="fas fa-upload me-2"></i>Enviar
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -906,35 +761,41 @@
                     <form id="newTicketForm">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Título</label>
-                                <input type="text" class="form-control" required>
+                                <label class="form-label">Título*</label>
+                                <input type="text" class="form-control" id="ticketTitle" required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Localização</label>
-                                <input type="text" class="form-control">
+                                <input type="text" class="form-control" id="ticketLocation">
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Descrição</label>
-                            <textarea class="form-control" rows="3" required></textarea>
+                            <label class="form-label">Descrição*</label>
+                            <textarea class="form-control" rows="3" id="ticketDescription" required></textarea>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Anexar Foto</label>
-                            <input type="file" class="form-control" accept="image/*">
+                            <input type="file" class="form-control" id="ticketImage" accept="image/*">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Prioridade</label>
+                            <select class="form-select" id="ticketPriority">
+                                <option value="baixa">Baixa</option>
+                                <option value="media" selected>Média</option>
+                                <option value="alta">Alta</option>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Atribuir para</label>
-                            <select class="form-select">
+                            <select class="form-select" id="ticketAssignee">
                                 <option value="">Ninguém (deixar pendente)</option>
-                                <option value="1">João Silva</option>
-                                <option value="2">Maria Souza</option>
                             </select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary">Salvar Chamado</button>
+                    <button type="button" class="btn btn-primary" id="saveTicketBtn">Salvar Chamado</button>
                 </div>
             </div>
         </div>
@@ -950,45 +811,79 @@
                 <div class="modal-body">
                     <div class="row mb-4">
                         <div class="col-md-8">
-                            <h4 id="ticketTitle"></h4>
-                            <p id="ticketDescription"></p>
-                            <div class="mb-3">
-                                <span class="badge bg-secondary me-2" id="ticketLocation"></span>
-                                <span class="badge" id="ticketStatus"></span>
+                            <div class="ticket-details-row">
+                                <div class="ticket-detail-label">Título</div>
+                                <div class="ticket-detail-value" id="ticketTitle"></div>
                             </div>
-                            <div>
-                                <small class="text-muted">Criado em: <span id="ticketCreatedAt"></span> por <span id="ticketCreator"></span></small>
+                            <div class="ticket-details-row">
+                                <div class="ticket-detail-label">Descrição</div>
+                                <div class="ticket-detail-value" id="ticketDescription"></div>
+                            </div>
+                            <div class="ticket-details-row">
+                                <div class="ticket-detail-label">Localização</div>
+                                <div class="ticket-detail-value" id="ticketLocation"></div>
+                            </div>
+                            <div class="ticket-details-row">
+                                <div class="ticket-detail-label">Prioridade</div>
+                                <div class="ticket-detail-value" id="ticketPriority"></div>
+                            </div>
+                            <div class="ticket-details-row">
+                                <div class="ticket-detail-label">Status</div>
+                                <div class="ticket-detail-value">
+                                    <span id="ticketStatusBadge"></span>
+                                </div>
+                            </div>
+                            <div class="ticket-details-row">
+                                <div class="ticket-detail-label">Atribuído para</div>
+                                <div class="ticket-detail-value" id="ticketAssignee"></div>
+                            </div>
+                            <div class="ticket-details-row">
+                                <div class="ticket-detail-label">Criado em</div>
+                                <div class="ticket-detail-value" id="ticketCreatedAt"></div>
+                            </div>
+                            <div class="ticket-details-row">
+                                <div class="ticket-detail-label">Criado por</div>
+                                <div class="ticket-detail-value" id="ticketCreator"></div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <img src="" id="ticketImage" class="img-fluid rounded" alt="Foto do chamado" style="max-height: 150px;">
+                            <img src="" id="ticketImagePreview" class="img-fluid rounded" alt="Foto do chamado" style="max-height: 200px;">
                         </div>
                     </div>
                     
                     <h6 class="mb-3">Mensagens</h6>
-                    <div class="ticket-messages mb-4" style="max-height: 200px; overflow-y: auto;">
-                        <!-- Mensagens serão carregadas aqui -->
+                    <div class="ticket-messages mb-4" id="ticketMessages" style="max-height: 300px; overflow-y: auto;">
+                
                     </div>
                     
                     <form id="addMessageForm">
                         <div class="input-group mb-3">
-                            <input type="text" class="form-control" placeholder="Adicionar mensagem...">
+                            <input type="text" class="form-control" id="messageText" placeholder="Adicionar mensagem..." required>
                             <button class="btn btn-primary" type="submit">Enviar</button>
                         </div>
                     </form>
                     
-                    <div class="mt-4">
-                        <label class="form-label">Atualizar Status</label>
-                        <select class="form-select" id="updateTicketStatus">
-                            <option value="pendente">Pendente</option>
-                            <option value="em_andamento">Em andamento</option>
-                            <option value="concluido">Concluído</option>
-                        </select>
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Atualizar Status</label>
+                            <select class="form-select" id="updateTicketStatus">
+                                <option value="pendente">Pendente</option>
+                                <option value="em_andamento">Em andamento</option>
+                                <option value="concluido">Concluído</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Reatribuir Chamado</label>
+                            <select class="form-select" id="updateTicketAssignee">
+                                <option value="">Ninguém (deixar pendente)</option>
+                                <!-- Opções serão preenchidas dinamicamente -->
+                            </select>
+                        </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                    <button type="button" class="btn btn-primary">Salvar Alterações</button>
+                    <button type="button" class="btn btn-primary" id="saveTicketChangesBtn">Salvar Alterações</button>
                 </div>
             </div>
         </div>
@@ -1004,24 +899,24 @@
                 <div class="modal-body">
                     <form id="newUserForm">
                         <div class="mb-3">
-                            <label class="form-label">Nome Completo</label>
-                            <input type="text" class="form-control" required>
+                            <label class="form-label">Nome Completo*</label>
+                            <input type="text" class="form-control" id="userName" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Email</label>
-                            <input type="email" class="form-control" required>
+                            <label class="form-label">Email*</label>
+                            <input type="email" class="form-control" id="userEmail" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">CPF</label>
-                            <input type="text" class="form-control" required>
+                            <label class="form-label">CPF*</label>
+                            <input type="text" class="form-control" id="userCpf" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Senha</label>
-                            <input type="password" class="form-control" required>
+                            <label class="form-label">Senha*</label>
+                            <input type="password" class="form-control" id="userPassword" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Tipo de Usuário</label>
-                            <select class="form-select" required>
+                            <label class="form-label">Tipo de Usuário*</label>
+                            <select class="form-select" id="userType" required>
                                 <option value="">Selecione...</option>
                                 <option value="colaborador">Colaborador</option>
                                 <option value="administrador">Administrador</option>
@@ -1031,7 +926,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary">Salvar Usuário</button>
+                    <button type="button" class="btn btn-primary" id="saveUserBtn">Salvar Usuário</button>
                 </div>
             </div>
         </div>
@@ -1048,35 +943,35 @@
                     <form id="newServiceForm">
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Nome do Serviço</label>
-                                <input type="text" class="form-control" required>
+                                <label class="form-label">Nome do Serviço*</label>
+                                <input type="text" class="form-control" id="serviceName" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Empresa</label>
-                                <input type="text" class="form-control" required>
+                                <label class="form-label">Empresa*</label>
+                                <input type="text" class="form-control" id="serviceCompany" required>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Descrição</label>
-                            <textarea class="form-control" rows="3" required></textarea>
+                            <label class="form-label">Descrição*</label>
+                            <textarea class="form-control" rows="3" id="serviceDescription" required></textarea>
                         </div>
                         <div class="row mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Preço Mensal (R$)</label>
-                                <input type="number" step="0.01" class="form-control" required>
+                                <label class="form-label">Preço Mensal (R$)*</label>
+                                <input type="number" step="0.01" class="form-control" id="serviceMonthlyPrice" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Preço Anual (R$)</label>
-                                <input type="number" step="0.01" class="form-control" required>
+                                <label class="form-label">Preço Anual (R$)*</label>
+                                <input type="number" step="0.01" class="form-control" id="serviceYearlyPrice" required>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Categorias (separadas por vírgula)</label>
-                            <input type="text" class="form-control" placeholder="Ex: internet, telefonia, cloud">
+                            <label class="form-label">Categorias (separadas por vírgula)*</label>
+                            <input type="text" class="form-control" id="serviceCategories" placeholder="Ex: internet, telefonia, cloud" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Badge</label>
-                            <select class="form-select">
+                            <select class="form-select" id="serviceBadge">
                                 <option value="">Nenhum</option>
                                 <option value="popular">Popular</option>
                                 <option value="novidade">Novidade</option>
@@ -1087,187 +982,271 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary">Salvar Serviço</button>
+                    <button type="button" class="btn btn-primary" id="saveServiceBtn">Salvar Serviço</button>
                 </div>
             </div>
         </div>
     </div>
     
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span class="ms-2">Carregando...</span>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        document.getElementById('sidebarToggle').addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('active');
-            document.querySelector('.main-content').classList.toggle('active');
-        });
-        
-        document.getElementById('logout').addEventListener('click', function(e) {
-            e.preventDefault();
-            window.location.href = 'login.html';
-        });
+        // Variáveis globais
+        let currentUser = null;
+        let ticketsChart = null;
+        let ticketsPieChart = null;
+        let currentTicketId = null;
+        let allUsers = [];
         
         $(document).ready(function() {
-            $('#ticketsTable').DataTable({
-                responsive: true,
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
-                }
-            });
+            checkAuth();
             
-            $('#usersTable').DataTable({
-                responsive: true,
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
-                }
-            });
+            setupEventListeners();
             
-            $('#servicesTable').DataTable({
-                responsive: true,
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
-                }
-            });
-            
-            $('#ordersTable').DataTable({
-                responsive: true,
-                language: {
-                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
-                }
-            });
-            
-            loadDashboardData();
-            
-            initCharts();
+            loadInitialData();
         });
         
-        function loadDashboardData() {
-            setTimeout(function() {
-                document.getElementById('totalTickets').textContent = '142';
-                document.getElementById('pendingTickets').textContent = '24';
-                document.getElementById('resolvedTickets').textContent = '98';
-                document.getElementById('totalUsers').textContent = '56';
-                
-                const recentTickets = [
-                    { id: 'CH-1254', title: 'Problema com impressora', creator: 'João Silva', date: '26/03/2025 10:15', status: 'pendente' },
-                    { id: 'CH-1253', title: 'Acesso negado ao sistema', creator: 'Maria Souza', date: '25/03/2025 16:30', status: 'em_andamento' },
-                    { id: 'CH-1252', title: 'Computador não liga', creator: 'Carlos Oliveira', date: '25/03/2025 09:45', status: 'concluido' },
-                    { id: 'CH-1251', title: 'Internet lenta', creator: 'Ana Santos', date: '24/03/2025 14:20', status: 'concluido' },
-                    { id: 'CH-1250', title: 'Software travando', creator: 'Pedro Costa', date: '24/03/2025 11:05', status: 'em_andamento' }
-                ];
-                
-                const tbody = document.querySelector('#recentTicketsTable tbody');
-                tbody.innerHTML = '';
-                
-                recentTickets.forEach(ticket => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${ticket.id}</td>
-                        <td>${ticket.title}</td>
-                        <td>${ticket.creator}</td>
-                        <td>${ticket.date}</td>
-                        <td>
-                            <span class="status-indicator status-${ticket.status.replace('_', '')}"></span>
-                            ${formatStatus(ticket.status)}
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-outline-primary view-ticket-btn" data-id="${ticket.id}">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-                
-                document.querySelectorAll('.view-ticket-btn').forEach(btn => {
-                    btn.addEventListener('click', function() {
-                        const ticketId = this.getAttribute('data-id');
-                        viewTicket(ticketId);
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+            }
+        }
+        
+        function setupEventListeners() {
+            document.getElementById('sidebarToggle').addEventListener('click', function() {
+                document.querySelector('.sidebar').classList.toggle('active');
+                document.querySelector('.main-content').classList.toggle('active');
+            });
+            
+            document.getElementById('logout').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            });
+            
+            document.getElementById('saveTicketBtn').addEventListener('click', createNewTicket);
+            
+            document.getElementById('saveTicketChangesBtn').addEventListener('click', updateTicket);
+            
+            document.getElementById('addMessageForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                addMessageToTicket();
+            });
+            
+            document.getElementById('saveUserBtn').addEventListener('click', createNewUser);
+            
+            document.getElementById('saveServiceBtn').addEventListener('click', createNewService);
+            
+            document.getElementById('ticketStatusFilter').addEventListener('change', filterTicketsByStatus);
+            
+            document.getElementById('exportTicketsBtn').addEventListener('click', exportTickets);
+            document.getElementById('exportServicesBtn').addEventListener('click', exportServices);
+            
+            document.getElementById('chartPeriod').addEventListener('change', updateChartData);
+        }
+        
+        function loadInitialData() {
+    showLoading();
+    
+    fetch('/api/user-profile', {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao carregar perfil');
+        }
+        return response.json();
+    })
+    .then(user => {
+        currentUser = user;
+        updateUserProfile(user);
+        return loadUsers().catch(error => {
+            console.error('Erro ao carregar usuários, continuando sem eles:', error);
+            return [];
+        });
+    })
+    .then(users => {
+        allUsers = users;
+        populateAssigneeDropdowns(users);
+        return loadTickets().catch(error => {
+            console.error('Erro ao carregar chamados:', error);
+            throw error;
+        });
+    })
+    .then(tickets => {
+        updateDashboardCounters(tickets);
+        initCharts(tickets);
+        populateRecentTicketsTable(tickets);
+        populateTicketsTable(tickets);
+        return loadServices().catch(error => {
+            console.error('Erro ao carregar serviços, continuando sem eles:', error);
+            return [];
+        });
+    })
+    .then(services => {
+        populateServicesTable(services);
+        hideLoading();
+    })
+    .catch(error => {
+        console.error('Erro ao carregar dados:', error);
+        hideLoading();
+        alert('Erro ao carregar dados. Por favor, recarregue a página.');
+    });
+}    
+function loadUsers() {
+    return fetch('/api/users', {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message || 'Erro ao carregar usuários');
+            });
+        }
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Erro na requisição de usuários:', error);
+        throw error;
+    });
+}
+
+function loadTicketDetails(ticketId) {
+    return fetch(`/buscar-chamados-com-mensagens/${ticketId}`, {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message || 'Erro ao carregar chamado');
+            });
+        }
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Erro na requisição do chamado:', error);
+        throw error;
+    });
+}
+        function loadTickets() {
+            return fetch('/buscar-chamados', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar chamados');
+                }
+                return response.json();
+            });
+        }
+        
+        function loadServices() {
+            return fetch('/api/servicos', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar serviços');
+                }
+                return response.json();
+            });
+        }
+        
+        function updateUserProfile(user) {
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userEmail').textContent = user.email;
+            
+            const avatar = document.getElementById('userAvatar');
+            if (user.avatar) {
+                avatar.src = user.avatar;
+            } else {
+                const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+                avatar.src = `https://ui-avatars.com/api/?name=${initials}&background=3498db&color=fff`;
+            }
+        }
+        
+        function populateAssigneeDropdowns(users) {
+            const assigneeDropdowns = [
+                document.getElementById('ticketAssignee'),
+                document.getElementById('updateTicketAssignee')
+            ];
+            
+            assigneeDropdowns.forEach(dropdown => {
+                if (dropdown) {
+                    dropdown.innerHTML = '<option value="">Ninguém (deixar pendente)</option>';
+                    users.forEach(user => {
+                        const option = document.createElement('option');
+                        option.value = user._id;
+                        option.textContent = user.name;
+                        dropdown.appendChild(option);
                     });
-                });
-            }, 500);
+                }
+            });
         }
         
-        function formatStatus(status) {
-            const statusMap = {
-                'pendente': 'Pendente',
-                'em_andamento': 'Em Andamento',
-                'concluido': 'Concluído'
-            };
-            return statusMap[status] || status;
-        }
-        
-        function viewTicket(ticketId) {
-            const ticket = {
-                id: ticketId,
-                title: 'Problema com impressora',
-                description: 'A impressora do setor financeiro não está respondendo. Já tentei reiniciar mas o problema persiste.',
-                location: 'Setor Financeiro - Sala 203',
-                status: 'pendente',
-                createdAt: '26/03/2025 10:15',
-                creator: 'João Silva',
-                image: 'https://via.placeholder.com/400x300?text=Impressora+Com+Problema'
-            };
+        function updateDashboardCounters(tickets) {
+            const totalTickets = tickets.length;
+            const pendingTickets = tickets.filter(t => t.status === 'pendente').length;
+            const resolvedTickets = tickets.filter(t => t.status === 'concluido').length;
             
-            document.getElementById('ticketId').textContent = ticketId;
-            document.getElementById('ticketTitle').textContent = ticket.title;
-            document.getElementById('ticketDescription').textContent = ticket.description;
-            document.getElementById('ticketLocation').textContent = ticket.location;
-            document.getElementById('ticketStatus').textContent = formatStatus(ticket.status);
-            document.getElementById('ticketStatus').className = 'badge ' + getStatusBadgeClass(ticket.status);
-            document.getElementById('ticketCreatedAt').textContent = ticket.createdAt;
-            document.getElementById('ticketCreator').textContent = ticket.creator;
-            document.getElementById('ticketImage').src = ticket.image;
-            document.getElementById('updateTicketStatus').value = ticket.status;
+            document.getElementById('totalTickets').textContent = totalTickets;
+            document.getElementById('pendingTickets').textContent = pendingTickets;
+            document.getElementById('resolvedTickets').textContent = resolvedTickets;
             
-            // Preencher mensagens (simulado)
-            const messagesContainer = document.querySelector('.ticket-messages');
-            messagesContainer.innerHTML = `
-                <div class="card mb-2">
-                    <div class="card-body p-2">
-                        <div class="d-flex justify-content-between">
-                            <strong>João Silva</strong>
-                            <small class="text-muted">26/03/2025 10:20</small>
-                        </div>
-                        <p class="mb-0">Já foi aberto um chamado técnico para verificar o problema.</p>
-                    </div>
-                </div>
-                <div class="card mb-2">
-                    <div class="card-body p-2">
-                        <div class="d-flex justify-content-between">
-                            <strong>Suporte Técnico</strong>
-                            <small class="text-muted">26/03/2025 11:45</small>
-                        </div>
-                        <p class="mb-0">Vamos enviar um técnico para verificar o equipamento ainda hoje.</p>
-                    </div>
-                </div>
-            `;
-            
-            const modal = new bootstrap.Modal(document.getElementById('viewTicketModal'));
-            modal.show();
+            document.getElementById('totalUsers').textContent = allUsers.length;
         }
         
-        function getStatusBadgeClass(status) {
-            const statusClasses = {
-                'pendente': 'bg-warning',
-                'em_andamento': 'bg-primary',
-                'concluido': 'bg-success'
-            };
-            return statusClasses[status] || 'bg-secondary';
-        }
-        
-        function initCharts() {
+        function initCharts(tickets) {
             const ticketsCtx = document.getElementById('ticketsChart').getContext('2d');
-            const ticketsChart = new Chart(ticketsCtx, {
+            const pieCtx = document.getElementById('ticketsPieChart').getContext('2d');
+            
+            const last7Days = getLastNDays(7);
+            const pendingData = Array(7).fill(0);
+            const inProgressData = Array(7).fill(0);
+            const resolvedData = Array(7).fill(0);
+            
+            tickets.forEach(ticket => {
+                const ticketDate = new Date(ticket.createdAt);
+                const dayDiff = Math.floor((new Date() - ticketDate) / (1000 * 60 * 60 * 24));
+                
+                if (dayDiff >= 0 && dayDiff < 7) {
+                    if (ticket.status === 'pendente') pendingData[6 - dayDiff]++;
+                    if (ticket.status === 'em_andamento') inProgressData[6 - dayDiff]++;
+                    if (ticket.status === 'concluido') resolvedData[6 - dayDiff]++;
+                }
+            });
+            
+            ticketsChart = new Chart(ticketsCtx, {
                 type: 'line',
                 data: {
-                    labels: ['1 Mar', '5 Mar', '10 Mar', '15 Mar', '20 Mar', '25 Mar', '30 Mar'],
+                    labels: last7Days,
                     datasets: [
                         {
                             label: 'Pendentes',
-                            data: [12, 19, 15, 22, 18, 24, 20],
+                            data: pendingData,
                             borderColor: 'rgb(243, 156, 18)',
                             backgroundColor: 'rgba(243, 156, 18, 0.1)',
                             tension: 0.3,
@@ -1275,7 +1254,7 @@
                         },
                         {
                             label: 'Em Andamento',
-                            data: [8, 12, 10, 15, 12, 18, 15],
+                            data: inProgressData,
                             borderColor: 'rgb(52, 152, 219)',
                             backgroundColor: 'rgba(52, 152, 219, 0.1)',
                             tension: 0.3,
@@ -1283,7 +1262,7 @@
                         },
                         {
                             label: 'Concluídos',
-                            data: [20, 25, 30, 28, 35, 32, 40],
+                            data: resolvedData,
                             borderColor: 'rgb(46, 204, 113)',
                             backgroundColor: 'rgba(46, 204, 113, 0.1)',
                             tension: 0.3,
@@ -1310,13 +1289,16 @@
                 }
             });
             
-            const pieCtx = document.getElementById('ticketsPieChart').getContext('2d');
-            const pieChart = new Chart(pieCtx, {
+            const pendingCount = tickets.filter(t => t.status === 'pendente').length;
+            const inProgressCount = tickets.filter(t => t.status === 'em_andamento').length;
+            const resolvedCount = tickets.filter(t => t.status === 'concluido').length;
+            
+            ticketsPieChart = new Chart(pieCtx, {
                 type: 'pie',
                 data: {
                     labels: ['Pendentes', 'Em Andamento', 'Concluídos'],
                     datasets: [{
-                        data: [24, 20, 98],
+                        data: [pendingCount, inProgressCount, resolvedCount],
                         backgroundColor: [
                             'rgb(243, 156, 18)',
                             'rgb(52, 152, 219)',
@@ -1334,62 +1316,642 @@
                     }
                 }
             });
+        }
+        
+        function getLastNDays(n) {
+            const result = [];
+            for (let i = n-1; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                result.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
+            }
+            return result;
+        }
+        
+        function updateChartData() {
+            const period = document.getElementById('chartPeriod').value;
+            let days, labels;
             
-            document.getElementById('chartPeriod').addEventListener('change', function() {
-          
-                const period = this.value;
-                let newData;
-                
-                if (period === '7') {
-                    newData = {
-                        labels: ['24 Mar', '25 Mar', '26 Mar', '27 Mar', '28 Mar', '29 Mar', '30 Mar'],
-                        datasets: [
-                            { data: [18, 20, 24, 22, 20, 18, 20] },
-                            { data: [12, 15, 18, 15, 12, 10, 15] },
-                            { data: [30, 32, 40, 38, 35, 32, 40] }
-                        ]
-                    };
-                } else if (period === '30') {
-                    newData = {
-                        labels: ['1 Mar', '5 Mar', '10 Mar', '15 Mar', '20 Mar', '25 Mar', '30 Mar'],
-                        datasets: [
-                            { data: [12, 19, 15, 22, 18, 24, 20] },
-                            { data: [8, 12, 10, 15, 12, 18, 15] },
-                            { data: [20, 25, 30, 28, 35, 32, 40] }
-                        ]
-                    };
-                } else {
-                    newData = {
-                        labels: ['Jan', 'Fev', 'Mar'],
-                        datasets: [
-                            { data: [120, 110, 90] },
-                            { data: [80, 75, 60] },
-                            { data: [200, 180, 220] }
-                        ]
-                    };
+            if (period === '7') {
+                days = 7;
+                labels = getLastNDays(7);
+            } else if (period === '30') {
+                days = 30;
+                labels = [];
+                for (let i = 29; i >= 0; i -= 5) {
+                    const d = new Date();
+                    d.setDate(d.getDate() - i);
+                    labels.push(d.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }));
                 }
-                
-                ticketsChart.data.labels = newData.labels;
-                ticketsChart.data.datasets.forEach((dataset, i) => {
-                    dataset.data = newData.datasets[i].data;
+                labels.reverse();
+            } else {
+                days = 90;
+                labels = ['3 meses atrás', '2 meses atrás', '1 mês atrás', 'Atual'];
+            }
+            
+            ticketsChart.data.labels = labels;
+            
+            ticketsChart.data.datasets.forEach(dataset => {
+                dataset.data = labels.map(() => Math.floor(Math.random() * 20) + 5);
+            });
+            
+            ticketsChart.update();
+        }
+        
+        function populateRecentTicketsTable(tickets) {
+            const tbody = document.querySelector('#recentTicketsTable tbody');
+            tbody.innerHTML = '';
+            
+            const recentTickets = [...tickets]
+                .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                .slice(0, 5);
+            
+            recentTickets.forEach(ticket => {
+                const tr = document.createElement('tr');
+                const creatorName = ticket.criador && ticket.criador.name ? ticket.criador.name : 'Usuário Anônimo';
+                const formattedDate = new Date(ticket.createdAt).toLocaleDateString('pt-BR', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
                 });
-                ticketsChart.update();
+                
+                tr.innerHTML = `
+                    <td>${ticket._id.substring(18, 24)}</td>
+                    <td>${ticket.titulo || 'Sem título'}</td>
+                    <td>${creatorName}</td>
+                    <td>${formattedDate}</td>
+                    <td>
+                        <span class="status-indicator status-${ticket.status.replace('_', '')}"></span>
+                        ${formatStatus(ticket.status)}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary view-ticket-btn" data-id="${ticket._id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.querySelectorAll('.view-ticket-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const ticketId = this.getAttribute('data-id');
+                    viewTicketDetails(ticketId);
+                });
             });
         }
         
-        document.getElementById('exportTicketsBtn').addEventListener('click', function() {
-            alert('Exportando dados de chamados...');
-           
-        });
+        function populateTicketsTable(tickets) {
+            const tbody = document.querySelector('#ticketsTable tbody');
+            tbody.innerHTML = '';
+            
+            tickets.forEach(ticket => {
+                const tr = document.createElement('tr');
+                const creatorName = ticket.criador && ticket.criador.name ? ticket.criador.name : 'Usuário Anônimo';
+                const formattedDate = new Date(ticket.createdAt).toLocaleDateString('pt-BR');
+                const shortDescription = ticket.descricao ? 
+                    (ticket.descricao.length > 50 ? ticket.descricao.substring(0, 50) + '...' : ticket.descricao) : 
+                    'Sem descrição';
+                
+                tr.innerHTML = `
+                    <td>${ticket._id.substring(18, 24)}</td>
+                    <td>${ticket.titulo || 'Sem título'}</td>
+                    <td>${shortDescription}</td>
+                    <td>${creatorName}</td>
+                    <td>${formattedDate}</td>
+                    <td>
+                        <span class="status-indicator status-${ticket.status.replace('_', '')}"></span>
+                        ${formatStatus(ticket.status)}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary view-ticket-btn" data-id="${ticket._id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary edit-ticket-btn" data-id="${ticket._id}">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            document.querySelectorAll('.view-ticket-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const ticketId = this.getAttribute('data-id');
+                    viewTicketDetails(ticketId);
+                });
+            });
+            
+            document.querySelectorAll('.edit-ticket-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const ticketId = this.getAttribute('data-id');
+                    editTicket(ticketId);
+                });
+            });
+            
+            $('#ticketsTable').DataTable({
+                responsive: true,
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                }
+            });
+        }
         
-        document.getElementById('exportServicesBtn').addEventListener('click', function() {
-            alert('Exportando dados de serviços...');
-          
-        });
+        function populateServicesTable(services) {
+            const tbody = document.querySelector('#servicesTable tbody');
+            tbody.innerHTML = '';
+            
+            services.forEach(service => {
+                const tr = document.createElement('tr');
+                const categories = service.categorias.join(', ');
+                
+                tr.innerHTML = `
+                    <td>${service.nome}</td>
+                    <td>${service.empresa}</td>
+                    <td>${service.descricao}</td>
+                    <td>R$ ${service.mensal.toFixed(2)}</td>
+                    <td>R$ ${service.anual.toFixed(2)}</td>
+                    <td>${categories}</td>
+                    <td>${service.rating ? '★'.repeat(Math.round(service.rating)) + '☆'.repeat(5 - Math.round(service.rating)) : 'Sem avaliação'}</td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            $('#servicesTable').DataTable({
+                responsive: true,
+                language: {
+                    url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/pt-BR.json'
+                }
+            });
+        }
         
-        document.getElementById('exportOrdersBtn').addEventListener('click', function() {
-            alert('Exportando dados de pedidos...');
-        });
+        function viewTicketDetails(ticketId) {
+            showLoading();
+            currentTicketId = ticketId;
+            
+            fetch(`/buscar-chamados-com-mensagens/${ticketId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar chamado');
+                }
+                return response.json();
+            })
+            .then(ticket => {
+                document.getElementById('ticketId').textContent = ticket._id.substring(18, 24);
+                document.getElementById('ticketTitle').textContent = ticket.titulo || 'Sem título';
+                document.getElementById('ticketDescription').textContent = ticket.descricao || 'Sem descrição';
+                document.getElementById('ticketLocation').textContent = ticket.localizacao || 'Não especificado';
+                document.getElementById('ticketPriority').textContent = formatPriority(ticket.prioridade || 'media');
+                document.getElementById('ticketCreatedAt').textContent = new Date(ticket.createdAt).toLocaleString('pt-BR');
+                document.getElementById('ticketCreator').textContent = ticket.criador && ticket.criador.name ? ticket.criador.name : 'Usuário Anônimo';
+                
+                const statusBadge = document.getElementById('ticketStatusBadge');
+                statusBadge.textContent = formatStatus(ticket.status);
+                statusBadge.className = 'badge ' + getStatusBadgeClass(ticket.status);
+                
+                const assignee = ticket.atribuidoPara ? 
+                    allUsers.find(u => u._id === ticket.atribuidoPara)?.name || 'Usuário não encontrado' : 
+                    'Não atribuído';
+                document.getElementById('ticketAssignee').textContent = assignee;
+                
+                const imagePreview = document.getElementById('ticketImagePreview');
+                if (ticket.foto) {
+                    imagePreview.src = ticket.foto;
+                    imagePreview.style.display = 'block';
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+            
+                document.getElementById('updateTicketStatus').value = ticket.status;
+                
+                document.getElementById('updateTicketAssignee').value = ticket.atribuidoPara || '';
+                
+                const messagesContainer = document.getElementById('ticketMessages');
+                messagesContainer.innerHTML = '';
+                
+                if (ticket.mensagens && ticket.mensagens.length > 0) {
+                    ticket.mensagens.forEach(message => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'message-card';
+                        
+                        const senderName = message.criador && message.criador.name ? message.criador.name : 'Usuário Anônimo';
+                        const messageTime = new Date(message.data).toLocaleString('pt-BR');
+                        
+                        messageDiv.innerHTML = `
+                            <div class="message-header">
+                                <strong>${senderName}</strong>
+                                <small class="message-time">${messageTime}</small>
+                            </div>
+                            <div class="message-body">
+                                ${message.texto}
+                            </div>
+                        `;
+                        messagesContainer.appendChild(messageDiv);
+                    });
+                } else {
+                    messagesContainer.innerHTML = '<div class="text-muted text-center py-3">Nenhuma mensagem encontrada</div>';
+                }
+                
+                const modal = new bootstrap.Modal(document.getElementById('viewTicketModal'));
+                modal.show();
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar chamado:', error);
+                hideLoading();
+                alert('Erro ao carregar detalhes do chamado');
+            });
+        }
+        
+        function editTicket(ticketId) {
+            viewTicketDetails(ticketId);
+        }
+        
+        function createNewTicket() {
+            showLoading();
+            
+            const title = document.getElementById('ticketTitle').value;
+            const description = document.getElementById('ticketDescription').value;
+            const location = document.getElementById('ticketLocation').value;
+            const priority = document.getElementById('ticketPriority').value;
+            const assignee = document.getElementById('ticketAssignee').value;
+            const imageFile = document.getElementById('ticketImage').files[0];
+            
+            if (!title || !description) {
+                alert('Título e descrição são obrigatórios');
+                hideLoading();
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('titulo', title);
+            formData.append('descricao', description);
+            formData.append('localizacao', location);
+            formData.append('prioridade', priority);
+            if (assignee) formData.append('atribuidoPara', assignee);
+            if (imageFile) formData.append('foto', imageFile);
+            
+            fetch('/abrir-chamado', {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao criar chamado');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Chamado criado com sucesso!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newTicketModal'));
+                modal.hide();
+                loadInitialData();
+            })
+            .catch(error => {
+                console.error('Erro ao criar chamado:', error);
+                alert('Erro ao criar chamado: ' + error.message);
+                hideLoading();
+            });
+        }
+        
+        function updateTicket() {
+            showLoading();
+            
+            const status = document.getElementById('updateTicketStatus').value;
+            const assignee = document.getElementById('updateTicketAssignee').value;
+            
+            fetch(`/atualizar-status/${currentTicketId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ 
+                    status,
+                    atribuidoPara: assignee || null
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao atualizar chamado');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Chamado atualizado com sucesso!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('viewTicketModal'));
+                modal.hide();
+                loadInitialData();
+            })
+            .catch(error => {
+                console.error('Erro ao atualizar chamado:', error);
+                alert('Erro ao atualizar chamado: ' + error.message);
+                hideLoading();
+            });
+        }
+        
+        function addMessageToTicket() {
+            showLoading();
+            
+            const messageText = document.getElementById('messageText').value;
+            
+            if (!messageText) {
+                alert('Por favor, digite uma mensagem');
+                hideLoading();
+                return;
+            }
+            
+            fetch(`/adicionar-mensagem/${currentTicketId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ 
+                    texto: messageText 
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao adicionar mensagem');
+                }
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById('messageText').value = '';
+                viewTicketDetails(currentTicketId);
+            })
+            .catch(error => {
+                console.error('Erro ao adicionar mensagem:', error);
+                alert('Erro ao adicionar mensagem: ' + error.message);
+                hideLoading();
+            });
+        }
+        
+        function createNewUser() {
+            showLoading();
+            
+            const name = document.getElementById('userName').value;
+            const email = document.getElementById('userEmail').value;
+            const cpf = document.getElementById('userCpf').value;
+            const password = document.getElementById('userPassword').value;
+            const userType = document.getElementById('userType').value;
+            
+            if (!name || !email || !cpf || !password || !userType) {
+                alert('Todos os campos são obrigatórios');
+                hideLoading();
+                return;
+            }
+            
+            fetch('/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ 
+                    name, email, cpf, password, userType 
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao criar usuário');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Usuário criado com sucesso!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newUserModal'));
+                modal.hide();
+                loadInitialData();
+            })
+            .catch(error => {
+                console.error('Erro ao criar usuário:', error);
+                alert('Erro ao criar usuário: ' + error.message);
+                hideLoading();
+            });
+        }
+        
+        function createNewService() {
+            showLoading();
+            
+            const name = document.getElementById('serviceName').value;
+            const company = document.getElementById('serviceCompany').value;
+            const description = document.getElementById('serviceDescription').value;
+            const monthlyPrice = parseFloat(document.getElementById('serviceMonthlyPrice').value);
+            const yearlyPrice = parseFloat(document.getElementById('serviceYearlyPrice').value);
+            const categories = document.getElementById('serviceCategories').value.split(',').map(c => c.trim());
+            const badge = document.getElementById('serviceBadge').value;
+            
+            if (!name || !company || !description || isNaN(monthlyPrice) || isNaN(yearlyPrice) || categories.length === 0) {
+                alert('Todos os campos obrigatórios devem ser preenchidos corretamente');
+                hideLoading();
+                return;
+            }
+            
+            fetch('/api/servicos', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                },
+                body: JSON.stringify({ 
+                    nome: name,
+                    empresa: company,
+                    descricao: description,
+                    mensal: monthlyPrice,
+                    anual: yearlyPrice,
+                    categorias: categories,
+                    badge: badge || undefined
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao criar serviço');
+                }
+                return response.json();
+            })
+            .then(data => {
+                alert('Serviço criado com sucesso!');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('newServiceModal'));
+                modal.hide();
+                loadInitialData();
+            })
+            .catch(error => {
+                console.error('Erro ao criar serviço:', error);
+                alert('Erro ao criar serviço: ' + error.message);
+                hideLoading();
+            });
+        }
+                function filterTicketsByStatus() {
+            const status = document.getElementById('ticketStatusFilter').value;
+            
+            fetch('/buscar-chamados', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao filtrar chamados');
+                }
+                return response.json();
+            })
+            .then(tickets => {
+                if (status) {
+                    tickets = tickets.filter(t => t.status === status);
+                }
+                populateTicketsTable(tickets);
+            })
+            .catch(error => {
+                console.error('Erro ao filtrar chamados:', error);
+                alert('Erro ao filtrar chamados');
+            });
+        }
+        
+        function exportTickets() {
+            showLoading();
+            
+            fetch('/buscar-chamados', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao exportar chamados');
+                }
+                return response.json();
+            })
+            .then(tickets => {
+                let csvContent = "ID,Título,Descrição,Criador,Data,Status\n";
+                
+                tickets.forEach(ticket => {
+                    const creatorName = ticket.criador && ticket.criador.name ? ticket.criador.name : 'Usuário Anônimo';
+                    const date = new Date(ticket.createdAt).toLocaleDateString('pt-BR');
+                    
+                    csvContent += `"${ticket._id}","${ticket.titulo || ''}","${ticket.descricao || ''}",` +
+                                  `"${creatorName}","${date}","${formatStatus(ticket.status)}"\n`;
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'chamados.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Erro ao exportar chamados:', error);
+                alert('Erro ao exportar chamados');
+                hideLoading();
+            });
+        }
+        
+        function exportServices() {
+            showLoading();
+            
+            fetch('/api/servicos', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao exportar serviços');
+                }
+                return response.json();
+            })
+            .then(services => {
+                let csvContent = "Nome,Empresa,Descrição,Preço Mensal,Preço Anual,Categorias\n";
+                
+                services.forEach(service => {
+                    csvContent += `"${service.nome}","${service.empresa}","${service.descricao}",` +
+                                 `"${service.mensal}","${service.anual}","${service.categorias.join(', ')}"\n`;
+                });
+                
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', 'servicos.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Erro ao exportar serviços:', error);
+                alert('Erro ao exportar serviços');
+                hideLoading();
+            });
+        }
+        
+        function formatStatus(status) {
+            const statusMap = {
+                'pendente': 'Pendente',
+                'em_andamento': 'Em Andamento',
+                'concluido': 'Concluído'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function formatPriority(priority) {
+            const priorityMap = {
+                'baixa': 'Baixa',
+                'media': 'Média',
+                'alta': 'Alta'
+            };
+            return priorityMap[priority] || priority;
+        }
+        
+        function getStatusBadgeClass(status) {
+            const statusClasses = {
+                'pendente': 'bg-warning',
+                'em_andamento': 'bg-primary',
+                'concluido': 'bg-success'
+            };
+            return statusClasses[status] || 'bg-secondary';
+        }
+        
+        function getPriorityBadgeClass(priority) {
+            const priorityClasses = {
+                'baixa': 'priority-low',
+                'media': 'priority-medium',
+                'alta': 'priority-high'
+            };
+            return priorityClasses[priority] || '';
+        }
+        
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
     </script>
 </body>
 </html>

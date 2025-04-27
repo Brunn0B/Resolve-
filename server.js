@@ -4,16 +4,17 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
-const multer = require('multer'); 
-require('dotenv').config();
+const multer = require('multer');
+const { spawn } = require('child_process');
 const fs = require('fs');
+require('dotenv').config();
 
 const app = express();
 const port = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'Chave_secreta$$%';
 
 app.use(cors({
-  origin: '*', 
+  origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
@@ -22,12 +23,32 @@ const uri = process.env.MONGODB_URI;
 mongoose.connect(uri)
   .then(() => console.log('Conectado ao MongoDB Atlas'))
   .catch(err => console.error('Erro ao conectar ao MongoDB Atlas:', err));
-
 app.use(bodyParser.json());
-
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Modelos do MongoDB
+let pythonProcess;
+function startPythonMLServer() {
+  pythonProcess = spawn('python', ['suporte_ml.py']);
+  
+  pythonProcess.stdout.on('data', (data) => {
+    console.log(`Python ML Server: ${data}`);
+  });
+
+  pythonProcess.stderr.on('data', (data) => {
+    console.error(`Python ML Error: ${data}`);
+  });
+
+  pythonProcess.on('close', (code) => {
+    console.log(`Python ML process exited with code ${code}`);
+    if (code !== 0) {
+      console.log('Reiniciando servidor Python ML...');
+      setTimeout(startPythonMLServer, 5000);
+    }
+  });
+}
+
+startPythonMLServer();
+
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   name: { type: String, required: true },
@@ -68,7 +89,7 @@ const chamadoSchema = new mongoose.Schema({
   descricao: String,
   localizacao: {
     type: { type: String, enum: ['predefined', 'gps'], required: true },
-    value: String, // para tipo 'predefined'
+    value: String,
     coordinates: {
       latitude: Number,
       longitude: Number,
@@ -84,6 +105,64 @@ const chamadoSchema = new mongoose.Schema({
 
 const Chamado = mongoose.model('Chamado', chamadoSchema);
 
+const supportConversationSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  messages: [{
+    text: String,
+    sender: { type: String, enum: ['user', 'bot'], required: true },
+    timestamp: { type: Date, default: Date.now },
+    intent: String,
+    resolved: { type: Boolean, default: false }
+  }],
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+const SupportConversation = mongoose.model('SupportConversation', supportConversationSchema);
+
+// Base de conhecimento para o suporte
+const supportKnowledgeBase = {
+  'senha': {
+    responses: [
+      "Para resetar sua senha, acesse 'Esqueci minha senha' na página de login.",
+      "Se seu cartão foi bloqueado, entre em contato com o RH para liberação."
+    ],
+    solutions: [
+      { title: "Redefinir Senha", url: "/reset-password" },
+      { title: "Desbloquear Acesso", url: "/unlock-account" }
+    ]
+  },
+  'cartao': {
+    responses: [
+      "Problemas com cartão devem ser reportados ao departamento de RH.",
+      "Para solicitar um novo cartão, acesse o portal do colaborador."
+    ],
+    solutions: [
+      { title: "Solicitar Novo Cartão", url: "/new-card" },
+      { title: "Reportar Perda/Roubo", url: "/report-loss" }
+    ]
+  },
+  'dados': {
+    responses: [
+      "Para atualizar seus dados cadastrais, acesse 'Meu Perfil'.",
+      "Dados incorretos? Envie um ticket para o departamento pessoal."
+    ],
+    solutions: [
+      { title: "Atualizar Cadastro", url: "/update-profile" },
+      { title: "Corrigir Dados", url: "/correct-data" }
+    ]
+  },
+  'sistema': {
+    responses: [
+      "Problemas no sistema? Tente limpar o cache do navegador.",
+      "Erros persistentes devem ser reportados ao suporte técnico."
+    ],
+    solutions: [
+      { title: "Relatar Bug", url: "/report-bug" },
+      { title: "Status do Sistema", url: "/system-status" }
+    ]
+  }
+};
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -235,23 +314,6 @@ app.get('/buscar-chamados', async (req, res) => {
   }
 });
 
-app.post('/reset-password', async (req, res) => {
-  const { cpf, newPassword } = req.body;
-
-  try {
-    const user = await User.findOne({ cpf });
-    if (user) {
-      user.password = newPassword;
-      await user.save();
-      res.status(200).json({ message: 'Senha redefinida com sucesso!' });
-    } else {
-      res.status(404).json({ message: 'CPF não encontrado.' });
-    }
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao redefinir senha: ' + error.message });
-  }
-});
-
 app.put('/atualizar-status/:id', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
@@ -309,6 +371,11 @@ const pedidoSchema = new mongoose.Schema({
     codigo: { type: String },
     vencimento: { type: Date },
     url: { type: String }
+  },
+  pix: {
+    key: { type: String },
+    expirationDate: { type: Date },
+    qrCode: { type: String }
   }
 });
 
@@ -342,6 +409,12 @@ app.post('/api/pedidos', authenticateToken, async (req, res) => {
         codigo: '34191.79001 01043.510047 91020.150008 7 84460000003000',
         vencimento: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         url: 'https://api.pagar.me/1/boleto/123456789'
+      };
+    } else if (metodoPagamento === 'pix') {
+      novoPedido.pix = {
+        key: '123e4567-e89b-12d3-a456-426614174000',
+        expirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        qrCode: `00020101021226860014br.gov.bcb.pix2561qrcodepix.gerencianet.com.br/123456789520400005303986540520.005802BR5925EMPRESA DE EXEMPLO6008BRASILIA62070503***6304`
       };
     }
 
@@ -617,112 +690,32 @@ app.post('/api/privacy-settings', authenticateToken, async (req, res) => {
   }
 });
 
-
-
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'TelaInicio.html'));
-});
-app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Erro interno do servidor.' });
-});
-
-
-const supportConversationSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  messages: [{
-    text: String,
-    sender: { type: String, enum: ['user', 'bot'], required: true },
-    timestamp: { type: Date, default: Date.now },
-    intent: String,
-    resolved: { type: Boolean, default: false }
-  }],
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
-}, { timestamps: true });
-
-const SupportConversation = mongoose.model('SupportConversation', supportConversationSchema);
-
-const supportKnowledgeBase = {
-  'senha': {
-    responses: [
-      "Para resetar sua senha, acesse 'Esqueci minha senha' na página de login.",
-      "Se seu cartão foi bloqueado, entre em contato com o RH para liberação."
-    ],
-    solutions: [
-      { title: "Redefinir Senha", url: "/reset-password" },
-      { title: "Desbloquear Acesso", url: "/unlock-account" }
-    ]
-  },
-  'cartao': {
-    responses: [
-      "Problemas com cartão devem ser reportados ao departamento de RH.",
-      "Para solicitar um novo cartão, acesse o portal do colaborador."
-    ],
-    solutions: [
-      { title: "Solicitar Novo Cartão", url: "/new-card" },
-      { title: "Reportar Perda/Roubo", url: "/report-loss" }
-    ]
-  },
-  'dados': {
-    responses: [
-      "Para atualizar seus dados cadastrais, acesse 'Meu Perfil'.",
-      "Dados incorretos? Envie um ticket para o departamento pessoal."
-    ],
-    solutions: [
-      { title: "Atualizar Cadastro", url: "/update-profile" },
-      { title: "Corrigir Dados", url: "/correct-data" }
-    ]
-  },
-  'sistema': {
-    responses: [
-      "Problemas no sistema? Tente limpar o cache do navegador.",
-      "Erros persistentes devem ser reportados ao suporte técnico."
-    ],
-    solutions: [
-      { title: "Relatar Bug", url: "/report-bug" },
-      { title: "Status do Sistema", url: "/system-status" }
-    ]
-  }
-};
-
 app.post('/api/support', authenticateToken, async (req, res) => {
   try {
     const { message } = req.body;
     const userId = req.user.userId;
 
+    try {
+      const pythonResponse = await fetch('http://localhost:5001/api/support', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      });
+
+      if (pythonResponse.ok) {
+        const data = await pythonResponse.json();
+        saveSupportConversation(userId, message, data.response, data.intent);
+        return res.json(data);
+      }
+    } catch (pythonError) {
+      console.log('Falha ao chamar servidor Python, usando fallback:', pythonError);
+    }
+
     const intent = classifySupportIntent(message);
-    
     const knowledge = supportKnowledgeBase[intent] || supportKnowledgeBase['sistema'];
     const response = knowledge.responses[Math.floor(Math.random() * knowledge.responses.length)];
     
-    const conversation = await SupportConversation.findOneAndUpdate(
-      { userId },
-      {
-        $push: {
-          messages: {
-            text: message,
-            sender: 'user',
-            intent: intent
-          }
-        }
-      },
-      { upsert: true, new: true }
-    );
-
-    await SupportConversation.updateOne(
-      { _id: conversation._id },
-      {
-        $push: {
-          messages: {
-            text: response,
-            sender: 'bot',
-            intent: intent
-          }
-        }
-      }
-    );
+    saveSupportConversation(userId, message, response, intent);
 
     res.json({
       response: response,
@@ -751,6 +744,25 @@ function classifySupportIntent(message) {
   return 'sistema';
 }
 
+async function saveSupportConversation(userId, userMessage, botResponse, intent) {
+  try {
+    await SupportConversation.findOneAndUpdate(
+      { userId },
+      {
+        $push: {
+          messages: [
+            { text: userMessage, sender: 'user', intent },
+            { text: botResponse, sender: 'bot', intent }
+          ]
+        }
+      },
+      { upsert: true, new: true }
+    );
+  } catch (error) {
+    console.error('Erro ao salvar conversa de suporte:', error);
+  }
+}
+
 app.get('/api/support/history', authenticateToken, async (req, res) => {
   try {
     const conversations = await SupportConversation.find({ userId: req.user.userId })
@@ -762,7 +774,6 @@ app.get('/api/support/history', authenticateToken, async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 });
-
 
 app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
   try {
@@ -799,7 +810,7 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
       pedido.metodoPagamento = 'PIX';
       pedido.pix = {
         key: '123e4567-e89b-12d3-a456-426614174000',
-        expirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 horas
+        expirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
         qrCode: `00020101021226860014br.gov.bcb.pix2561qrcodepix.gerencianet.com.br/123456789520400005303986540520.005802BR5925EMPRESA DE EXEMPLO6008BRASILIA62070503***6304`
       };
     }
@@ -821,6 +832,60 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
   }
 });
 
+app.get('/api/users', authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.userId);
+    if (!user || user.userType !== 'administrador') {
+      return res.status(403).json({ message: 'Acesso não autorizado' });
+    }
+
+    const users = await User.find({}).select('-password -__v -twoFAEnabled -privacySettings');
+    res.json(users);
+  } catch (error) {
+    console.error('Erro ao buscar usuários:', error);
+    res.status(500).json({ message: 'Erro ao buscar usuários' });
+  }
+});
+
+app.post('/reset-password', async (req, res) => {
+  const { cpf, newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({ cpf });
+    if (user) {
+      user.password = newPassword;
+      await user.save();
+      res.status(200).json({ message: 'Senha redefinida com sucesso!' });
+    } else {
+      res.status(404).json({ message: 'CPF não encontrado.' });
+    }
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao redefinir senha: ' + error.message });
+  }
+});
+
+app.get('/suporte', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'SuporteUsuario.html'));
+});
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'TelaInicio.html'));
+});
+
+app.use((err, req, res, next) => {
+  console.error('Erro interno:', err.stack);
+  res.status(500).json({ message: 'Erro interno do servidor.' });
+});
+
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
+  console.log(`Servidor de suporte ML rodando em http://localhost:5001`);
+});
+
+process.on('SIGINT', () => {
+  console.log('Encerrando servidor...');
+  if (pythonProcess) {
+    pythonProcess.kill();
+  }
+  process.exit();
 });

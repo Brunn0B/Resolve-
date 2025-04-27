@@ -47,7 +47,6 @@
             height: 100vh;
         }
 
-        /* Cabeçalho Moderno */
         .app-header {
             display: flex;
             justify-content: space-between;
@@ -93,7 +92,6 @@
             align-items: center;
         }
 
-        /* Conteúdo Principal - Layout de Duas Colunas */
         .app-content {
             display: flex;
             flex: 1;
@@ -176,7 +174,6 @@
             resize: vertical;
         }
 
-        /* Seção de Localização */
         .location-section {
             margin: 1.5rem 0;
             padding: 1.5rem;
@@ -237,7 +234,6 @@
             background: var(--primary-dark);
         }
 
-        /* Seção de Fotos */
         .photo-section {
             margin: 1.5rem 0;
             padding: 1.5rem;
@@ -319,7 +315,6 @@
             background: #3aa8d8;
         }
 
-        /* Visualização da câmera */
         .camera-preview {
             width: 100%;
             max-width: 500px;
@@ -345,7 +340,6 @@
             margin-top: 1rem;
         }
 
-        /* Imagens capturadas/selecionadas */
         .image-preview {
             max-width: 100%;
             max-height: 300px;
@@ -356,7 +350,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Mapa */
         #map {
             height: 100%;
             width: 100%;
@@ -387,7 +380,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
 
-        /* Botão de submit */
         .submit-section {
             margin-top: auto;
             padding-top: 2rem;
@@ -413,12 +405,10 @@
             transform: translateY(-2px);
         }
 
-        /* Estilos para o input file escondido */
         .hidden-file-input {
             display: none;
         }
 
-        /* Estilo para quando há uma imagem selecionada */
         .has-image {
             border: 2px dashed var(--primary);
             padding: 1rem;
@@ -426,7 +416,6 @@
             background-color: rgba(67, 97, 238, 0.05);
         }
 
-        /* Status da localização */
         .location-status {
             display: flex;
             align-items: center;
@@ -447,7 +436,6 @@
             color: var(--danger);
         }
 
-        /* Responsividade */
         @media (max-width: 768px) {
             .form-column {
                 padding: 1rem;
@@ -625,11 +613,9 @@
         </div>
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
     <script>
-        // Elementos da interface
         const video = document.getElementById('video');
         const canvas = document.getElementById('canvas');
         const fotoCapturada = document.getElementById('fotoCapturada');
@@ -653,18 +639,15 @@
         const accuracyInput = document.getElementById('accuracy');
         const locateMeBtn = document.getElementById('locateMeBtn');
 
-        // Variáveis para mapa
         let map;
         let userMarker;
         let userCircle;
 
-        // Inicializar o mapa se a coluna do mapa estiver visível
         if (document.querySelector('.map-column').style.display !== 'none') {
             initMap();
         }
 
         function initMap() {
-            // Coordenadas padrão (centro do Brasil)
             const defaultCoords = [-15.7942, -47.8825];
             
             map = L.map('map').setView(defaultCoords, 15);
@@ -673,7 +656,6 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
             
-            // Adicionar marcador inicial
             userMarker = L.marker(defaultCoords, {
                 draggable: true,
                 icon: L.divIcon({
@@ -684,7 +666,6 @@
                 })
             }).addTo(map);
             
-            // Adicionar círculo de precisão
             userCircle = L.circle(defaultCoords, {
                 color: '#4361ee',
                 fillColor: '#4361ee',
@@ -692,27 +673,22 @@
                 radius: 100
             }).addTo(map);
             
-            // Evento para quando o marcador é movido
             userMarker.on('dragend', function(e) {
                 const marker = e.target;
                 const position = marker.getLatLng();
                 
-                // Atualizar inputs de coordenadas
                 latitudeInput.value = position.lat;
                 longitudeInput.value = position.lng;
-                accuracyInput.value = 10; // Precisão estimada quando arrastado
+                accuracyInput.value = 10; 
                 
-                // Atualizar círculo de precisão
                 userCircle.setLatLng(position).setRadius(10);
             });
             
-            // Centralizar no usuário quando clicar no botão
             locateMeBtn.addEventListener('click', function() {
                 getLocation(true);
             });
         }
 
-        // Alternar entre tipos de localização
         locationTypeRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.value === 'predefined') {
@@ -727,7 +703,6 @@
             });
         });
 
-        // Obter localização GPS
         getLocationBtn.addEventListener('click', function() {
             getLocation();
         });
@@ -746,15 +721,12 @@
                     const lng = position.coords.longitude;
                     const accuracy = position.coords.accuracy;
                     
-                    // Atualizar inputs
                     latitudeInput.value = lat;
                     longitudeInput.value = lng;
                     accuracyInput.value = accuracy;
                     
-                    // Atualizar status
                     updateLocationStatus('success', `Localização obtida (precisão: ${Math.round(accuracy)} metros)`);
                     
-                    // Atualizar mapa se estiver visível
                     if (map) {
                         const userCoords = [lat, lng];
                         
@@ -762,7 +734,6 @@
                             map.setView(userCoords, 17);
                         }
                         
-                        // Atualizar marcador e círculo
                         userMarker.setLatLng(userCoords);
                         userCircle.setLatLng(userCoords).setRadius(accuracy);
                     }
@@ -797,11 +768,9 @@
             const icon = locationStatus.querySelector('i');
             const text = locationStatus.querySelector('span');
             
-            // Remover todas as classes de status
             locationStatus.className = 'location-status';
             icon.className = 'fas';
             
-            // Adicionar classes baseadas no status
             if (status === 'success') {
                 locationStatus.classList.add('location-acquired');
                 icon.classList.add('fa-check-circle');
@@ -817,15 +786,12 @@
             text.textContent = message;
         }
 
-        // Variável para armazenar o stream da câmera
         let stream;
 
-        // Evento para selecionar foto do dispositivo
         botaoSelecionarFoto.addEventListener('click', () => {
             selecionarFotoInput.click();
         });
 
-        // Mostrar preview da imagem selecionada
         selecionarFotoInput.addEventListener('change', (event) => {
             const arquivo = event.target.files[0];
             if (arquivo) {
@@ -845,7 +811,6 @@
             }
         });
 
-        // Iniciar câmera
         async function iniciarCamera() {
             try {
                 const constraints = {
@@ -862,7 +827,6 @@
                 cameraControls.style.display = 'flex';
                 iniciarCameraBtn.style.display = 'none';
                 
-                // Resetar imagem selecionada se houver
                 if (imagemSelecionada.style.display === 'block') {
                     imagemSelecionada.style.display = 'none';
                     fileName.textContent = '';
@@ -874,7 +838,6 @@
             }
         }
 
-        // Capturar foto da câmera
         function capturarFoto() {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
@@ -886,22 +849,18 @@
             capturarFotoBtn.style.display = 'none';
             reiniciarCameraBtn.style.display = 'block';
             
-            // Parar a câmera após captura
             pararCamera();
         }
 
-        // Reiniciar captura de foto
         function reiniciarCamera() {
             fotoCapturada.style.display = 'none';
             cameraPreview.style.display = 'block';
             capturarFotoBtn.style.display = 'block';
             reiniciarCameraBtn.style.display = 'none';
             
-            // Reiniciar a câmera
             iniciarCamera();
         }
 
-        // Resetar completamente a câmera
         function resetarCamera() {
             fotoCapturada.style.display = 'none';
             cameraPreview.style.display = 'none';
@@ -913,7 +872,6 @@
             pararCamera();
         }
 
-        // Parar a câmera
         function pararCamera() {
             if (stream) {
                 stream.getTracks().forEach(track => track.stop());
@@ -922,13 +880,11 @@
             }
         }
 
-        // Event listeners
         iniciarCameraBtn.addEventListener('click', iniciarCamera);
         capturarFotoBtn.addEventListener('click', capturarFoto);
         reiniciarCameraBtn.addEventListener('click', reiniciarCamera);
         window.addEventListener('beforeunload', pararCamera);
 
-        // Enviar formulário
         chamadoForm.addEventListener('submit', async function (event) {
             event.preventDefault();
 
@@ -948,13 +904,11 @@
             const imagemSelecionada = document.getElementById('imagemSelecionada').src;
             const locationType = document.querySelector('input[name="locationType"]:checked').value;
             
-            // Validar campos obrigatórios
             if (!titulo || !descricao) {
                 alert('Por favor, preencha todos os campos obrigatórios.');
                 return;
             }
             
-            // Validar localização baseada no tipo selecionado
             if (locationType === 'predefined' && !localizacao) {
                 alert('Por favor, selecione uma localização.');
                 return;
@@ -984,7 +938,6 @@
             }
 
             try {
-                // Mostrar feedback visual de carregamento
                 const submitBtn = document.querySelector('.btn-submit');
                 const originalBtnText = submitBtn.innerHTML;
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
@@ -1005,7 +958,6 @@
                     })
                 });
 
-                // Restaurar botão
                 submitBtn.innerHTML = originalBtnText;
                 submitBtn.disabled = false;
 
@@ -1020,7 +972,6 @@
                 alert('Erro ao criar chamado: ' + error.message);
                 console.error('Erro:', error);
                 
-                // Restaurar botão em caso de erro
                 const submitBtn = document.querySelector('.btn-submit');
                 submitBtn.innerHTML = originalBtnText;
                 submitBtn.disabled = false;

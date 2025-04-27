@@ -1171,12 +1171,10 @@
     
     const result = await response.json();
     
-    // Restante do seu código de sucesso...
     
   } catch (error) {
     console.error('Erro ao confirmar pagamento:', error);
     
-    // Mostrar mensagem mais amigável
     let errorMessage = error.message;
     if (error.message.includes('Failed to fetch')) {
       errorMessage = 'Erro de conexão com o servidor. Verifique sua internet.';
@@ -1190,9 +1188,8 @@
     btn.disabled = false;
   }
 }
-        // Event listeners
         document.addEventListener('DOMContentLoaded', async function() {
-            // Configura eventos
+          
             document.querySelectorAll('.payment-option').forEach(option => {
                 option.addEventListener('click', () => {
                     const method = option.getAttribute('data-method');
@@ -1233,7 +1230,6 @@
                 document.getElementById('card-number').focus();
             });
 
-            // Formatação automática dos campos do cartão
             document.getElementById('card-number').addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\s/g, '');
                 if (value.length > 16) value = value.substring(0, 16);
@@ -1272,7 +1268,6 @@
                 e.target.value = value;
             });
 
-            // Carrega os dados
             const urlParams = new URLSearchParams(window.location.search);
             const pedidoId = urlParams.get('pedidoId');
             
@@ -1286,7 +1281,6 @@
                 currentUser = await loadUserProfile();
                 currentOrder = await loadOrder(pedidoId);
                 
-                // Renderiza o pedido
                 const resumoContainer = document.getElementById('order-summary');
                 resumoContainer.innerHTML = '';
                 

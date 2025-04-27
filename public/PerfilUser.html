@@ -608,9 +608,7 @@
             </ul>
         </aside>
         
-        <!-- Main Content -->
         <main class="main-content">
-            <!-- Profile Section -->
             <section id="profile" class="section active">
                 <div class="section-header">
                     <h2 class="section-title"><i class="fas fa-user"></i> Informações Pessoais</h2>
@@ -664,7 +662,6 @@
                 </form>
             </section>
             
-            <!-- Security Section -->
             <section id="security" class="section">
                 <div class="section-header">
                     <h2 class="section-title"><i class="fas fa-lock"></i> Segurança</h2>
@@ -706,7 +703,6 @@
                 </div>
             </section>
             
-            <!-- Payment Section -->
             <section id="payment" class="section">
                 <div class="section-header">
                     <h2 class="section-title"><i class="fas fa-credit-card"></i> Formas de Pagamento</h2>
@@ -715,7 +711,6 @@
                     </button>
                 </div>
                 
-                <!-- Credit Card Preview -->
                 <div class="credit-card">
                     <div class="card-inner">
                         <div class="card-front">
@@ -738,13 +733,10 @@
                     </div>
                 </div>
                 
-                <!-- Cards List -->
                 <div class="cards-grid" id="cardsGrid">
-                    <!-- Cards will be loaded dynamically -->
                 </div>
             </section>
             
-            <!-- Call History Section -->
             <section id="history" class="section">
                 <div class="section-header">
                     <h2 class="section-title"><i class="fas fa-history"></i> Histórico de Chamados</h2>
@@ -761,12 +753,10 @@
                         </tr>
                     </thead>
                     <tbody id="ticketsTableBody">
-                        <!-- Tickets will be loaded dynamically -->
                     </tbody>
                 </table>
             </section>
             
-            <!-- Privacy Section -->
             <section id="privacy" class="section">
                 <div class="section-header">
                     <h2 class="section-title"><i class="fas fa-shield-alt"></i> Configurações de Privacidade</h2>
@@ -863,28 +853,22 @@
     </div>
     
     <script>
-        // Armazenar dados do usuário
         let currentUser = null;
         let userTickets = [];
         let userCards = [];
         let twoFAEnabled = false;
-
-        // Navigation between sections
         function showSection(sectionId) {
-            // Hide all sections
+
             document.querySelectorAll('.section').forEach(section => {
                 section.classList.remove('active');
             });
             
-            // Show selected section
             document.getElementById(sectionId).classList.add('active');
             
-            // Update active menu item
             document.querySelectorAll('.menu-link').forEach(link => {
                 link.classList.remove('active');
             });
             
-            // Find corresponding link and mark as active
             const links = document.querySelectorAll('.menu-link');
             for (let link of links) {
                 if (link.getAttribute('onclick').includes(sectionId)) {
@@ -893,7 +877,6 @@
                 }
             }
             
-            // Load section data if needed
             if (sectionId === 'history') {
                 loadTickets();
             } else if (sectionId === 'payment') {
@@ -903,7 +886,6 @@
             return false;
         }
         
-        // Add Card Modal
         function showAddCardModal() {
             document.getElementById('addCardModal').style.display = 'flex';
         }
@@ -913,7 +895,6 @@
             document.getElementById('addCardForm').reset();
         }
         
-        // Save profile
         async function saveProfile() {
             const firstName = document.getElementById('firstName').value;
             const lastName = document.getElementById('lastName').value;
@@ -944,14 +925,13 @@
                 
                 const data = await response.json();
                 alert('Perfil atualizado com sucesso!');
-                loadUserData(); // Recarregar dados do usuário
+                loadUserData();
             } catch (error) {
                 console.error('Erro ao salvar perfil:', error);
                 alert('Erro ao salvar perfil: ' + error.message);
             }
         }
         
-        // Change password
         async function changePassword() {
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
@@ -987,7 +967,6 @@
             }
         }
         
-        // Toggle 2FA
         document.getElementById('toggle2FA').addEventListener('click', async function() {
             try {
                 const response = await fetch('/api/toggle-2fa', {
@@ -1019,7 +998,6 @@
             }
         });
         
-        // Save card
         async function saveCard() {
             const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
             const cardHolderName = document.getElementById('cardHolderName').value;
@@ -1059,7 +1037,6 @@
             }
         }
         
-        // Load user cards
         async function loadCards() {
             try {
                 const response = await fetch('/api/user-cards', {
@@ -1075,7 +1052,6 @@
                 userCards = await response.json();
                 renderCards();
                 
-                // Atualizar preview do cartão principal
                 if (userCards.length > 0) {
                     const primaryCard = userCards[0];
                     document.getElementById('lastFourDigits').textContent = primaryCard.lastFour;
@@ -1087,7 +1063,6 @@
             }
         }
         
-        // Render cards in the grid
         function renderCards() {
             const cardsGrid = document.getElementById('cardsGrid');
             cardsGrid.innerHTML = '';
@@ -1113,7 +1088,6 @@
                 cardsGrid.appendChild(cardElement);
             });
             
-            // Adicionar botão para adicionar novo cartão
             const addCardElement = document.createElement('div');
             addCardElement.className = 'card-item add-card';
             addCardElement.onclick = showAddCardModal;
@@ -1160,7 +1134,6 @@
             }
         }
         
-        // Load user tickets
         async function loadTickets() {
             try {
                 const response = await fetch('/api/user-tickets', {
@@ -1181,7 +1154,6 @@
             }
         }
         
-        // Render tickets in the table
         function renderTickets() {
             const tableBody = document.getElementById('ticketsTableBody');
             tableBody.innerHTML = '';
@@ -1211,7 +1183,6 @@
             });
         }
         
-        // Update ticket stats in the sidebar
         function updateTicketStats() {
             const total = userTickets.length;
             const active = userTickets.filter(t => t.status === 'em_andamento').length;
@@ -1222,7 +1193,6 @@
             document.getElementById('solvedTickets').textContent = solved;
         }
         
-        // View ticket details
         function viewTicketDetails(ticketId) {
             const ticket = userTickets.find(t => t._id === ticketId);
             if (ticket) {
@@ -1230,7 +1200,6 @@
             }
         }
         
-        // Save privacy settings
         async function savePrivacySettings() {
             const profileVisibility = document.getElementById('profileVisibility').value;
             const showEmail = document.getElementById('showEmail').checked;
@@ -1267,7 +1236,6 @@
             }
         }
         
-        // Load user data
         async function loadUserData() {
             try {
                 const response = await fetch('/api/user-profile', {
@@ -1277,7 +1245,6 @@
                 });
                 
                 if (!response.ok) {
-                    // Se não autorizado, redirecionar para login
                     if (response.status === 401) {
                         logout();
                         return;
@@ -1288,28 +1255,23 @@
                 currentUser = await response.json();
                 renderUserData();
                 
-                // Carregar dados adicionais
                 loadTickets();
                 loadCards();
             } catch (error) {
                 console.error('Erro ao carregar dados do usuário:', error);
-                // Se não estiver autenticado, redirecionar para login
                 if (error.message.includes('401')) {
                     logout();
                 }
             }
         }
         
-        // Render user data
         function renderUserData() {
             if (!currentUser) return;
             
-            // Separar nome e sobrenome
             const nameParts = currentUser.name.split(' ');
             const firstName = nameParts[0];
             const lastName = nameParts.slice(1).join(' ');
             
-            // Atualizar sidebar
             document.getElementById('profileName').textContent = currentUser.name;
             document.getElementById('profileRole').textContent = currentUser.userType === 'administrador' ? 'Administrador' : 'Colaborador';
             
@@ -1317,7 +1279,6 @@
                 document.getElementById('profileImage').src = currentUser.avatar;
             }
             
-            // Atualizar formulário de perfil
             document.getElementById('firstName').value = firstName;
             document.getElementById('lastName').value = lastName;
             document.getElementById('email').value = currentUser.email || '';
@@ -1326,7 +1287,6 @@
             document.getElementById('department').value = currentUser.department || 'Tecnologia da Informação';
             document.getElementById('bio').value = currentUser.bio || '';
             
-            // Atualizar configurações de privacidade
             if (currentUser.privacySettings) {
                 const settings = currentUser.privacySettings;
                 document.getElementById('profileVisibility').value = settings.profileVisibility || 'all';
@@ -1336,8 +1296,6 @@
                 document.getElementById('showActivity').checked = settings.showActivity || false;
                 document.getElementById('showTickets').checked = settings.showTickets || false;
             }
-            
-            // Atualizar status do 2FA
             twoFAEnabled = currentUser.twoFAEnabled || false;
             const toggle2FABtn = document.getElementById('toggle2FA');
             toggle2FABtn.innerHTML = twoFAEnabled 
@@ -1345,42 +1303,34 @@
                 : '<i class="fas fa-mobile-alt"></i> Ativar 2FA';
         }
         
-        // Logout
         function logout() {
             localStorage.removeItem('token');
             window.location.href = 'login.html';
         }
         
-        // Initialize
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar autenticação
             const token = localStorage.getItem('token');
             if (!token) {
                 logout();
                 return;
             }
             
-            // Check for hash in URL to show specific section
             const hash = window.location.hash.substring(1);
             if (hash) {
                 showSection(hash);
             }
             
-            // Carregar dados do usuário
             loadUserData();
             
-            // Avatar upload
             document.getElementById('avatarInput').addEventListener('change', async function(e) {
                 const file = e.target.files[0];
                 if (file) {
-                    // Mostrar preview
                     const reader = new FileReader();
                     reader.onload = function(event) {
                         document.getElementById('profileImage').src = event.target.result;
                     };
                     reader.readAsDataURL(file);
                     
-                    // Upload para o servidor
                     const formData = new FormData();
                     formData.append('avatar', file);
                     

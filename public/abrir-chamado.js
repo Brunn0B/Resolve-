@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             const constraints = {
                 video: {
-                    facingMode: 'environment', // Usar câmera traseira
+                    facingMode: 'environment',
                     width: { ideal: 1280 },
                     height: { ideal: 720 }
                 }
