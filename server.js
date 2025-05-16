@@ -249,11 +249,17 @@ app.get('/obter-configuracoes', authenticateToken, async (req, res) => {
 });
 
 app.post('/abrir-chamado', authenticateToken, async (req, res) => {
+  console.log('Body recebido:', req.body);
+
   const { titulo, descricao, localizacao, foto } = req.body;
   const criador = req.user.userId;
 
   if (!criador) {
     return res.status(400).json({ message: 'ID do criador não fornecido.' });
+  }
+
+  if (!localizacao || !localizacao.type || (localizacao.type === 'predefined' && !localizacao.value) || (localizacao.type === 'gps' && (!localizacao.coordinates || !localizacao.coordinates.latitude || !localizacao.coordinates.longitude))) {
+    return res.status(400).json({ message: 'Localização inválida.' });
   }
 
   const novoChamado = new Chamado({

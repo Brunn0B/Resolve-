@@ -573,7 +573,7 @@
                                     </div>
                                     
                                     <div class="camera-preview" id="cameraPreview">
-                                        <video id="video" autoplay></video>
+                                        <video id="video" autoplay playsinline></video>
                                     </div>
                                     
                                     <div class="camera-controls" id="cameraControls" style="display: none;">
@@ -642,6 +642,7 @@
         let map;
         let userMarker;
         let userCircle;
+        let stream = null;
 
         if (document.querySelector('.map-column').style.display !== 'none') {
             initMap();
@@ -786,8 +787,6 @@
             text.textContent = message;
         }
 
-        let stream;
-
         botaoSelecionarFoto.addEventListener('click', () => {
             selecionarFotoInput.click();
         });
@@ -813,6 +812,11 @@
 
         async function iniciarCamera() {
             try {
+                // Parar qualquer stream existente
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
+
                 const constraints = {
                     video: {
                         facingMode: 'environment',
@@ -833,12 +837,14 @@
                     selecionarFotoInput.value = '';
                 }
             } catch (error) {
+                console.error('Erro ao acessar a câmera:', error);
                 alert('Erro ao acessar a câmera: ' + error.message);
-                console.error('Erro na câmera:', error);
             }
         }
 
         function capturarFoto() {
+            if (!stream) return;
+            
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
@@ -943,6 +949,10 @@
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
                 submitBtn.disabled = true;
 
+                // Determinar qual foto usar (prioridade para a foto capturada pela câmera)
+                let fotoParaEnviar = fotoCapturada.startsWith('data:image') ? fotoCapturada : 
+                                    imagemSelecionada.startsWith('data:image') ? imagemSelecionada : null;
+
                 const response = await fetch('/abrir-chamado', {
                     method: 'POST',
                     headers: {
@@ -953,13 +963,10 @@
                         titulo,
                         descricao,
                         localizacao: locationData,
-                        foto: fotoCapturada || imagemSelecionada || null,
+                        foto: fotoParaEnviar,
                         criador: currentUser._id 
                     })
                 });
-
-                submitBtn.innerHTML = originalBtnText;
-                submitBtn.disabled = false;
 
                 if (response.ok) {
                     alert('Chamado aberto com sucesso!');
@@ -969,11 +976,11 @@
                     alert(data.message || 'Erro ao criar chamado.');
                 }
             } catch (error) {
-                alert('Erro ao criar chamado: ' + error.message);
                 console.error('Erro:', error);
-                
+                alert('Erro ao criar chamado: ' + error.message);
+            } finally {
                 const submitBtn = document.querySelector('.btn-submit');
-                submitBtn.innerHTML = originalBtnText;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Abrir Chamado';
                 submitBtn.disabled = false;
             }
         });
