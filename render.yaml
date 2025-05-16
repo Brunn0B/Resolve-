@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: resolve-mais
+    runtime: node
+    branch: main
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://ADM:fgZ9ASjlKFSWSlHe@resolveplus.iqcqd.mongodb.net/ResolvePlus?retryWrites=true&w=majority&appName=ResolvePlus
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        value: acb22d8ac284dd0e4a4140fea947160c9aa685d7f2eb80cbcbc27b8329c9a35a46caaca28757b7262d66ba08b3961d336a7ebd03204429f1f3448db58ba4488941883e928db87913e45a0145ce39bd33c769013c5c832d7d1e2486602e6f7d88673059adb435ec4827e31cd384f39e9b5e6fec1a4e56c04b50388dd6c9ba4790b6cd80e629a878443a8df6eac5d7d7e48a3fade63a31a34179f2acb6ba21853a0e9e2069a7226d12456b98da0837c9776c26a5f86c0888af783a6e99c51b88c96fdcda1ba27bf89ddeed223b6cc424f8d62d65b059c3bb2ed13c4aebc4c0f3bc768eb8acaf478d9f4a034cd37b3db030942c54b0c062dd5036ac9b95ca4ce05e
