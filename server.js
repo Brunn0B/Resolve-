@@ -5,7 +5,6 @@ const path = require('path');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
-const { spawn } = require('child_process');
 const fs = require('fs');
 require('dotenv').config();
 
@@ -25,29 +24,6 @@ mongoose.connect(uri)
   .catch(err => console.error('Erro ao conectar ao MongoDB Atlas:', err));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
-
-let pythonProcess;
-function startPythonMLServer() {
-  pythonProcess = spawn('python', ['suporte_ml.py']);
-  
-  pythonProcess.stdout.on('data', (data) => {
-    console.log(`Python ML Server: ${data}`);
-  });
-
-  pythonProcess.stderr.on('data', (data) => {
-    console.error(`Python ML Error: ${data}`);
-  });
-
-  pythonProcess.on('close', (code) => {
-    console.log(`Python ML process exited with code ${code}`);
-    if (code !== 0) {
-      console.log('Reiniciando servidor Python ML...');
-      setTimeout(startPythonMLServer, 5000);
-    }
-  });
-}
-
-startPythonMLServer();
 
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
@@ -163,6 +139,7 @@ const supportKnowledgeBase = {
     ]
   }
 };
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -701,22 +678,6 @@ app.post('/api/support', authenticateToken, async (req, res) => {
     const { message } = req.body;
     const userId = req.user.userId;
 
-    try {
-      const pythonResponse = await fetch('http://localhost:5001/api/support', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
-      });
-
-      if (pythonResponse.ok) {
-        const data = await pythonResponse.json();
-        saveSupportConversation(userId, message, data.response, data.intent);
-        return res.json(data);
-      }
-    } catch (pythonError) {
-      console.log('Falha ao chamar servidor Python, usando fallback:', pythonError);
-    }
-
     const intent = classifySupportIntent(message);
     const knowledge = supportKnowledgeBase[intent] || supportKnowledgeBase['sistema'];
     const response = knowledge.responses[Math.floor(Math.random() * knowledge.responses.length)];
@@ -885,13 +846,9 @@ app.use((err, req, res, next) => {
 
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
-  console.log(`Servidor de suporte ML rodando em http://localhost:5001`);
 });
 
 process.on('SIGINT', () => {
   console.log('Encerrando servidor...');
-  if (pythonProcess) {
-    pythonProcess.kill();
-  }
   process.exit();
 });
