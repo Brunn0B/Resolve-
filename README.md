@@ -247,95 +247,17 @@ Para mais informações, entre em contato com a equipe de desenvolvimento:
 ### Vídeo no completo no YouTube -- O Video Esta Desatualizado!!
 [![Assista ao vídeo](https://www.youtube.com/watch?v=YtUuTxyDDyg)](https://www.youtube.com/watch?v=YtUuTxyDDyg)
 
-## Hierarquia Do diretório
-```
+
 |—— .env
-|—— .firebase
-|—— .firebaserc
-|—— .github
 |—— .gitignore
-|—— firebase.json
-|—— FotosFuncionariosRH.IMG
-|    |—— Captura de tela 2024-02-24 212820.png
-|    |—— Captura_de_tela_2024-02-24_212820-removebg-preview.png
-|    |—— OIF.jpeg
-|    |—— Pessoa aleatoria F.jpg
-|    |—— Pessoa aleatoria F1.jpg
-|    |—— Pessoa aleatoria F2.jpeg
-|    |—— Pessoa aleatoria F3.jpg
-|    |—— Pessoa aleatoria F4.jpeg
-|    |—— Pessoa aleatoria F5.jpg
-|    |—— Pessoa aleatoria F6.jpeg
-|    |—— Pessoa aleatoria M.jpg
-|    |—— Pessoa aleatoria M1.jpeg
-|    |—— Pessoa aleatoria M2.jpg
-|    |—— Pessoa aleatoria M3.jpg
-|    |—— Pessoa aleatoria M4.jpeg
-|    |—— Pessoa aleatoria M5.jpeg
-|    |—— Pessoa aleatoria M6.jpeg
-|    |—— Pessoa aleatoria M7.jpeg
-|    |—— popo-boxe1.jpg
-|—— git-filter-repo
-|    |—— .gitattributes
-|    |—— .github
-|        |—— dependabot.yml
-|        |—— workflows
-|            |—— test.yml
-|    |—— .gitignore
-|    |—— contrib
-|        |—— filter-repo-demos
-|            |—— barebones-example
-|            |—— bfg-ish
-|            |—— clean-ignore
-|            |—— convert-svnexternals
-|            |—— filter-branch-ish
-|            |—— filter-lamely
-|            |—— insert-beginning
-|            |—— lint-history
-|            |—— README.md
-|            |—— signed-off-by
-|    |—— COPYING
-|    |—— COPYING.gpl
-|    |—— COPYING.mit
-|    |—— Documentation
-|        |—— Contributing.md
-|        |—— converting-from-bfg-repo-cleaner.md
-|        |—— converting-from-filter-branch.md
-|        |—— examples-from-user-filed-issues.md
-|        |—— FAQ.md
-|        |—— git-filter-repo.txt
-|    |—— git-filter-repo
-|    |—— git_filter_repo.py
-|    |—— INSTALL.md
-|    |—— Makefile
-|    |—— pyproject.toml
-|    |—— README.md
-|    |—— t
-|        |—— run_coverage
-|        |—— run_tests
-|        |—— t9390
-|            |—— basic
-|            |—— basic-filename
-|            |—— basic-mailmap
-|            |—— basic-message
-|            |—— basic-numbers
-|            |—— basic-replace
-|            |—— basic-ten
-|            |—— basic-twenty
-|            |—— degenerate
-|            |—— degenerate-evil-merge
-|        
+|—— index.html
+|—— main.js
+|—— node_modules
 |—— package-lock.json
 |—— package.json
 |—— public
-|    |—— abrir-chamado.css
 |    |—— abrir-chamado.html
-|    |—— abrir-chamado.js
-|    |—— Cartão.css
-|    |—— Cartão.js
 |    |—— Configuracoes.html
-|    |—— EstiloGlobal.css
-|    |—— EstiloGlobal.js
 |    |—— Gerenciador de Chamdos.html
 |    |—— img
 |        |—— agua.jpg
@@ -357,6 +279,7 @@ Para mais informações, entre em contato com a equipe de desenvolvimento:
 |        |—— Logo 2 hd.png
 |        |—— Logo Novo.png
 |        |—— Logo-Resolve-hd.png
+|        |—— Logo_Novo-removebg-preview.png
 |        |—— semaforo.jpg
 |        |—— sp.jpg
 |    |—— index.html
@@ -371,14 +294,16 @@ Para mais informações, entre em contato com a equipe de desenvolvimento:
 |    |—— TelaChamados.css
 |    |—— TelaChamados.html
 |    |—— TelaChamados.js
-|    |—— TelaInicio.html
 |    |—— Uploads
 |        |—— avatars
 |            |—— 67c3addcd6dda9460a794902-1743030870473-505361244.png
 |            |—— 67c3addcd6dda9460a794902-1743031176617-7960131.png
 |—— server.js
+|—— suporte_ml.py
+|—— support_model.joblib
+|—— Teste
 |—— uploads
 |    |—— 15bb03d1fc9f8fd885e4ced73c82a287
 |    |—— 8bad5069a3e6c55c29b9af718d543c1e
 |    |—— e495b6b89d9e2dc59a7b470c0c37db0e
-``
+```
