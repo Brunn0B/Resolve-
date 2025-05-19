@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Suporte Inteligente</title>
+    <title>Assistente Inteligente de Suporte</title>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -335,6 +335,50 @@
             opacity: 0.8;
         }
 
+        .message-solutions {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px dashed var(--light-gray);
+        }
+
+        .solution-buttons {
+            display: flex;
+            gap: 0.75rem;
+            margin: 0.75rem 0;
+            flex-wrap: wrap;
+        }
+
+        .solution-buttons button {
+            background: var(--primary-light);
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            border-radius: 20px;
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 500;
+        }
+
+        .solution-buttons button:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .message-meta {
+            margin-top: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--gray);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .message-meta i {
+            font-size: 0.9rem;
+        }
+
         .chat-input-container {
             padding: 1.25rem 1.75rem;
             border-top: 1px solid var(--light-gray);
@@ -411,50 +455,6 @@
             animation-delay: 0.4s;
         }
 
-        .message-solutions {
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px dashed var(--light-gray);
-        }
-
-        .solution-buttons {
-            display: flex;
-            gap: 0.75rem;
-            margin: 0.75rem 0;
-            flex-wrap: wrap;
-        }
-
-        .solution-buttons button {
-            background: var(--primary-light);
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            border-radius: 20px;
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: var(--transition);
-            font-weight: 500;
-        }
-
-        .solution-buttons button:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
-        }
-
-        .message-meta {
-            margin-top: 0.75rem;
-            font-size: 0.8rem;
-            color: var(--gray);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .message-meta i {
-            font-size: 0.9rem;
-        }
-
         @keyframes typingAnimation {
             0%, 60%, 100% { transform: translateY(0); }
             30% { transform: translateY(-5px); }
@@ -471,6 +471,442 @@
         @keyframes skeleton-loading {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
+        }
+
+        /* Modal de confirmação */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.active .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.75rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--danger);
+        }
+
+        .modal-body {
+            padding: 1.75rem;
+        }
+
+        .modal-footer {
+            padding: 1.25rem 1.75rem;
+            border-top: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        .modal-btn {
+            padding: 0.6rem 1.25rem;
+            border-radius: var(--border-radius);
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+            border: none;
+        }
+
+        .modal-btn-primary:hover {
+            background-color: var(--secondary);
+        }
+
+        .modal-btn-secondary {
+            background-color: var(--light-gray);
+            color: var(--dark);
+            border: none;
+        }
+
+        .modal-btn-secondary:hover {
+            background-color: var(--gray);
+            color: var(--white);
+        }
+
+        /* Upload de arquivos */
+        .file-upload {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .file-upload-label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border: 2px dashed var(--gray);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--primary);
+        }
+
+        .file-upload-label i {
+            font-size: 2.5rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .file-upload-label span {
+            color: var(--gray);
+            text-align: center;
+        }
+
+        .file-upload-input {
+            display: none;
+        }
+
+        .file-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .file-preview-item {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--box-shadow);
+        }
+
+        .file-preview-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .file-preview-remove {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            background-color: var(--danger);
+            color: var(--white);
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: none;
+            opacity: 0.8;
+            transition: var(--transition);
+        }
+
+        .file-preview-remove:hover {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+
+        /* Formulários */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--dark-gray);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-family: inherit;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(8, 41, 69, 0.2);
+            outline: none;
+        }
+
+        .form-text {
+            font-size: 0.85rem;
+            color: var(--gray);
+            margin-top: 0.25rem;
+        }
+
+        .form-check {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-check-input {
+            width: 1.1rem;
+            height: 1.1rem;
+        }
+
+        .form-check-label {
+            font-size: 0.95rem;
+            color: var(--dark-gray);
+        }
+
+        /* Alertas */
+        .alert {
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .alert i {
+            font-size: 1.25rem;
+        }
+
+        .alert-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            border: 1px solid rgba(40, 167, 69, 0.2);
+            color: var(--success);
+        }
+
+        .alert-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.2);
+            color: var(--warning);
+        }
+
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            border: 1px solid rgba(220, 53, 69, 0.2);
+            color: var(--danger);
+        }
+
+        .alert-info {
+            background-color: rgba(23, 162, 184, 0.1);
+            border: 1px solid rgba(23, 162, 184, 0.2);
+            color: var(--secondary);
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            margin-bottom: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: var(--white);
+        }
+
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .table th {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .table tr:hover {
+            background-color: rgba(8, 41, 69, 0.03);
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .table-btn {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .table-btn-view {
+            background-color: rgba(8, 41, 69, 0.1);
+            color: var(--primary);
+        }
+
+        .table-btn-view:hover {
+            background-color: rgba(8, 41, 69, 0.2);
+        }
+
+        .table-btn-edit {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+
+        .table-btn-edit:hover {
+            background-color: rgba(255, 193, 7, 0.2);
+        }
+
+        .table-btn-delete {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+
+        .table-btn-delete:hover {
+            background-color: rgba(220, 53, 69, 0.2);
+        }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-primary {
+            background-color: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .badge-success {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .badge-warning {
+            background-color: rgba(255, 193, 7, 0.1);
+            color: var(--warning);
+        }
+
+        .badge-danger {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: var(--danger);
+        }
+
+        /* Cards */
+        .card {
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+
+        .card-header {
+            padding: 1.25rem 1.75rem;
+            border-bottom: 1px solid var(--light-gray);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .card-body {
+            padding: 1.75rem;
+        }
+
+        .card-footer {
+            padding: 1.25rem 1.75rem;
+            border-top: 1px solid var(--light-gray);
+            background-color: var(--light-gray);
+        }
+
+        /* Progress bars */
+        .progress {
+            height: 0.5rem;
+            background-color: var(--light-gray);
+            border-radius: 0.25rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--primary);
+            border-radius: 0.25rem;
+            transition: width 0.6s ease;
         }
 
         /* Responsividade */
@@ -588,182 +1024,182 @@
             }
         }
         
-         @media (max-width: 480px) {
-        .main-container {
-            flex-direction: column;
+        @media (max-width: 480px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                display: flex;
+                flex-direction: column;
+                padding: 1rem;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            
+            .logo {
+                justify-content: center;
+                margin-bottom: 1rem;
+            }
+            
+            .nav-menu {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 0.5rem;
+            }
+            
+            .nav-item {
+                margin-bottom: 0;
+            }
+            
+            .nav-link {
+                padding: 0.5rem;
+                border-radius: 50%;
+                width: 40px;
+                height: 40px;
+                justify-content: center;
+            }
+            
+            .nav-link span {
+                display: none;
+            }
+            
+            .nav-link i {
+                margin: 0;
+            }
+            
+            .content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+            
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+                margin-bottom: 1.5rem;
+            }
+            
+            .user-profile {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            
+            .page-title {
+                font-size: 1.5rem;
+            }
+            
+            .chat-container {
+                height: calc(100vh - 180px);
+            }
+            
+            .chat-header {
+                padding: 0.75rem 1rem;
+            }
+            
+            .chat-title span {
+                font-size: 1rem;
+            }
+            
+            .chat-body {
+                padding: 1rem;
+            }
+            
+            .welcome-message {
+                padding: 1rem;
+            }
+            
+            .welcome-message h2 {
+                font-size: 1.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr 1fr;
+                gap: 0.75rem;
+                margin-top: 1.5rem;
+            }
+            
+            .quick-action {
+                padding: 1rem 0.5rem;
+            }
+            
+            .quick-action i {
+                font-size: 1.5rem;
+            }
+            
+            .message {
+                max-width: 95%;
+                padding: 0.8rem 1rem;
+                font-size: 0.95rem;
+            }
+            
+            .chat-input-container {
+                padding: 0.75rem;
+            }
+            
+            .chat-input {
+                gap: 0.5rem;
+            }
+            
+            .chat-input input {
+                padding: 0.75rem 1rem;
+            }
+            
+            .chat-input button {
+                padding: 0 1rem;
+            }
+            
+            .send-text {
+                display: none;
+            }
+            
+            .typing-indicator {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+            
+            .typing-indicator span:last-child {
+                display: none;
+            }
         }
-        
-        .sidebar {
-            width: 100%;
-            height: auto;
-            position: static;
-            display: flex;
-            flex-direction: column;
-            padding: 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .logo {
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-        
-        .nav-menu {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 0.5rem;
-        }
-        
-        .nav-item {
-            margin-bottom: 0;
-        }
-        
-        .nav-link {
-            padding: 0.5rem;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            justify-content: center;
-        }
-        
-        .nav-link span {
-            display: none;
-        }
-        
-        .nav-link i {
-            margin: 0;
-        }
-        
-        .content {
-            margin-left: 0;
-            padding: 1rem;
-        }
-        
-        .header {
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .user-profile {
-            width: 100%;
-            justify-content: flex-end;
-        }
-        
-        .page-title {
-            font-size: 1.5rem;
-        }
-        
-        .chat-container {
-            height: calc(100vh - 180px);
-        }
-        
-        .chat-header {
-            padding: 0.75rem 1rem;
-        }
-        
-        .chat-title span {
-            font-size: 1rem;
-        }
-        
-        .chat-body {
-            padding: 1rem;
-        }
-        
-        .welcome-message {
-            padding: 1rem;
-        }
-        
-        .welcome-message h2 {
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .quick-actions {
-            grid-template-columns: 1fr 1fr;
-            gap: 0.75rem;
-            margin-top: 1.5rem;
-        }
-        
-        .quick-action {
-            padding: 1rem 0.5rem;
-        }
-        
-        .quick-action i {
-            font-size: 1.5rem;
-        }
-        
-        .message {
-            max-width: 95%;
-            padding: 0.8rem 1rem;
-            font-size: 0.95rem;
-        }
-        
-        .chat-input-container {
-            padding: 0.75rem;
-        }
-        
-        .chat-input {
-            gap: 0.5rem;
-        }
-        
-        .chat-input input {
-            padding: 0.75rem 1rem;
-        }
-        
-        .chat-input button {
-            padding: 0 1rem;
-        }
-        
-        .send-text {
-            display: none;
-        }
-        
-        .typing-indicator {
-            padding: 0.5rem;
-            font-size: 0.85rem;
-        }
-        
-        .typing-indicator span:last-child {
-            display: none;
-        }
-    }
 
-    @media (max-width: 360px) {
-        .quick-actions {
-            grid-template-columns: 1fr;
+        @media (max-width: 360px) {
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-container {
+                height: calc(100vh - 160px);
+            }
+            
+            .chat-input input {
+                padding: 0.6rem 0.8rem;
+            }
+            
+            .chat-input button {
+                padding: 0 0.8rem;
+            }
         }
-        
-        .chat-container {
-            height: calc(100vh - 160px);
-        }
-        
-        .chat-input input {
-            padding: 0.6rem 0.8rem;
-        }
-        
-        .chat-input button {
-            padding: 0 0.8rem;
-        }
-    }
 
-    @media (max-height: 480px) and (orientation: landscape) {
-        .sidebar {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
+        @media (max-height: 480px) and (orientation: landscape) {
+            .sidebar {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+            }
+            
+            .nav-menu {
+                margin-top: 0;
+            }
+            
+            .chat-container {
+                height: calc(100vh - 120px);
+            }
         }
-        
-        .nav-menu {
-            margin-top: 0;
-        }
-        
-        .chat-container {
-            height: calc(100vh - 120px);
-        }
-    }
     </style>
 </head>
 <body>
@@ -799,6 +1235,12 @@
                         <span>Configurações</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="#" class="nav-link">
+                        <i class="fas fa-user-shield"></i>
+                        <span>Admin</span>
+                    </a>
+                </li>
             </ul>
         </aside>
 
@@ -823,6 +1265,9 @@
                         </button>
                         <button class="chat-action" title="Histórico" id="showHistory">
                             <i class="fas fa-history"></i>
+                        </button>
+                        <button class="chat-action" title="Ajuda" id="showHelp">
+                            <i class="fas fa-question-circle"></i>
                         </button>
                     </div>
                 </div>
@@ -875,192 +1320,1089 @@
         </main>
     </div>
 
-    <script>
-        // Elementos do DOM
-        const chatInput = document.getElementById('chatInput');
-        const sendButton = document.getElementById('sendButton');
-        const chatMessages = document.getElementById('chatMessages');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        const typingIndicator = document.getElementById('typingIndicator');
-        const clearChatBtn = document.getElementById('clearChat');
-        const showHistoryBtn = document.getElementById('showHistory');
-        const sendText = document.querySelector('.send-text');
+    <!-- Modal de confirmação -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirmar ação</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage">Tem certeza que deseja limpar toda a conversa? Esta ação não pode ser desfeita.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="cancelAction">Cancelar</button>
+                <button class="modal-btn modal-btn-primary" id="confirmAction">Confirmar</button>
+            </div>
+        </div>
+    </div>
 
-        // Histórico de conversa
-        let conversationHistory = JSON.parse(localStorage.getItem('conversationHistory')) || [];
-        let isWaitingForResponse = false;
+    <!-- Modal de histórico -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Histórico de Conversas</h3>
+                <button class="modal-close" id="closeHistoryModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Assunto</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Histórico será preenchido dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="closeHistoryModalBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
 
-        // Event Listeners
-        document.addEventListener('DOMContentLoaded', () => {
-            if (conversationHistory.length > 0) {
-                renderConversationHistory();
-            }
-            
-            // Esconder texto do botão enviar em telas pequenas
-            if (window.innerWidth < 576) {
-                sendText.style.display = 'none';
-            }
-        });
-
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter' && !isWaitingForResponse) {
-                sendMessage();
-            }
-        });
-
-        sendButton.addEventListener('click', () => {
-            if (!isWaitingForResponse) {
-                sendMessage();
-            }
-        });
-
-        clearChatBtn.addEventListener('click', clearConversation);
-        showHistoryBtn.addEventListener('click', showHistory);
-
-        // Funções principais
-        async function sendMessage() {
-            const message = chatInput.value.trim();
-            if (message && !isWaitingForResponse) {
-                addMessageToChat('user', message);
-                chatInput.value = '';
-                isWaitingForResponse = true;
-                sendButton.disabled = true;
+    <!-- Modal de ajuda -->
+    <div class="modal-overlay" id="helpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Ajuda do Assistente</h3>
+                <button class="modal-close" id="closeHelpModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <div>
+                        <h4>Como usar o assistente</h4>
+                        <p>Nosso assistente virtual pode te ajudar com diversos tipos de solicitações:</p>
+                    </div>
+                </div>
                 
-                showTypingIndicator();
-                
-                try {
-                    const response = await fetch('http://localhost:5000/api/support', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ message })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Erro HTTP! status: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    addBotResponse(message, data);
-                    
-                } catch (error) {
-                    console.error('Erro ao chamar API de suporte:', error);
-                    // Fallback para respostas locais se a API falhar
-                    const fallbackResponse = getFallbackResponse(message);
-                    addBotResponse(message, fallbackResponse);
-                } finally {
-                    isWaitingForResponse = false;
-                    sendButton.disabled = false;
-                    hideTypingIndicator();
-                }
-            }
-        }
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="card-title">Comandos disponíveis</h4>
+                    </div>
+                    <div class="card-body">
+                        <ul style="list-style-type: none; padding-left: 0;">
+                            <li style="margin-bottom: 1rem;">
+                                <strong><i class="fas fa-key"></i> Redefinir senha</strong>
+                                <p>Digite "esqueci minha senha" ou "preciso redefinir minha senha"</p>
+                            </li>
+                            <li style="margin-bottom: 1rem;">
+                                <strong><i class="fas fa-ticket-alt"></i> Abrir chamado</strong>
+                                <p>Digite "preciso abrir um chamado" ou "reportar problema"</p>
+                            </li>
+                            <li style="margin-bottom: 1rem;">
+                                <strong><i class="fas fa-user"></i> Atualizar perfil</strong>
+                                <p>Digite "atualizar meus dados" ou "mudar informações"</p>
+                            </li>
+                            <li style="margin-bottom: 1rem;">
+                                <strong><i class="fas fa-question"></i> Dúvidas gerais</strong>
+                                <p>Digite sua pergunta normalmente que tentaremos ajudar</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="closeHelpModalBtn">Fechar</button>
+            </div>
+        </div>
+    </div>
 
-        function sendQuickMessage(message) {
-            if (isWaitingForResponse) return;
-            
-            welcomeMessage.style.display = 'none';
-            chatMessages.style.display = 'block';
-            
-            addMessageToChat('user', message);
-            isWaitingForResponse = true;
-            sendButton.disabled = true;
-            
-            showTypingIndicator();
-            
-            // Simula o tempo de processamento
-            setTimeout(async () => {
-                try {
-                    const response = await fetch('http://localhost:5000/api/support', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ message })
-                    });
-                    
-                    if (!response.ok) {
-                        throw new Error(`Erro HTTP! status: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    addBotResponse(message, data);
-                    
-                } catch (error) {
-                    console.error('Erro ao chamar API de suporte:', error);
-                    // Fallback para respostas locais se a API falhar
-                    const fallbackResponse = getFallbackResponse(message);
-                    addBotResponse(message, fallbackResponse);
-                } finally {
-                    isWaitingForResponse = false;
-                    sendButton.disabled = false;
-                    hideTypingIndicator();
-                }
-            }, 500);
-        }
+    <!-- Modal de upload -->
+    <div class="modal-overlay" id="uploadModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Enviar Arquivo</h3>
+                <button class="modal-close" id="closeUploadModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="file-upload">
+                    <label for="fileInput" class="file-upload-label" id="fileUploadLabel">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <span>Arraste e solte seu arquivo aqui ou clique para selecionar</span>
+                        <input type="file" id="fileInput" class="file-upload-input" accept="image/*,.pdf,.doc,.docx,.xls,.xlsx">
+                    </label>
+                    <div class="file-preview" id="filePreview"></div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-secondary" id="cancelUpload">Cancelar</button>
+                <button class="modal-btn modal-btn-primary" id="confirmUpload" disabled>Enviar</button>
+            </div>
+        </div>
+    </div>
 
-        function getFallbackResponse(message) {
-            // Base de conhecimento local para fallback
-            const knowledgeBase = {
-                'senha': {
-                    response: "Para resetar sua senha, acesse 'Esqueci minha senha' na página de login. Se precisar de mais ajuda, entre em contato com nosso suporte técnico.",
-                    solutions: [
-                        { title: "Redefinir Senha", url: "/reset-password" },
-                        { title: "Contatar Suporte", url: "/contact-support" }
-                    ],
-                    intent: 'senha'
+<script>
+    // Sistema de Memória e Aprendizado Avançado
+    class ChatbotMemory {
+        constructor() {
+            this.memory = JSON.parse(localStorage.getItem('chatbotMemory')) || {
+                userProfile: {
+                    name: 'Usuário',
+                    email: '',
+                    preferences: {},
+                    lastSession: null,
+                    usageCount: 0,
+                    isAdmin: false
                 },
-                'sistema': {
-                    response: "Problemas no sistema podem ser resolvidos limpando o cache do navegador ou verificando sua conexão com a internet. Se o problema persistir, por favor reporte-o.",
-                    solutions: [
-                        { title: "Limpar Cache", url: "/clear-cache" },
-                        { title: "Relatar Problema", url: "/report-issue" }
-                    ],
-                    intent: 'sistema'
+                conversationHistory: [],
+                learnedPatterns: {},
+                knowledgeBase: {
+                    passwordReset: {},
+                    profileUpdates: {},
+                    commonIssues: {},
+                    ticketManagement: {}
                 },
-                'usuario': {
-                    response: "Para criar um novo usuário, você precisa ter permissões de administrador. Entre em contato com o administrador do sistema para mais informações.",
-                    solutions: [
-                        { title: "Solicitar Acesso", url: "/request-access" },
-                        { title: "Documentação", url: "/docs/user-management" }
-                    ],
-                    intent: 'usuario'
-                },
-                'problema': {
-                    response: "Para relatar um problema técnico, por favor descreva-o com detalhes. Isso nos ajudará a resolver mais rapidamente.",
-                    solutions: [
-                        { title: "Abrir Chamado", url: "/open-ticket" },
-                        { title: "Ver Status", url: "/system-status" }
-                    ],
-                    intent: 'problema'
-                },
-                'default': {
-                    response: "Estamos com problemas para acessar nosso assistente inteligente no momento. Por favor, tente novamente mais tarde ou entre em contato com nosso suporte técnico.",
-                    solutions: [
-                        { title: "Suporte Técnico", url: "/contact-support" },
-                        { title: "Base de Conhecimento", url: "/knowledge-base" }
-                    ],
-                    intent: 'erro'
+                context: {},
+                tickets: [],
+                settings: {
+                    theme: 'light',
+                    notifications: true,
+                    sound: true
                 }
             };
-
-            // Classificador simples de fallback
-            const lowerMsg = message.toLowerCase();
-            if (/senha|acesso|login|bloqueado/.test(lowerMsg)) return knowledgeBase['senha'];
-            if (/sistema|lento|travando|erro|bug/.test(lowerMsg)) return knowledgeBase['sistema'];
-            if (/usuário|usuario|novo|cadastro/.test(lowerMsg)) return knowledgeBase['usuario'];
-            if (/problema|relatar|ajuda|suporte/.test(lowerMsg)) return knowledgeBase['problema'];
-            
-            return knowledgeBase['default'];
         }
 
-        function addMessageToChat(sender, text) {
-            if (conversationHistory.length === 0) {
-                welcomeMessage.style.display = 'none';
-                chatMessages.style.display = 'block';
+        save() {
+            localStorage.setItem('chatbotMemory', JSON.stringify(this.memory));
+        }
+
+        addInteraction(userMessage, botResponse, context = {}) {
+            this.memory.conversationHistory.push({
+                user: userMessage,
+                bot: botResponse,
+                timestamp: new Date().toISOString(),
+                context
+            });
+            
+            if (this.memory.conversationHistory.length > 100) {
+                this.memory.conversationHistory = this.memory.conversationHistory.slice(-100);
+            }
+            this.save();
+        }
+
+        learnPattern(inputPattern, response) {
+            const patternKey = inputPattern.toLowerCase().substring(0, 50);
+            this.memory.learnedPatterns[patternKey] = response;
+            this.save();
+        }
+
+        getLearnedResponse(input) {
+            const inputKey = input.toLowerCase().substring(0, 50);
+            return this.memory.learnedPatterns[inputKey];
+        }
+
+        updateUserProfile(data) {
+            this.memory.userProfile = {...this.memory.userProfile, ...data};
+            this.save();
+        }
+
+        getContext() {
+            return this.memory.context;
+        }
+
+        setContext(newContext) {
+            this.memory.context = {...this.memory.context, ...newContext};
+            this.save();
+        }
+
+        clearContext() {
+            this.memory.context = {};
+            this.save();
+        }
+
+        addTicket(ticket) {
+            this.memory.tickets.push({
+                ...ticket,
+                id: Date.now().toString(),
+                status: 'open',
+                createdAt: new Date().toISOString()
+            });
+            this.save();
+        }
+
+        updateTicket(ticketId, updates) {
+            const ticketIndex = this.memory.tickets.findIndex(t => t.id === ticketId);
+            if (ticketIndex !== -1) {
+                this.memory.tickets[ticketIndex] = {
+                    ...this.memory.tickets[ticketIndex],
+                    ...updates
+                };
+                this.save();
+            }
+        }
+
+        getTickets() {
+            return [...this.memory.tickets].reverse();
+        }
+
+        clearConversation() {
+            this.memory.conversationHistory = [];
+            this.save();
+        }
+
+        updateSettings(newSettings) {
+            this.memory.settings = {...this.memory.settings, ...newSettings};
+            this.save();
+        }
+
+        getSettings() {
+            return this.memory.settings;
+        }
+    }
+
+    // Sistema de Fluxos de Conversação
+    class ConversationFlow {
+        static FLOWS = {
+            PASSWORD_RESET: {
+                id: 'password_reset',
+                steps: [
+                    {
+                        prompt: "Para redefinir sua senha, por favor digite o e-mail associado à sua conta:",
+                        validate: (input) => {
+                            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                            return emailRegex.test(input) ? null : "Por favor, insira um e-mail válido.";
+                        },
+                        handler: (input, context) => {
+                            context.email = input;
+                            return {
+                                nextStep: 1,
+                                response: `Ótimo, encontramos sua conta (${input}). Agora, por favor, digite sua nova senha:`,
+                                actions: [
+                                    {type: "log", message: "Usuário forneceu email para redefinição de senha"}
+                                ]
+                            };
+                        }
+                    },
+                    {
+                        prompt: "Agora, por favor, digite sua nova senha:",
+                        validate: (input) => {
+                            if (input.length < 8) return "A senha deve ter pelo menos 8 caracteres.";
+                            if (!/\d/.test(input)) return "A senha deve conter pelo menos um número.";
+                            if (!/[A-Z]/.test(input)) return "A senha deve conter pelo menos uma letra maiúscula.";
+                            if (!/[!@#$%^&*(),.?":{}|<>]/.test(input)) return "A senha deve conter pelo menos um caractere especial.";
+                            return null;
+                        },
+                        handler: (input, context) => {
+                            context.newPassword = input;
+                            return {
+                                nextStep: 2,
+                                response: "Por favor, confirme sua nova senha:",
+                                actions: [
+                                    {type: "log", message: "Usuário criou nova senha"}
+                                ]
+                            };
+                        }
+                    },
+                    {
+                        prompt: "Por favor, confirme sua nova senha:",
+                        validate: (input, context) => {
+                            return input === context.newPassword ? null : "As senhas não coincidem. Por favor, tente novamente.";
+                        },
+                        handler: (input, context) => {
+                            return {
+                                nextStep: null,
+                                response: "Sua senha foi atualizada com sucesso!",
+                                actions: [
+                                    {type: "navigate", url: "/PerfilUser.html", label: "Ir para Meu Perfil"},
+                                    {type: "learn", key: "password_reset", value: "completed"},
+                                    {type: "log", message: "Senha redefinida com sucesso"}
+                                ]
+                            };
+                        }
+                    }
+                ]
+            },
+            TICKET_CREATION: {
+                id: 'ticket_creation',
+                steps: [
+                    {
+                        prompt: "Vamos criar um novo chamado. Por favor, descreva brevemente o problema:",
+                        validate: (input) => {
+                            return input.length > 10 ? null : "Por favor, forneça uma descrição mais detalhada (mínimo 10 caracteres).";
+                        },
+                        handler: (input, context) => {
+                            context.description = input;
+                            return {
+                                nextStep: 1,
+                                response: "Ótimo. Agora, qual é a prioridade deste chamado? (baixa, média, alta, urgente)",
+                                actions: [
+                                    {type: "log", message: "Usuário iniciou criação de chamado"}
+                                ]
+                            };
+                        }
+                    },
+                    {
+                        prompt: "Qual é a prioridade deste chamado? (baixa, média, alta, urgente)",
+                        validate: (input) => {
+                            const validPriorities = ['baixa', 'média', 'alta', 'urgente'];
+                            return validPriorities.includes(input.toLowerCase()) ? null : "Por favor, escolha entre: baixa, média, alta ou urgente.";
+                        },
+                        handler: (input, context) => {
+                            context.priority = input.toLowerCase();
+                            return {
+                                nextStep: 2,
+                                response: "Você gostaria de anexar alguma imagem ou arquivo para nos ajudar a entender melhor o problema? (sim/não)",
+                                actions: [
+                                    {type: "log", message: "Usuário definiu prioridade do chamado"}
+                                ]
+                            };
+                        }
+                    },
+                    {
+                        prompt: "Você gostaria de anexar alguma imagem ou arquivo? (sim/não)",
+                        validate: (input) => {
+                            const normalized = input.toLowerCase();
+                            return normalized === 'sim' || normalized === 's' || normalized === 'não' || normalized === 'nao' || normalized === 'n' ? 
+                                null : "Por favor, responda com 'sim' ou 'não'.";
+                        },
+                        handler: (input, context) => {
+                            const wantsUpload = input.toLowerCase() === 'sim' || input.toLowerCase() === 's';
+                            if (wantsUpload) {
+                                return {
+                                    nextStep: 3,
+                                    response: "Por favor, clique no ícone de anexo para enviar seu arquivo.",
+                                    actions: [
+                                        {type: "showUpload", label: "Anexar Arquivo"},
+                                        {type: "log", message: "Usuário optou por anexar arquivo"}
+                                    ]
+                                };
+                            } else {
+                                return this.completeTicketCreation(context);
+                            }
+                        }
+                    },
+                    {
+                        prompt: "Aguardando upload do arquivo...",
+                        validate: (input, context) => {
+                            return context.file ? null : "Por favor, anexe um arquivo ou digite 'cancelar' para continuar sem anexo.";
+                        },
+                        handler: (input, context) => {
+                            return this.completeTicketCreation(context);
+                        }
+                    }
+                ],
+                complete: function(context) {
+                    const ticket = {
+                        id: Date.now().toString(),
+                        description: context.description,
+                        priority: context.priority,
+                        status: 'open',
+                        createdAt: new Date().toISOString(),
+                        file: context.file || null
+                    };
+                    
+                    return {
+                        nextStep: null,
+                        response: `Chamado #${ticket.id} criado com sucesso! Nossa equipe entrará em contato em breve.`,
+                        actions: [
+                            {type: "createTicket", ticket: ticket},
+                            {type: "learn", key: "ticket_creation", value: "completed"},
+                            {type: "log", message: "Chamado criado com sucesso"}
+                        ]
+                    };
+                }
+            },
+            PROFILE_UPDATE: {
+                id: 'profile_update',
+                steps: [
+                    {
+                        prompt: "Vamos atualizar seu perfil. Qual informação você gostaria de alterar? (nome, email, telefone, departamento, bio)",
+                        validate: (input) => {
+                            const validFields = ['nome', 'email', 'telefone', 'departamento', 'bio'];
+                            return validFields.includes(input.toLowerCase()) ? null : "Por favor, escolha entre: nome, email, telefone, departamento ou bio.";
+                        },
+                        handler: (input, context) => {
+                            context.field = input.toLowerCase();
+                            let prompt = "";
+                            switch(context.field) {
+                                case 'nome':
+                                    prompt = "Por favor, digite seu novo nome completo:";
+                                    break;
+                                case 'email':
+                                    prompt = "Por favor, digite seu novo e-mail:";
+                                    break;
+                                case 'telefone':
+                                    prompt = "Por favor, digite seu novo telefone (com DDD):";
+                                    break;
+                                case 'departamento':
+                                    prompt = "Por favor, digite seu novo departamento:";
+                                    break;
+                                case 'bio':
+                                    prompt = "Por favor, digite sua nova biografia:";
+                                    break;
+                            }
+                            return {
+                                nextStep: 1,
+                                response: prompt,
+                                actions: [
+                                    {type: "log", message: `Usuário iniciou atualização de ${context.field}`}
+                                ]
+                            };
+                        }
+                    },
+                    {
+                        prompt: "",
+                        validate: (input, context) => {
+                            if (context.field === 'email') {
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                return emailRegex.test(input) ? null : "Por favor, insira um e-mail válido.";
+                            }
+                            return input.length > 0 ? null : "Este campo não pode estar vazio.";
+                        },
+                        handler: (input, context) => {
+                            context.newValue = input;
+                            return {
+                                nextStep: null,
+                                response: `Seu ${context.field} foi atualizado com sucesso!`,
+                                actions: [
+                                    {type: "updateProfile", field: context.field, value: context.newValue},
+                                    {type: "learn", key: "profile_update", value: "completed"},
+                                    {type: "log", message: `Usuário atualizou ${context.field}`},
+                                    {type: "navigate", url: "/PerfilUser.html", label: "Ver Perfil"}
+                                ]
+                            };
+                        }
+                    }
+                ]
+            },
+            ADMIN_REPORT: {
+                id: 'admin_report',
+                steps: [
+                    {
+                        prompt: "Você está acessando o painel administrativo. Qual relatório deseja gerar? (usuários, chamados, atividades)",
+                        validate: (input) => {
+                            const validReports = ['usuários', 'chamados', 'atividades'];
+                            return validReports.includes(input.toLowerCase()) ? null : "Por favor, escolha entre: usuários, chamados ou atividades.";
+                        },
+                        handler: (input, context) => {
+                            context.reportType = input.toLowerCase();
+                            return {
+                                nextStep: 1,
+                                response: `Gerando relatório de ${context.reportType}...`,
+                                actions: [
+                                    {type: "generateReport", reportType: context.reportType},
+                                    {type: "log", message: `Admin solicitou relatório de ${context.reportType}`}
+                                ]
+                            };
+                        }
+                    }
+                ]
+            }
+        };
+
+        constructor(memorySystem) {
+            this.memory = memorySystem;
+            this.currentFlow = null;
+            this.currentStep = null;
+        }
+
+        startFlow(flowId) {
+            this.currentFlow = ConversationFlow.FLOWS[flowId];
+            this.currentStep = 0;
+            this.memory.setContext({flow: flowId, step: 0});
+            return this.currentFlow.steps[0].prompt;
+        }
+
+        processInput(input) {
+            if (!this.currentFlow || this.currentStep === null) return null;
+            
+            const step = this.currentFlow.steps[this.currentStep];
+            const validationError = step.validate(input, this.memory.getContext());
+            
+            if (validationError) {
+                return {error: validationError};
+            }
+            
+            let result;
+            if (this.currentFlow.id === 'ticket_creation' && this.currentStep === 3) {
+                result = this.currentFlow.complete(this.memory.getContext());
+            } else {
+                result = step.handler(input, this.memory.getContext());
+            }
+            
+            if (result.nextStep !== null) {
+                this.currentStep = result.nextStep;
+                this.memory.setContext({step: this.currentStep});
+            } else {
+                this.completeFlow(result.actions);
+            }
+            
+            return result;
+        }
+
+        completeFlow(actions = []) {
+            actions.forEach(action => {
+                switch(action.type) {
+                    case "navigate":
+                        window.navigateTo(action.url, action.label);
+                        break;
+                    case "learn":
+                        this.memory.learnPattern(action.key, action.value);
+                        break;
+                    case "createTicket":
+                        this.memory.addTicket(action.ticket);
+                        break;
+                    case "updateProfile":
+                        const update = {[action.field]: action.value};
+                        this.memory.updateUserProfile(update);
+                        break;
+                    case "generateReport":
+                        this.generateReport(action.reportType);
+                        break;
+                    case "showUpload":
+                        document.getElementById('uploadModal').classList.add('active');
+                        break;
+                    case "log":
+                        console.log(action.message);
+                        break;
+                }
+            });
+            
+            this.currentFlow = null;
+            this.currentStep = null;
+            this.memory.clearContext();
+        }
+
+        generateReport(reportType) {
+            let reportData;
+            switch(reportType) {
+                case 'usuários':
+                    reportData = {
+                        total: 42,
+                        active: 38,
+                        admins: 3
+                    };
+                    break;
+                case 'chamados':
+                    const tickets = this.memory.getTickets();
+                    reportData = {
+                        total: tickets.length,
+                        open: tickets.filter(t => t.status === 'open').length,
+                        closed: tickets.filter(t => t.status === 'closed').length
+                    };
+                    break;
+                case 'atividades':
+                    reportData = {
+                        logins: 127,
+                        tickets: 19,
+                        updates: 8
+                    };
+                    break;
+            }
+            
+            return reportData;
+        }
+    }
+
+    class IntelligentChatbot {
+        constructor() {
+            this.memory = new ChatbotMemory();
+            this.flowSystem = new ConversationFlow(this.memory);
+            this.isProcessing = false;
+            
+            this.chatInput = document.getElementById('chatInput');
+            this.sendButton = document.getElementById('sendButton');
+            this.chatMessages = document.getElementById('chatMessages');
+            this.welcomeMessage = document.getElementById('welcomeMessage');
+            this.typingIndicator = document.getElementById('typingIndicator');
+            
+
+            this.confirmModal = document.getElementById('confirmModal');
+            this.historyModal = document.getElementById('historyModal');
+            this.helpModal = document.getElementById('helpModal');
+            this.uploadModal = document.getElementById('uploadModal');
+            
+            this.initialize();
+        }
+
+        initialize() {
+            this.memory.memory.userProfile.usageCount += 1;
+            this.memory.memory.userProfile.lastSession = new Date().toISOString();
+            this.memory.save();
+            
+            this.setupEventListeners();
+            
+            if (this.memory.memory.conversationHistory.length > 0) {
+                this.renderConversationHistory();
+            }
+            
+            this.showGreeting();
+            
+            this.checkAdminStatus();
+        }
+
+        setupEventListeners() {
+            this.chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter' && !this.isProcessing) {
+                    this.processUserInput();
+                }
+            });
+
+            this.sendButton.addEventListener('click', () => {
+                if (!this.isProcessing) {
+                    this.processUserInput();
+                }
+            });
+            
+            document.getElementById('clearChat').addEventListener('click', () => {
+                this.showConfirmModal(
+                    "Tem certeza que deseja limpar toda a conversa? Esta ação não pode ser desfeita.",
+                    () => {
+                        this.memory.clearConversation();
+                        this.chatMessages.innerHTML = '';
+                        this.welcomeMessage.style.display = 'block';
+                        this.chatMessages.style.display = 'none';
+                        this.showGreeting();
+                    }
+                );
+            });
+            
+            document.getElementById('showHistory').addEventListener('click', () => {
+                this.showHistoryModal();
+            });
+            
+            document.getElementById('showHelp').addEventListener('click', () => {
+                this.helpModal.classList.add('active');
+            });
+            
+            document.getElementById('closeModal').addEventListener('click', () => {
+                this.confirmModal.classList.remove('active');
+            });
+            
+            document.getElementById('cancelAction').addEventListener('click', () => {
+                this.confirmModal.classList.remove('active');
+            });
+            
+            document.getElementById('closeHistoryModal').addEventListener('click', () => {
+                this.historyModal.classList.remove('active');
+            });
+            
+            document.getElementById('closeHistoryModalBtn').addEventListener('click', () => {
+                this.historyModal.classList.remove('active');
+            });
+            
+            document.getElementById('closeHelpModal').addEventListener('click', () => {
+                this.helpModal.classList.remove('active');
+            });
+            
+            document.getElementById('closeHelpModalBtn').addEventListener('click', () => {
+                this.helpModal.classList.remove('active');
+            });
+            
+            document.getElementById('closeUploadModal').addEventListener('click', () => {
+                this.uploadModal.classList.remove('active');
+            });
+            
+            document.getElementById('cancelUpload').addEventListener('click', () => {
+                this.uploadModal.classList.remove('active');
+                this.clearFileInput();
+            });
+            
+            document.getElementById('fileInput').addEventListener('change', (e) => {
+                this.handleFileUpload(e.target.files);
+            });
+            
+            document.getElementById('confirmUpload').addEventListener('click', () => {
+                this.completeFileUpload();
+            });
+            
+            const fileUploadLabel = document.getElementById('fileUploadLabel');
+            fileUploadLabel.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                fileUploadLabel.style.borderColor = '#082945'; 
+                fileUploadLabel.style.backgroundColor = '#e6f0ff'; 
+            });
+            
+            fileUploadLabel.addEventListener('dragleave', () => {
+                fileUploadLabel.style.borderColor = '#6c757d'; 
+                fileUploadLabel.style.backgroundColor = 'transparent';
+            });
+            
+            fileUploadLabel.addEventListener('drop', (e) => {
+                e.preventDefault();
+                fileUploadLabel.style.borderColor = '#6c757d'; 
+                fileUploadLabel.style.backgroundColor = 'transparent';
+                this.handleFileUpload(e.dataTransfer.files);
+            });
+        }
+
+        checkAdminStatus() {
+            const isAdmin = Math.random() > 0.7; 
+            this.memory.updateUserProfile({ isAdmin });
+            
+            if (isAdmin) {
+                this.addBotMessage("Modo administrador ativado. Você tem acesso a funções avançadas.");
+            }
+        }
+
+        showGreeting() {
+            const now = new Date();
+            const hour = now.getHours();
+            let greeting = 'Bom dia';
+            
+            if (hour >= 12 && hour < 18) greeting = 'Boa tarde';
+            else if (hour >= 18) greeting = 'Boa noite';
+            
+            const userName = this.memory.memory.userProfile.name || 'usuário';
+            const isFirstTime = this.memory.memory.userProfile.usageCount === 1;
+            
+            const greetingMessage = isFirstTime
+                ? `${greeting}! Sou seu assistente virtual inteligente. Como posso te ajudar hoje?` 
+                : `${greeting}, ${userName}! O que posso fazer por você hoje?`;
+            
+            this.addBotMessage(greetingMessage);
+            
+            if (isFirstTime) {
+                this.memory.learnPattern('saudacao', 'resposta_personalizada');
+            }
+        }
+
+        processUserInput() {
+            const message = this.chatInput.value.trim();
+            if (!message) return;
+            
+            this.addUserMessage(message);
+            this.chatInput.value = '';
+            this.isProcessing = true;
+            this.sendButton.disabled = true;
+            this.showTypingIndicator();
+            
+            setTimeout(() => {
+                try {
+                    const currentContext = this.memory.getContext();
+                    if (currentContext.flow) {
+                        this.continueFlow(message);
+                        return;
+                    }
+                    
+                    const learnedResponse = this.memory.getLearnedResponse(message);
+                    if (learnedResponse) {
+                        this.addBotMessage(learnedResponse);
+                        this.isProcessing = false;
+                        this.sendButton.disabled = false;
+                        this.hideTypingIndicator();
+                        return;
+                    }
+                    
+                    this.processMessage(message);
+                    
+                } catch (error) {
+                    console.error("Erro no chatbot:", error);
+                    this.addBotMessage("Desculpe, ocorreu um erro ao processar sua mensagem. Por favor, tente novamente.");
+                    this.isProcessing = false;
+                    this.sendButton.disabled = false;
+                    this.hideTypingIndicator();
+                }
+            }, 600);
+        }
+
+        continueFlow(userInput) {
+            const result = this.flowSystem.processInput(userInput);
+            
+            if (result.error) {
+                this.addBotMessage(result.error);
+            } else {
+                this.addBotMessage(result.response);
+                
+                if (result.actions) {
+                    result.actions.forEach(action => {
+                        if (action.type === "navigate") {
+                            this.addQuickReply(action.label, `window.navigateTo('${action.url}', '${action.label}')`);
+                        } else if (action.type === "showUpload") {
+                            this.addQuickReply(action.label, `document.getElementById('uploadModal').classList.add('active')`);
+                        }
+                    });
+                }
+            }
+            
+            this.isProcessing = false;
+            this.sendButton.disabled = false;
+            this.hideTypingIndicator();
+        }
+
+        processMessage(message) {
+            const lowerMsg = message.toLowerCase();
+            
+            if (/senha|acesso|login|bloqueado|redefinir/.test(lowerMsg)) {
+                this.startPasswordResetFlow();
+                return;
+            }
+            
+            if (/chamado|problema|reportar|suporte|ajuda/.test(lowerMsg)) {
+                this.startTicketCreationFlow();
+                return;
+            }
+            
+            if (/perfil|meus dados|atualizar|informações pessoais/.test(lowerMsg)) {
+                this.startProfileUpdateFlow();
+                return;
+            }
+            
+            if (/admin|relatório|relatorio|painel/.test(lowerMsg) && this.memory.memory.userProfile.isAdmin) {
+                this.startAdminReportFlow();
+                return;
+            }
+            
+            const response = this.generateResponse(message);
+            this.addBotMessage(response.text);
+            
+            if (response.quickReplies) {
+                response.quickReplies.forEach(reply => {
+                    this.addQuickReply(reply.text, reply.action);
+                });
+            }
+            
+            if (response.learn) {
+                this.memory.learnPattern(response.learn.key, response.learn.value);
+            }
+            
+            this.isProcessing = false;
+            this.sendButton.disabled = false;
+            this.hideTypingIndicator();
+        }
+
+        startPasswordResetFlow() {
+            const firstStep = this.flowSystem.startFlow('PASSWORD_RESET');
+            this.addBotMessage(firstStep);
+            this.isProcessing = false;
+            this.sendButton.disabled = false;
+            this.hideTypingIndicator();
+        }
+
+        startTicketCreationFlow() {
+            const firstStep = this.flowSystem.startFlow('TICKET_CREATION');
+            this.addBotMessage(firstStep);
+            this.isProcessing = false;
+            this.sendButton.disabled = false;
+            this.hideTypingIndicator();
+        }
+
+        startProfileUpdateFlow() {
+            const firstStep = this.flowSystem.startFlow('PROFILE_UPDATE');
+            this.addBotMessage(firstStep);
+            this.isProcessing = false;
+            this.sendButton.disabled = false;
+            this.hideTypingIndicator();
+        }
+
+        startAdminReportFlow() {
+            const firstStep = this.flowSystem.startFlow('ADMIN_REPORT');
+            this.addBotMessage(firstStep);
+            this.isProcessing = false;
+            this.sendButton.disabled = false;
+            this.hideTypingIndicator();
+        }
+
+        generateResponse(message) {
+            const lowerMsg = message.toLowerCase();
+            const responses = {
+                'saudacao': {
+                    text: 'Olá! Como posso te ajudar hoje?',
+                    learn: { key: 'saudacao', value: 'resposta_padrao' }
+                },
+                'ajuda': {
+                    text: 'Posso te ajudar com:\n1. Redefinição de senha\n2. Problemas técnicos\n3. Atualização de perfil\n4. Informações sobre o sistema\n\nSobre o que você precisa?',
+                    quickReplies: [
+                        { text: "Redefinir senha", action: "this.startPasswordResetFlow()" },
+                        { text: "Problema técnico", action: "this.startTicketCreationFlow()" }
+                    ],
+                    learn: { key: 'ajuda', value: 'menu_ajuda' }
+                },
+                'sistema': {
+                    text: 'Para problemas técnicos, recomendo:\n1. Reiniciar o sistema\n2. Limpar cache do navegador\n3. Verificar conexão com a internet\n\nSe o problema persistir, você pode abrir um chamado técnico.',
+                    quickReplies: [
+                        { text: "Abrir chamado", action: "this.startTicketCreationFlow()" },
+                        { text: "Reiniciar sistema", action: "this.addBotMessage('Para reiniciar, vá em Configurações > Sistema > Reiniciar')" }
+                    ],
+                    learn: { key: 'sistema', value: 'problema_tecnico' }
+                },
+                'default': {
+                    text: 'Entendi sua mensagem. Estou sempre aprendendo para te ajudar melhor! Posso te auxiliar com configurações de conta, problemas técnicos ou informações do sistema. O que você precisa?',
+                    quickReplies: [
+                        { text: "Ajuda geral", action: "this.generateResponse('ajuda')" },
+                        { text: "Falar com humano", action: "this.addBotMessage('Estou transferindo você para um de nossos atendentes. Por favor, aguarde.')" }
+                    ],
+                    learn: { key: lowerMsg.substring(0, 30), value: 'mensagem_nao_mapeada' }
+                }
+            };
+            
+            if (/olá|ola|oi|e aí|bom dia|boa tarde|boa noite/.test(lowerMsg)) return responses['saudacao'];
+            if (/ajuda|socorro|suporte|como funciona/.test(lowerMsg)) return responses['ajuda'];
+            if (/sistema|lento|travando|erro|bug|não funciona|nao funciona/.test(lowerMsg)) return responses['sistema'];
+            
+            return responses['default'];
+        }
+
+        showConfirmModal(message, confirmCallback) {
+            document.getElementById('modalMessage').textContent = message;
+            this.confirmModal.classList.add('active');
+            
+            const confirmAction = document.getElementById('confirmAction');
+            confirmAction.onclick = () => {
+                confirmCallback();
+                this.confirmModal.classList.remove('active');
+            };
+        }
+
+        showHistoryModal() {
+            const tickets = this.memory.getTickets();
+            const tableBody = document.getElementById('historyTableBody');
+            tableBody.innerHTML = '';
+            
+            if (tickets.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">Nenhum histórico disponível</td></tr>';
+            } else {
+                tickets.forEach(ticket => {
+                    const row = document.createElement('tr');
+                    
+                    const date = new Date(ticket.createdAt);
+                    const dateStr = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                    
+                    const statusBadge = ticket.status === 'open' ? 
+                        '<span class="badge badge-warning">Aberto</span>' : 
+                        '<span class="badge badge-success">Fechado</span>';
+                    
+                    row.innerHTML = `
+                        <td>${dateStr}</td>
+                        <td>${ticket.description.substring(0, 30)}${ticket.description.length > 30 ? '...' : ''}</td>
+                        <td>${statusBadge}</td>
+                        <td class="table-actions">
+                            <button class="table-btn table-btn-view" title="Visualizar">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            this.historyModal.classList.add('active');
+        }
+
+        handleFileUpload(files) {
+            if (!files || files.length === 0) return;
+            
+            const file = files[0];
+            const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf', 
+                               'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                               'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+            
+            if (!validTypes.includes(file.type)) {
+                alert('Tipo de arquivo não suportado. Por favor, envie imagens, PDFs ou documentos do Office.');
+                return;
+            }
+            
+            if (file.size > 5 * 1024 * 1024) {
+                alert('O arquivo é muito grande. O tamanho máximo permitido é 5MB.');
+                return;
+            }
+            
+            const preview = document.getElementById('filePreview');
+            preview.innerHTML = '';
+            
+            if (file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const previewItem = document.createElement('div');
+                    previewItem.className = 'file-preview-item';
+                    previewItem.innerHTML = `
+                        <img src="${e.target.result}" class="file-preview-img" alt="Preview">
+                        <button class="file-preview-remove" onclick="this.parentNode.remove(); document.getElementById('confirmUpload').disabled = true;">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    preview.appendChild(previewItem);
+                    document.getElementById('confirmUpload').disabled = false;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'file-preview-item';
+                previewItem.innerHTML = `
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background-color: #f5f7ff;">
+                        <i class="fas fa-file" style="font-size: 2rem; color: var(--primary);"></i>
+                    </div>
+                    <button class="file-preview-remove" onclick="this.parentNode.remove(); document.getElementById('confirmUpload').disabled = true;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                preview.appendChild(previewItem);
+                document.getElementById('confirmUpload').disabled = false;
+            }
+        }
+
+        completeFileUpload() {
+            const fileInput = document.getElementById('fileInput');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Por favor, selecione um arquivo antes de enviar.');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = (e) => {
+                const context = this.memory.getContext();
+                context.file = {
+                    name: file.name,
+                    type: file.type,
+                    size: file.size,
+                    data: e.target.result.split(',')[1] 
+                };
+                
+                this.memory.setContext(context);
+                this.uploadModal.classList.remove('active');
+                this.clearFileInput();
+                
+                this.addBotMessage("Arquivo recebido com sucesso! Vamos continuar...");
+                
+                if (context.flow === 'ticket_creation') {
+                    const result = this.flowSystem.processInput("arquivo enviado");
+                    if (result.error) {
+                        this.addBotMessage(result.error);
+                    } else {
+                        this.addBotMessage(result.response);
+                    }
+                }
+            };
+            
+            reader.readAsDataURL(file);
+        }
+
+        clearFileInput() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('filePreview').innerHTML = '';
+            document.getElementById('confirmUpload').disabled = true;
+        }
+
+        addUserMessage(text) {
+            this.addMessage('user', text);
+            this.memory.addInteraction(text, null);
+        }
+
+        addBotMessage(text) {
+            this.addMessage('bot', text);
+            const lastInteraction = this.memory.memory.conversationHistory
+                .filter(i => i.user).slice(-1)[0];
+            if (lastInteraction) {
+                lastInteraction.bot = text;
+                this.memory.save();
+            }
+        }
+
+        addMessage(sender, text) {
+            if (this.memory.memory.conversationHistory.length === 0) {
+                this.welcomeMessage.style.display = 'none';
+                this.chatMessages.style.display = 'block';
             }
             
             const now = new Date();
@@ -1077,149 +2419,97 @@
                 <div class="message-time">${timeString}</div>
             `;
             
-            chatMessages.appendChild(messageElement);
-            scrollToBottom();
+            this.chatMessages.appendChild(messageElement);
+            this.scrollToBottom();
         }
 
-        function addBotResponse(userMessage, botResponse) {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        addQuickReply(text, action) {
+            const quickReply = document.createElement('button');
+            quickReply.className = 'quick-reply';
+            quickReply.textContent = text;
+            quickReply.onclick = new Function(action);
             
-            let botMessage = `
-                <div class="bot-message">
-                    <div class="message-sender">
-                        <i class="fas fa-robot"></i>
-                        Assistente IA
-                    </div>
-                    <div class="message-text">${botResponse.response}</div>
-            `;
+            const quickRepliesContainer = document.createElement('div');
+            quickRepliesContainer.className = 'quick-replies';
+            quickRepliesContainer.appendChild(quickReply);
             
-            if (botResponse.solutions && botResponse.solutions.length > 0) {
-                botMessage += `
-                    <div class="message-solutions">
-                        <div class="solution-buttons">
-                `;
-                
-                botResponse.solutions.forEach(solution => {
-                    botMessage += `<button onclick="handleSolution('${solution.url}')">${solution.title}</button>`;
-                });
-                
-                botMessage += `
-                        </div>
-                    </div>
-                `;
-            }
-            
-            botMessage += `
-                    <div class="message-meta">
-                        <i class="fas fa-tag"></i>
-                        <small>Tipo: ${formatIntent(botResponse.intent)}</small>
-                    </div>
-                    <div class="message-time">${timeString}</div>
-                </div>
-            `;
-            
-            chatMessages.innerHTML += botMessage;
-            updateConversationHistory(userMessage, botResponse.response);
-            scrollToBottom();
+            this.chatMessages.appendChild(quickRepliesContainer);
+            this.scrollToBottom();
         }
 
-        function formatIntent(intent) {
-            const intentMap = {
-                'senha': 'Redefinição de Senha',
-                'sistema': 'Problema no Sistema',
-                'usuario': 'Gerenciamento de Usuários',
-                'problema': 'Relato de Problema',
-                'erro': 'Erro no Sistema'
-            };
+        renderConversationHistory() {
+            this.welcomeMessage.style.display = 'none';
+            this.chatMessages.style.display = 'block';
             
-            return intentMap[intent] || intent.charAt(0).toUpperCase() + intent.slice(1);
-        }
-
-        function updateConversationHistory(userMessage, botResponse) {
-            conversationHistory.push({
-                user: userMessage,
-                bot: botResponse,
-                timestamp: new Date().toISOString()
+            this.memory.memory.conversationHistory.forEach(interaction => {
+                if (interaction.user) {
+                    this.addMessage('user', interaction.user);
+                }
+                if (interaction.bot) {
+                    this.addMessage('bot', interaction.bot);
+                }
             });
             
-            // Limita o histórico a 20 mensagens
-            if (conversationHistory.length > 20) {
-                conversationHistory = conversationHistory.slice(-20);
-            }
-            
-            localStorage.setItem('conversationHistory', JSON.stringify(conversationHistory));
+            this.scrollToBottom();
         }
 
-        function renderConversationHistory() {
-            welcomeMessage.style.display = 'none';
-            chatMessages.style.display = 'block';
-            
-            conversationHistory.forEach(item => {
-                addMessageToChat('user', item.user);
-                addMessageToChat('bot', item.bot);
-            });
-            
-            scrollToBottom();
+        showTypingIndicator() {
+            this.typingIndicator.style.display = 'flex';
+            this.scrollToBottom();
         }
 
-        function clearConversation() {
-            if (isWaitingForResponse) {
-                alert('Por favor, aguarde a resposta atual antes de limpar a conversa.');
-                return;
-            }
-            
-            if (confirm('Tem certeza que deseja limpar toda a conversa?')) {
-                conversationHistory = [];
-                localStorage.removeItem('conversationHistory');
-                chatMessages.innerHTML = '';
-                welcomeMessage.style.display = 'block';
-                chatMessages.style.display = 'none';
-            }
+        hideTypingIndicator() {
+            this.typingIndicator.style.display = 'none';
         }
 
-        function showHistory() {
-            if (conversationHistory.length > 0) {
-                renderConversationHistory();
-            } else {
-                alert('Nenhum histórico de conversa encontrado.');
-            }
-        }
-
-        function showTypingIndicator() {
-            typingIndicator.style.display = 'flex';
-            scrollToBottom();
-        }
-
-        function hideTypingIndicator() {
-            typingIndicator.style.display = 'none';
-        }
-
-        function scrollToBottom() {
+        scrollToBottom() {
             setTimeout(() => {
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
             }, 100);
         }
+    }
 
-        function handleSolution(url) {
-            // Implementação real pode abrir em nova aba ou navegar para a URL
-            console.log('Solução selecionada:', url);
-            // window.open(url, '_blank'); // Para abrir em nova aba
-            // Ou: window.location.href = url; // Para navegar na mesma janela
-        }
-
-        // Funções globais para os botões rápidos
-        window.sendQuickMessage = sendQuickMessage;
-        window.handleSolution = handleSolution;
-
-        // Ajustar responsividade do botão enviar
-        window.addEventListener('resize', () => {
-            if (window.innerWidth < 576) {
-                sendText.style.display = 'none';
-            } else {
-                sendText.style.display = 'inline';
+    document.addEventListener('DOMContentLoaded', () => {
+        const chatbot = new IntelligentChatbot();
+        
+        window.sendQuickMessage = function(message) {
+            chatbot.processMessage(message);
+        };
+        
+        window.navigateTo = function(url, label) {
+            chatbot.addBotMessage(`Redirecionando para ${label || url}...`);
+        };
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            .quick-replies {
+                display: flex;
+                gap: 0.5rem;
+                margin: 0.5rem 0;
+                flex-wrap: wrap;
             }
-        });
-    </script>
+            
+            .quick-reply {
+                background: var(--primary-light);
+                border: 1px solid var(--primary);
+                color: var(--primary);
+                border-radius: 20px;
+                padding: 0.5rem 1rem;
+                font-size: 0.85rem;
+                cursor: pointer;
+                transition: var(--transition);
+                font-weight: 500;
+                margin-bottom: 0.5rem;
+            }
+            
+            .quick-reply:hover {
+                background: var(--primary);
+                color: white;
+                transform: translateY(-2px);
+            }
+        `;
+        document.head.appendChild(style);
+    });
+</script>
 </body>
 </html>

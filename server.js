@@ -12,6 +12,9 @@ const app = express();
 const port = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'Chave_secreta$$%';
 
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
+
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -235,22 +238,53 @@ app.post('/abrir-chamado', authenticateToken, async (req, res) => {
     return res.status(400).json({ message: 'ID do criador não fornecido.' });
   }
 
-  if (!localizacao || !localizacao.type || (localizacao.type === 'predefined' && !localizacao.value) || (localizacao.type === 'gps' && (!localizacao.coordinates || !localizacao.coordinates.latitude || !localizacao.coordinates.longitude))) {
+  if (!localizacao || !localizacao.type || 
+      (localizacao.type === 'predefined' && !localizacao.value) || 
+      (localizacao.type === 'gps' && (!localizacao.coordinates || !localizacao.coordinates.latitude || !localizacao.coordinates.longitude))) {
     return res.status(400).json({ message: 'Localização inválida.' });
   }
 
-  const novoChamado = new Chamado({
-    titulo,
-    descricao,
-    localizacao,
-    foto: foto || null,
-    criador,
-  });
-
   try {
+    // Processar a imagem se existir
+    let fotoUrl = null;
+    if (foto && foto.startsWith('data:image')) {
+      // Extrair o tipo MIME e os dados base64 da string
+      const matches = foto.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+      if (matches.length !== 3) {
+        return res.status(400).json({ message: 'Formato de imagem inválido.' });
+      }
+
+      const mimeType = matches[1];
+      const imageBuffer = Buffer.from(matches[2], 'base64');
+      
+      // Criar diretório se não existir
+      const uploadDir = 'public/uploads/chamados';
+      if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+      }
+      
+      // Gerar nome único para o arquivo
+      const fileName = `chamado-${Date.now()}-${Math.round(Math.random() * 1E9)}.${mimeType.split('/')[1]}`;
+      const filePath = path.join(uploadDir, fileName);
+      
+      // Salvar arquivo
+      await fs.promises.writeFile(filePath, imageBuffer);
+      
+      fotoUrl = `/uploads/chamados/${fileName}`;
+    }
+
+    const novoChamado = new Chamado({
+      titulo,
+      descricao,
+      localizacao,
+      foto: fotoUrl,
+      criador,
+    });
+
     await novoChamado.save();
     res.status(201).json({ message: 'Chamado aberto com sucesso!' });
   } catch (error) {
+    console.error('Erro ao abrir chamado:', error);
     res.status(500).json({ message: 'Erro ao abrir o chamado: ' + error.message });
   }
 });
