@@ -12,29 +12,45 @@ const app = express();
 const port = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'Chave_secreta$$%';
 
+// Configurações iniciais
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
-
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
+// Conexão com o MongoDB
 const uri = process.env.MONGODB_URI;
 mongoose.connect(uri)
   .then(() => console.log('Conectado ao MongoDB Atlas'))
   .catch(err => console.error('Erro ao conectar ao MongoDB Atlas:', err));
-app.use(bodyParser.json());
+
 app.use(express.static(path.join(__dirname, 'public')));
 
+// =============================================
+// SCHEMAS DO BANCO DE DADOS
+// =============================================
+
+// Schema para armazenar imagens
+const imageSchema = new mongoose.Schema({
+  data: Buffer,
+  contentType: String,
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+  chamadoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Chamado' },
+  createdAt: { type: Date, default: Date.now }
+});
+const Image = mongoose.model('Image', imageSchema);
+
+// Schema de Usuário
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   name: { type: String, required: true },
   cpf: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   userType: { type: String, enum: ['colaborador', 'administrador'], required: true },
-  avatar: { type: String, default: '' },
+  avatar: { type: mongoose.Schema.Types.ObjectId, ref: 'Image' },
   phone: { type: String, default: '' },
   department: { type: String, default: 'Tecnologia da Informação' },
   bio: { type: String, default: '' },
@@ -54,15 +70,16 @@ const userSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
-
 const User = mongoose.model('User', userSchema);
 
+// Schema de Mensagem
 const mensagemSchema = new mongoose.Schema({
   texto: { type: String, required: true },
   criador: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   data: { type: Date, default: Date.now },
 });
 
+// Schema de Chamado
 const chamadoSchema = new mongoose.Schema({
   titulo: String,
   descricao: String,
@@ -75,15 +92,16 @@ const chamadoSchema = new mongoose.Schema({
       accuracy: Number
     }
   },
-  foto: String,
+  foto: String, // Mantido para compatibilidade
+  fotoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Image' }, // Nova referência
   criador: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: { type: String, enum: ['pendente', 'em_andamento', 'concluido'], default: 'pendente' },
   createdAt: { type: Date, default: Date.now },
   mensagens: [mensagemSchema]
 });
-
 const Chamado = mongoose.model('Chamado', chamadoSchema);
 
+// Schema de Conversa de Suporte
 const supportConversationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   messages: [{
@@ -96,269 +114,9 @@ const supportConversationSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
-
 const SupportConversation = mongoose.model('SupportConversation', supportConversationSchema);
 
-// Base de conhecimento para o suporte
-const supportKnowledgeBase = {
-  'senha': {
-    responses: [
-      "Para resetar sua senha, acesse 'Esqueci minha senha' na página de login.",
-      "Se seu cartão foi bloqueado, entre em contato com o RH para liberação."
-    ],
-    solutions: [
-      { title: "Redefinir Senha", url: "/reset-password" },
-      { title: "Desbloquear Acesso", url: "/unlock-account" }
-    ]
-  },
-  'cartao': {
-    responses: [
-      "Problemas com cartão devem ser reportados ao departamento de RH.",
-      "Para solicitar um novo cartão, acesse o portal do colaborador."
-    ],
-    solutions: [
-      { title: "Solicitar Novo Cartão", url: "/new-card" },
-      { title: "Reportar Perda/Roubo", url: "/report-loss" }
-    ]
-  },
-  'dados': {
-    responses: [
-      "Para atualizar seus dados cadastrais, acesse 'Meu Perfil'.",
-      "Dados incorretos? Envie um ticket para o departamento pessoal."
-    ],
-    solutions: [
-      { title: "Atualizar Cadastro", url: "/update-profile" },
-      { title: "Corrigir Dados", url: "/correct-data" }
-    ]
-  },
-  'sistema': {
-    responses: [
-      "Problemas no sistema? Tente limpar o cache do navegador.",
-      "Erros persistentes devem ser reportados ao suporte técnico."
-    ],
-    solutions: [
-      { title: "Relatar Bug", url: "/report-bug" },
-      { title: "Status do Sistema", url: "/system-status" }
-    ]
-  }
-};
-
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1];
-
-  if (!token) {
-    return res.status(401).json({ message: 'Token de autenticação não fornecido.' });
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: 'Token inválido ou expirado.' });
-    }
-
-    req.user = user;
-    next();
-  });
-}
-
-app.post('/login', async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findOne({ email, password });
-    if (!user) {
-      return res.status(400).json({ message: 'Falha no login. Verifique suas credenciais.' });
-    }
-
-    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
-    res.status(200).json({ message: 'Login efetuado com sucesso!', token, user });
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao fazer login: ' + error.message });
-  }
-});
-
-app.post('/signup', async (req, res) => {
-  const { email, name, cpf, password, userType } = req.body;
-
-  try {
-    const existingUser = await User.findOne({ $or: [{ email }, { cpf }] });
-    if (existingUser) {
-      return res.status(400).json({ message: 'Email ou CPF já cadastrado!' });
-    }
-
-    const newUser = new User({ email, name, cpf, password, userType });
-    await newUser.save();
-    res.status(201).json({ message: 'Cadastro efetuado com sucesso!' });
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao cadastrar usuário: ' + error.message });
-  }
-});
-
-app.post('/salvar-configuracoes', authenticateToken, async (req, res) => {
-  const { theme } = req.body;
-  const userId = req.user.userId;
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
-
-    user.settings = { theme };
-    await user.save();
-
-    res.status(200).json({ message: 'Configurações salvas com sucesso!' });
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao salvar configurações: ' + error.message });
-  }
-});
-
-app.get('/obter-configuracoes', authenticateToken, async (req, res) => {
-  const userId = req.user.userId;
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({ message: 'Usuário não encontrado.' });
-    }
-
-    res.status(200).json({ theme: user.settings?.theme || 'light' });
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao buscar configurações: ' + error.message });
-  }
-});
-
-app.post('/abrir-chamado', authenticateToken, async (req, res) => {
-  console.log('Body recebido:', req.body);
-
-  const { titulo, descricao, localizacao, foto } = req.body;
-  const criador = req.user.userId;
-
-  if (!criador) {
-    return res.status(400).json({ message: 'ID do criador não fornecido.' });
-  }
-
-  if (!localizacao || !localizacao.type || 
-      (localizacao.type === 'predefined' && !localizacao.value) || 
-      (localizacao.type === 'gps' && (!localizacao.coordinates || !localizacao.coordinates.latitude || !localizacao.coordinates.longitude))) {
-    return res.status(400).json({ message: 'Localização inválida.' });
-  }
-
-  try {
-    // Processar a imagem se existir
-    let fotoUrl = null;
-    if (foto && foto.startsWith('data:image')) {
-      // Extrair o tipo MIME e os dados base64 da string
-      const matches = foto.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
-      if (matches.length !== 3) {
-        return res.status(400).json({ message: 'Formato de imagem inválido.' });
-      }
-
-      const mimeType = matches[1];
-      const imageBuffer = Buffer.from(matches[2], 'base64');
-      
-      // Criar diretório se não existir
-      const uploadDir = 'public/uploads/chamados';
-      if (!fs.existsSync(uploadDir)) {
-        fs.mkdirSync(uploadDir, { recursive: true });
-      }
-      
-      // Gerar nome único para o arquivo
-      const fileName = `chamado-${Date.now()}-${Math.round(Math.random() * 1E9)}.${mimeType.split('/')[1]}`;
-      const filePath = path.join(uploadDir, fileName);
-      
-      // Salvar arquivo
-      await fs.promises.writeFile(filePath, imageBuffer);
-      
-      fotoUrl = `/uploads/chamados/${fileName}`;
-    }
-
-    const novoChamado = new Chamado({
-      titulo,
-      descricao,
-      localizacao,
-      foto: fotoUrl,
-      criador,
-    });
-
-    await novoChamado.save();
-    res.status(201).json({ message: 'Chamado aberto com sucesso!' });
-  } catch (error) {
-    console.error('Erro ao abrir chamado:', error);
-    res.status(500).json({ message: 'Erro ao abrir o chamado: ' + error.message });
-  }
-});
-
-app.post('/adicionar-mensagem/:chamadoId', authenticateToken, async (req, res) => {
-  const { texto } = req.body;
-  const criador = req.user.userId;
-  const chamadoId = req.params.chamadoId;
-
-  try {
-    const chamado = await Chamado.findById(chamadoId);
-    if (!chamado) {
-      return res.status(404).json({ message: 'Chamado não encontrado.' });
-    }
-
-    const novaMensagem = { texto, criador };
-    chamado.mensagens.push(novaMensagem);
-    await chamado.save();
-
-    res.status(201).json({ message: 'Mensagem adicionada com sucesso!' });
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao adicionar mensagem: ' + error.message });
-  }
-});
-
-app.get('/buscar-chamados-com-mensagens', async (req, res) => {
-  try {
-    const chamados = await Chamado.find()
-      .populate('criador', 'name')
-      .populate('mensagens.criador', 'name');
-
-    res.status(200).json(chamados);
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao buscar chamados com mensagens: ' + error.message });
-  }
-});
-
-app.get('/buscar-chamados', async (req, res) => {
-  try {
-    const chamados = await Chamado.find().populate('criador', 'name');
-    res.status(200).json(chamados);
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao buscar chamados: ' + error.message });
-  }
-});
-
-app.put('/atualizar-status/:id', async (req, res) => {
-  const { id } = req.params;
-  const { status } = req.body;
-
-  try {
-    const chamado = await Chamado.findByIdAndUpdate(id, { status }, { new: true });
-    if (!chamado) {
-      return res.status(404).json({ message: 'Chamado não encontrado.' });
-    }
-    res.status(200).json(chamado);
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao atualizar status: ' + error.message });
-  }
-});
-
-app.get('/contar-chamados', async (req, res) => {
-  try {
-    const totalChamados = await Chamado.countDocuments();
-    const emAndamento = await Chamado.countDocuments({ status: 'em_andamento' });
-    const pendentes = await Chamado.countDocuments({ status: 'pendente' });
-    const concluidos = await Chamado.countDocuments({ status: 'concluido' });
-
-    res.status(200).json({ totalChamados, emAndamento, pendentes, concluidos });
-  } catch (error) {
-    res.status(500).json({ message: 'Erro ao contar chamados: ' + error.message });
-  }
-});
-
+// Schema de Serviço
 const servicoSchema = new mongoose.Schema({
   nome: { type: String, required: true },
   empresa: { type: String, required: true },
@@ -370,9 +128,9 @@ const servicoSchema = new mongoose.Schema({
   ratingCount: { type: Number, default: 0 },
   badge: { type: String }
 });
-
 const Servico = mongoose.model('Servico', servicoSchema);
 
+// Schema de Pedido
 const pedidoSchema = new mongoose.Schema({
   usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   servicos: [{
@@ -395,79 +153,286 @@ const pedidoSchema = new mongoose.Schema({
     qrCode: { type: String }
   }
 });
-
 const Pedido = mongoose.model('Pedido', pedidoSchema);
 
-app.get('/api/servicos', async (req, res) => {
-  try {
-    const servicos = await Servico.find();
-    res.json(servicos);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
+// Schema de Cartão
+const cardSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+  cardNumber: { type: String, required: true },
+  lastFour: { type: String, required: true },
+  holderName: { type: String, required: true },
+  expiryDate: { type: String, required: true },
+  brand: { type: String, required: true },
+  isDefault: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now }
+});
+const Card = mongoose.model('Card', cardSchema);
+
+// =============================================
+// MIDDLEWARES
+// =============================================
+
+// Middleware de autenticação
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+
+  if (!token) {
+    return res.status(401).json({ message: 'Token de autenticação não fornecido.' });
+  }
+
+  jwt.verify(token, JWT_SECRET, (err, user) => {
+    if (err) {
+      return res.status(403).json({ message: 'Token inválido ou expirado.' });
+    }
+    req.user = user;
+    next();
+  });
+}
+
+// Configuração do Multer para upload de arquivos
+const upload = multer({
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Apenas imagens são permitidas!'), false);
+    }
   }
 });
 
-app.post('/api/pedidos', authenticateToken, async (req, res) => {
+// =============================================
+// ENDPOINTS
+// =============================================
+
+// Endpoint para servir imagens
+app.get('/image/:id', async (req, res) => {
   try {
-    const { servicosSelecionados, metodoPagamento } = req.body;
-    
-    const total = servicosSelecionados.reduce((sum, item) => sum + item.valor, 0);
-    
-    const novoPedido = new Pedido({
-      usuario: req.user.userId,
-      servicos: servicosSelecionados,
-      total,
-      metodoPagamento,
-      status: metodoPagamento === 'boleto' ? 'pendente' : 'pago'
+    const image = await Image.findById(req.params.id);
+    if (!image || !image.data) {
+      return res.status(404).send('Imagem não encontrada');
+    }
+    res.contentType(image.contentType);
+    res.send(image.data);
+  } catch (error) {
+    console.error('Erro ao buscar imagem:', error);
+    res.status(500).send('Erro ao recuperar imagem');
+  }
+});
+
+// Autenticação
+app.post('/login', async (req, res) => {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ email, password });
+    if (!user) {
+      return res.status(400).json({ message: 'Falha no login. Verifique suas credenciais.' });
+    }
+    const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    res.status(200).json({ message: 'Login efetuado com sucesso!', token, user });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao fazer login: ' + error.message });
+  }
+});
+
+app.post('/signup', async (req, res) => {
+  const { email, name, cpf, password, userType } = req.body;
+  try {
+    const existingUser = await User.findOne({ $or: [{ email }, { cpf }] });
+    if (existingUser) {
+      return res.status(400).json({ message: 'Email ou CPF já cadastrado!' });
+    }
+    const newUser = new User({ email, name, cpf, password, userType });
+    await newUser.save();
+    res.status(201).json({ message: 'Cadastro efetuado com sucesso!' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao cadastrar usuário: ' + error.message });
+  }
+});
+
+// Chamados
+app.post('/abrir-chamado', authenticateToken, async (req, res) => {
+  const { titulo, descricao, localizacao, foto } = req.body;
+  const criador = req.user.userId;
+
+  try {
+    let fotoUrl = null;
+    let fotoId = null;
+
+    if (foto) {
+      if (foto.startsWith('data:image')) {
+        const matches = foto.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
+        if (!matches || matches.length !== 3) {
+          return res.status(400).json({ message: 'Formato de imagem inválido.' });
+        }
+
+        const contentType = matches[1];
+        const imageBuffer = Buffer.from(matches[2], 'base64');
+        
+        const newImage = new Image({
+          data: imageBuffer,
+          contentType: contentType,
+          userId: criador
+        });
+        
+        const savedImage = await newImage.save();
+        fotoId = savedImage._id;
+      } else if (foto.startsWith('/uploads/')) {
+        fotoUrl = foto;
+      }
+    }
+
+    const novoChamado = new Chamado({
+      titulo,
+      descricao,
+      localizacao,
+      foto: fotoUrl,
+      fotoId: fotoId,
+      criador,
     });
 
-    if (metodoPagamento === 'boleto') {
-      novoPedido.boleto = {
-        codigo: '34191.79001 01043.510047 91020.150008 7 84460000003000',
-        vencimento: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-        url: 'https://api.pagar.me/1/boleto/123456789'
-      };
-    } else if (metodoPagamento === 'pix') {
-      novoPedido.pix = {
-        key: '123e4567-e89b-12d3-a456-426614174000',
-        expirationDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
-        qrCode: `00020101021226860014br.gov.bcb.pix2561qrcodepix.gerencianet.com.br/123456789520400005303986540520.005802BR5925EMPRESA DE EXEMPLO6008BRASILIA62070503***6304`
-      };
-    }
-
-    await novoPedido.save();
-    res.status(201).json(novoPedido);
+    await novoChamado.save();
+    res.status(201).json({ 
+      message: 'Chamado aberto com sucesso!', 
+      chamado: {
+        ...novoChamado.toObject(),
+        foto: fotoId ? `/image/${fotoId}` : fotoUrl
+      }
+    });
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Erro ao abrir chamado:', error);
+    res.status(500).json({ message: 'Erro ao abrir o chamado: ' + error.message });
   }
 });
 
-app.get('/api/pedidos/:id', authenticateToken, async (req, res) => {
+app.get('/buscar-chamados', async (req, res) => {
   try {
-    const pedido = await Pedido.findById(req.params.id)
-      .populate('usuario', 'name email')
-      .populate('servicos.servico', 'nome empresa');
-      
-    if (!pedido) {
-      return res.status(404).json({ message: 'Pedido não encontrado' });
-    }
-    
-    res.json(pedido);
+    const chamados = await Chamado.find()
+      .populate('criador', 'name')
+      .populate('fotoId')
+      .sort({ createdAt: -1 });
+
+    const chamadosFormatados = chamados.map(chamado => {
+      let foto = chamado.foto;
+      if (!foto && chamado.fotoId) {
+        foto = `/image/${chamado.fotoId._id}`;
+      }
+
+      return {
+        ...chamado.toObject(),
+        foto: foto
+      };
+    });
+
+    res.status(200).json(chamadosFormatados);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    res.status(500).json({ message: 'Erro ao buscar chamados: ' + error.message });
+  }
+});
+
+app.get('/buscar-chamados-com-mensagens', async (req, res) => {
+  try {
+    const chamados = await Chamado.find()
+      .populate('criador', 'name')
+      .populate('mensagens.criador', 'name')
+      .populate('fotoId');
+
+    const chamadosFormatados = chamados.map(chamado => {
+      let foto = chamado.foto;
+      if (!foto && chamado.fotoId) {
+        foto = `/image/${chamado.fotoId._id}`;
+      }
+
+      return {
+        ...chamado.toObject(),
+        foto: foto
+      };
+    });
+
+    res.status(200).json(chamadosFormatados);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao buscar chamados com mensagens: ' + error.message });
+  }
+});
+
+app.put('/atualizar-status/:id', async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    const chamado = await Chamado.findByIdAndUpdate(id, { status }, { new: true });
+    if (!chamado) {
+      return res.status(404).json({ message: 'Chamado não encontrado.' });
+    }
+    res.status(200).json(chamado);
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao atualizar status: ' + error.message });
+  }
+});
+
+app.get('/contar-chamados', async (req, res) => {
+  try {
+    const totalChamados = await Chamado.countDocuments();
+    const emAndamento = await Chamado.countDocuments({ status: 'em_andamento' });
+    const pendentes = await Chamado.countDocuments({ status: 'pendente' });
+    const concluidos = await Chamado.countDocuments({ status: 'concluido' });
+    res.status(200).json({ totalChamados, emAndamento, pendentes, concluidos });
+  } catch (error) {
+    res.status(500).json({ message: 'Erro ao contar chamados: ' + error.message });
+  }
+});
+
+// Usuários
+app.post('/api/upload-avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: 'Nenhum arquivo enviado' });
+    }
+
+    const newImage = new Image({
+      data: req.file.buffer,
+      contentType: req.file.mimetype,
+      userId: req.user.userId
+    });
+
+    const savedImage = await newImage.save();
+    const user = await User.findByIdAndUpdate(
+      req.user.userId,
+      { avatar: savedImage._id },
+      { new: true }
+    );
+
+    res.json({
+      success: true,
+      avatarUrl: `/image/${savedImage._id}`,
+      user: user,
+      message: 'Avatar atualizado com sucesso!'
+    });
+  } catch (error) {
+    console.error('Erro no upload do avatar:', error);
+    res.status(500).json({ 
+      success: false,
+      message: 'Erro ao atualizar avatar: ' + error.message 
+    });
   }
 });
 
 app.get('/api/user-profile', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId)
-      .select('-password -__v');
+      .select('-password -__v')
+      .populate('avatar');
     
     if (!user) {
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
     
-    res.json(user);
+    const userWithAvatarUrl = {
+      ...user.toObject(),
+      avatarUrl: user.avatar ? `/image/${user.avatar._id}` : null
+    };
+    
+    res.json(userWithAvatarUrl);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -531,19 +496,7 @@ app.post('/api/toggle-2fa', authenticateToken, async (req, res) => {
   }
 });
 
-const cardSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  cardNumber: { type: String, required: true },
-  lastFour: { type: String, required: true },
-  holderName: { type: String, required: true },
-  expiryDate: { type: String, required: true },
-  brand: { type: String, required: true },
-  isDefault: { type: Boolean, default: false },
-  createdAt: { type: Date, default: Date.now }
-});
-
-const Card = mongoose.model('Card', cardSchema);
-
+// Cartões
 app.get('/api/user-cards', authenticateToken, async (req, res) => {
   try {
     const cards = await Card.find({ userId: req.user.userId });
@@ -599,82 +552,32 @@ app.delete('/api/delete-card/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Tickets do usuário
 app.get('/api/user-tickets', authenticateToken, async (req, res) => {
   try {
     const tickets = await Chamado.find({ criador: req.user.userId })
+      .populate('fotoId')
       .sort({ createdAt: -1 });
-    res.json(tickets);
+
+    const ticketsFormatados = tickets.map(ticket => {
+      let foto = ticket.foto;
+      if (!foto && ticket.fotoId) {
+        foto = `/image/${ticket.fotoId._id}`;
+      }
+
+      return {
+        ...ticket.toObject(),
+        foto: foto
+      };
+    });
+
+    res.json(ticketsFormatados);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const uploadDir = 'public/uploads/avatars';
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-    cb(null, uploadDir);
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    cb(null, req.user.userId + '-' + uniqueSuffix + path.extname(file.originalname));
-  }
-});
-
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Apenas imagens são permitidas!'), false);
-    }
-  }
-});
-
-app.post('/api/upload-avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'Nenhum arquivo enviado' });
-    }
-    
-    const avatarUrl = '/uploads/avatars/' + req.file.filename;
-    
-    const user = await User.findByIdAndUpdate(
-      req.user.userId,
-      { avatar: avatarUrl },
-      { new: true, select: '-password -__v' }
-    );
-    
-    if (!user) {
-      fs.unlinkSync(req.file.path);
-      return res.status(404).json({ message: 'Usuário não encontrado' });
-    }
-    
-    res.json({ 
-      success: true,
-      avatarUrl: avatarUrl,
-      user: user,
-      message: 'Avatar atualizado com sucesso!' 
-    });
-    
-  } catch (error) {
-    console.error('Erro no upload do avatar:', error);
-    if (req.file) {
-      fs.unlinkSync(req.file.path);
-    }
-    res.status(500).json({ 
-      success: false,
-      message: 'Erro ao atualizar avatar: ' + error.message 
-    });
-  }
-});
-
-app.use('/uploads', express.static(path.join(__dirname, 'public', 'uploads')));
-
+// Configurações de privacidade
 app.post('/api/privacy-settings', authenticateToken, async (req, res) => {
   try {
     const {
@@ -707,6 +610,7 @@ app.post('/api/privacy-settings', authenticateToken, async (req, res) => {
   }
 });
 
+// Suporte
 app.post('/api/support', authenticateToken, async (req, res) => {
   try {
     const { message } = req.body;
@@ -776,6 +680,7 @@ app.get('/api/support/history', authenticateToken, async (req, res) => {
   }
 });
 
+// Pagamentos
 app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
   try {
     const { orderId, paymentMethod, cardId, installments } = req.body;
@@ -833,6 +738,7 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
   }
 });
 
+// Administração
 app.get('/api/users', authenticateToken, async (req, res) => {
   try {
     const user = await User.findById(req.user.userId);
@@ -840,7 +746,10 @@ app.get('/api/users', authenticateToken, async (req, res) => {
       return res.status(403).json({ message: 'Acesso não autorizado' });
     }
 
-    const users = await User.find({}).select('-password -__v -twoFAEnabled -privacySettings');
+    const users = await User.find({})
+      .select('-password -__v -twoFAEnabled -privacySettings')
+      .populate('avatar');
+
     res.json(users);
   } catch (error) {
     console.error('Erro ao buscar usuários:', error);
@@ -848,6 +757,7 @@ app.get('/api/users', authenticateToken, async (req, res) => {
   }
 });
 
+// Redefinição de senha
 app.post('/reset-password', async (req, res) => {
   const { cpf, newPassword } = req.body;
 
@@ -865,6 +775,7 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
+// Rotas estáticas
 app.get('/suporte', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'SuporteUsuario.html'));
 });
@@ -873,11 +784,13 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'TelaInicio.html'));
 });
 
+// Tratamento de erros
 app.use((err, req, res, next) => {
   console.error('Erro interno:', err.stack);
   res.status(500).json({ message: 'Erro interno do servidor.' });
 });
 
+// Iniciar servidor
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
 });
