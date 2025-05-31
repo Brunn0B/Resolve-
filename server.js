@@ -12,7 +12,6 @@ const app = express();
 const port = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'Chave_secreta$$%';
 
-// Configurações iniciais
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 app.use(cors({
@@ -21,19 +20,24 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// Conexão com o MongoDB
-const uri = process.env.MONGODB_URI;
+console.log('Verificando variáveis de ambiente...');
+if (!process.env.MONGODB_URI) {
+  console.warn('AVISO: Variável de ambiente MONGODB_URI não definida. Usando URI padrão local.');
+}
+
+const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017/suporte-app';
+console.log(`Tentando conectar ao MongoDB: ${uri.substring(0, 20)}...`);
+
 mongoose.connect(uri)
-  .then(() => console.log('Conectado ao MongoDB Atlas'))
-  .catch(err => console.error('Erro ao conectar ao MongoDB Atlas:', err));
+  .then(() => console.log('Conectado ao MongoDB com sucesso!'))
+  .catch(err => {
+    console.error('Erro ao conectar ao MongoDB:', err);
+    console.log('Verifique se o MongoDB está rodando e se a URI está correta.');
+  });
 
 app.use(express.static(path.join(__dirname, 'public')));
+console.log(`Servindo arquivos estáticos de: ${path.join(__dirname, 'public')}`);
 
-// =============================================
-// SCHEMAS DO BANCO DE DADOS
-// =============================================
-
-// Schema para armazenar imagens
 const imageSchema = new mongoose.Schema({
   data: Buffer,
   contentType: String,
@@ -43,7 +47,6 @@ const imageSchema = new mongoose.Schema({
 });
 const Image = mongoose.model('Image', imageSchema);
 
-// Schema de Usuário
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   name: { type: String, required: true },
@@ -72,14 +75,12 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 const User = mongoose.model('User', userSchema);
 
-// Schema de Mensagem
 const mensagemSchema = new mongoose.Schema({
   texto: { type: String, required: true },
   criador: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   data: { type: Date, default: Date.now },
 });
 
-// Schema de Chamado
 const chamadoSchema = new mongoose.Schema({
   titulo: String,
   descricao: String,
@@ -92,8 +93,8 @@ const chamadoSchema = new mongoose.Schema({
       accuracy: Number
     }
   },
-  foto: String, // Mantido para compatibilidade
-  fotoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Image' }, // Nova referência
+  fotoId: { type: mongoose.Schema.Types.ObjectId, ref: 'Image' }, 
+
   criador: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
   status: { type: String, enum: ['pendente', 'em_andamento', 'concluido'], default: 'pendente' },
   createdAt: { type: Date, default: Date.now },
@@ -101,7 +102,6 @@ const chamadoSchema = new mongoose.Schema({
 });
 const Chamado = mongoose.model('Chamado', chamadoSchema);
 
-// Schema de Conversa de Suporte
 const supportConversationSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   messages: [{
@@ -116,7 +116,6 @@ const supportConversationSchema = new mongoose.Schema({
 }, { timestamps: true });
 const SupportConversation = mongoose.model('SupportConversation', supportConversationSchema);
 
-// Schema de Serviço
 const servicoSchema = new mongoose.Schema({
   nome: { type: String, required: true },
   empresa: { type: String, required: true },
@@ -130,7 +129,6 @@ const servicoSchema = new mongoose.Schema({
 });
 const Servico = mongoose.model('Servico', servicoSchema);
 
-// Schema de Pedido
 const pedidoSchema = new mongoose.Schema({
   usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   servicos: [{
@@ -155,7 +153,6 @@ const pedidoSchema = new mongoose.Schema({
 });
 const Pedido = mongoose.model('Pedido', pedidoSchema);
 
-// Schema de Cartão
 const cardSchema = new mongoose.Schema({
   userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
   cardNumber: { type: String, required: true },
@@ -168,21 +165,18 @@ const cardSchema = new mongoose.Schema({
 });
 const Card = mongoose.model('Card', cardSchema);
 
-// =============================================
-// MIDDLEWARES
-// =============================================
-
-// Middleware de autenticação
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
+    console.log(`Acesso não autorizado: Token não fornecido - ${req.method} ${req.originalUrl}`);
     return res.status(401).json({ message: 'Token de autenticação não fornecido.' });
   }
 
   jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) {
+      console.log(`Token inválido: ${err.message} - ${req.method} ${req.originalUrl}`);
       return res.status(403).json({ message: 'Token inválido ou expirado.' });
     }
     req.user = user;
@@ -190,9 +184,8 @@ function authenticateToken(req, res, next) {
   });
 }
 
-// Configuração do Multer para upload de arquivos
 const upload = multer({
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+  limits: { fileSize: 5 * 1024 * 1024 }, 
   fileFilter: (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
       cb(null, true);
@@ -202,11 +195,15 @@ const upload = multer({
   }
 });
 
-// =============================================
-// ENDPOINTS
-// =============================================
+app.get('/api/status', (req, res) => {
+  res.json({ 
+    status: 'online', 
+    message: 'Servidor funcionando corretamente',
+    mongodb: mongoose.connection.readyState === 1 ? 'conectado' : 'desconectado',
+    timestamp: new Date().toISOString()
+  });
+});
 
-// Endpoint para servir imagens
 app.get('/image/:id', async (req, res) => {
   try {
     const image = await Image.findById(req.params.id);
@@ -224,29 +221,53 @@ app.get('/image/:id', async (req, res) => {
 // Autenticação
 app.post('/login', async (req, res) => {
   const { email, password } = req.body;
+  
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email e senha são obrigatórios.' });
+  }
+  
   try {
+    console.log(`Tentativa de login: ${email}`);
     const user = await User.findOne({ email, password });
     if (!user) {
+      console.log(`Login falhou para: ${email} - Credenciais inválidas`);
       return res.status(400).json({ message: 'Falha no login. Verifique suas credenciais.' });
     }
     const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '1h' });
+    console.log(`Login bem-sucedido: ${email}`);
     res.status(200).json({ message: 'Login efetuado com sucesso!', token, user });
   } catch (error) {
+    console.error(`Erro no login para ${email}:`, error);
     res.status(500).json({ message: 'Erro ao fazer login: ' + error.message });
   }
 });
 
 app.post('/signup', async (req, res) => {
   const { email, name, cpf, password, userType } = req.body;
+  
+  if (!email || !name || !cpf || !password) {
+    return res.status(400).json({ message: 'Todos os campos são obrigatórios.' });
+  }
+  
   try {
+    console.log(`Tentativa de cadastro: ${email}`);
     const existingUser = await User.findOne({ $or: [{ email }, { cpf }] });
     if (existingUser) {
+      console.log(`Cadastro falhou para: ${email} - Email ou CPF já existente`);
       return res.status(400).json({ message: 'Email ou CPF já cadastrado!' });
     }
-    const newUser = new User({ email, name, cpf, password, userType });
+    const newUser = new User({ 
+      email, 
+      name, 
+      cpf, 
+      password, 
+      userType: userType || 'colaborador' 
+    });
     await newUser.save();
+    console.log(`Cadastro bem-sucedido: ${email}`);
     res.status(201).json({ message: 'Cadastro efetuado com sucesso!' });
   } catch (error) {
+    console.error(`Erro no cadastro para ${email}:`, error);
     res.status(500).json({ message: 'Erro ao cadastrar usuário: ' + error.message });
   }
 });
@@ -256,7 +277,12 @@ app.post('/abrir-chamado', authenticateToken, async (req, res) => {
   const { titulo, descricao, localizacao, foto } = req.body;
   const criador = req.user.userId;
 
+  if (!titulo || !descricao || !localizacao) {
+    return res.status(400).json({ message: 'Título, descrição e localização são obrigatórios.' });
+  }
+
   try {
+    console.log(`Novo chamado sendo criado por: ${criador}`);
     let fotoUrl = null;
     let fotoId = null;
 
@@ -278,6 +304,7 @@ app.post('/abrir-chamado', authenticateToken, async (req, res) => {
         
         const savedImage = await newImage.save();
         fotoId = savedImage._id;
+        console.log(`Imagem salva para o chamado: ${fotoId}`);
       } else if (foto.startsWith('/uploads/')) {
         fotoUrl = foto;
       }
@@ -293,6 +320,7 @@ app.post('/abrir-chamado', authenticateToken, async (req, res) => {
     });
 
     await novoChamado.save();
+    console.log(`Chamado criado com sucesso: ${novoChamado._id}`);
     res.status(201).json({ 
       message: 'Chamado aberto com sucesso!', 
       chamado: {
@@ -308,6 +336,7 @@ app.post('/abrir-chamado', authenticateToken, async (req, res) => {
 
 app.get('/buscar-chamados', async (req, res) => {
   try {
+    console.log('Buscando todos os chamados');
     const chamados = await Chamado.find()
       .populate('criador', 'name')
       .populate('fotoId')
@@ -325,14 +354,17 @@ app.get('/buscar-chamados', async (req, res) => {
       };
     });
 
+    console.log(`${chamadosFormatados.length} chamados encontrados`);
     res.status(200).json(chamadosFormatados);
   } catch (error) {
+    console.error('Erro ao buscar chamados:', error);
     res.status(500).json({ message: 'Erro ao buscar chamados: ' + error.message });
   }
 });
 
 app.get('/buscar-chamados-com-mensagens', async (req, res) => {
   try {
+    console.log('Buscando chamados com mensagens');
     const chamados = await Chamado.find()
       .populate('criador', 'name')
       .populate('mensagens.criador', 'name')
@@ -350,8 +382,10 @@ app.get('/buscar-chamados-com-mensagens', async (req, res) => {
       };
     });
 
+    console.log(`${chamadosFormatados.length} chamados com mensagens encontrados`);
     res.status(200).json(chamadosFormatados);
   } catch (error) {
+    console.error('Erro ao buscar chamados com mensagens:', error);
     res.status(500).json({ message: 'Erro ao buscar chamados com mensagens: ' + error.message });
   }
 });
@@ -359,25 +393,38 @@ app.get('/buscar-chamados-com-mensagens', async (req, res) => {
 app.put('/atualizar-status/:id', async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+  
+  if (!status || !['pendente', 'em_andamento', 'concluido'].includes(status)) {
+    return res.status(400).json({ message: 'Status inválido.' });
+  }
+  
   try {
+    console.log(`Atualizando status do chamado ${id} para ${status}`);
     const chamado = await Chamado.findByIdAndUpdate(id, { status }, { new: true });
     if (!chamado) {
+      console.log(`Chamado não encontrado: ${id}`);
       return res.status(404).json({ message: 'Chamado não encontrado.' });
     }
+    console.log(`Status do chamado ${id} atualizado com sucesso`);
     res.status(200).json(chamado);
   } catch (error) {
+    console.error(`Erro ao atualizar status do chamado ${id}:`, error);
     res.status(500).json({ message: 'Erro ao atualizar status: ' + error.message });
   }
 });
 
 app.get('/contar-chamados', async (req, res) => {
   try {
+    console.log('Contando chamados por status');
     const totalChamados = await Chamado.countDocuments();
     const emAndamento = await Chamado.countDocuments({ status: 'em_andamento' });
     const pendentes = await Chamado.countDocuments({ status: 'pendente' });
     const concluidos = await Chamado.countDocuments({ status: 'concluido' });
+    
+    console.log(`Total: ${totalChamados}, Em andamento: ${emAndamento}, Pendentes: ${pendentes}, Concluídos: ${concluidos}`);
     res.status(200).json({ totalChamados, emAndamento, pendentes, concluidos });
   } catch (error) {
+    console.error('Erro ao contar chamados:', error);
     res.status(500).json({ message: 'Erro ao contar chamados: ' + error.message });
   }
 });
@@ -385,6 +432,7 @@ app.get('/contar-chamados', async (req, res) => {
 // Usuários
 app.post('/api/upload-avatar', authenticateToken, upload.single('avatar'), async (req, res) => {
   try {
+    console.log(`Upload de avatar para usuário ${req.user.userId}`);
     if (!req.file) {
       return res.status(400).json({ message: 'Nenhum arquivo enviado' });
     }
@@ -402,6 +450,7 @@ app.post('/api/upload-avatar', authenticateToken, upload.single('avatar'), async
       { new: true }
     );
 
+    console.log(`Avatar atualizado com sucesso para usuário ${req.user.userId}`);
     res.json({
       success: true,
       avatarUrl: `/image/${savedImage._id}`,
@@ -409,7 +458,7 @@ app.post('/api/upload-avatar', authenticateToken, upload.single('avatar'), async
       message: 'Avatar atualizado com sucesso!'
     });
   } catch (error) {
-    console.error('Erro no upload do avatar:', error);
+    console.error(`Erro no upload do avatar para usuário ${req.user.userId}:`, error);
     res.status(500).json({ 
       success: false,
       message: 'Erro ao atualizar avatar: ' + error.message 
@@ -419,11 +468,13 @@ app.post('/api/upload-avatar', authenticateToken, upload.single('avatar'), async
 
 app.get('/api/user-profile', authenticateToken, async (req, res) => {
   try {
+    console.log(`Buscando perfil do usuário ${req.user.userId}`);
     const user = await User.findById(req.user.userId)
       .select('-password -__v')
       .populate('avatar');
     
     if (!user) {
+      console.log(`Usuário não encontrado: ${req.user.userId}`);
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
     
@@ -432,14 +483,17 @@ app.get('/api/user-profile', authenticateToken, async (req, res) => {
       avatarUrl: user.avatar ? `/image/${user.avatar._id}` : null
     };
     
+    console.log(`Perfil do usuário ${req.user.userId} retornado com sucesso`);
     res.json(userWithAvatarUrl);
   } catch (error) {
+    console.error(`Erro ao buscar perfil do usuário ${req.user.userId}:`, error);
     res.status(500).json({ message: error.message });
   }
 });
 
 app.put('/api/update-profile', authenticateToken, async (req, res) => {
   try {
+    console.log(`Atualizando perfil do usuário ${req.user.userId}`);
     const { name, email, phone, department, bio } = req.body;
     
     const user = await User.findByIdAndUpdate(
@@ -449,66 +503,89 @@ app.put('/api/update-profile', authenticateToken, async (req, res) => {
     );
     
     if (!user) {
+      console.log(`Usuário não encontrado: ${req.user.userId}`);
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
     
+    console.log(`Perfil do usuário ${req.user.userId} atualizado com sucesso`);
     res.json(user);
   } catch (error) {
+    console.error(`Erro ao atualizar perfil do usuário ${req.user.userId}:`, error);
     res.status(400).json({ message: error.message });
   }
 });
 
 app.post('/api/change-password', authenticateToken, async (req, res) => {
   try {
+    console.log(`Alteração de senha para usuário ${req.user.userId}`);
     const { currentPassword, newPassword } = req.body;
+    
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ message: 'Senha atual e nova senha são obrigatórias.' });
+    }
     
     const user = await User.findById(req.user.userId);
     if (!user) {
+      console.log(`Usuário não encontrado: ${req.user.userId}`);
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
     
     if (user.password !== currentPassword) {
+      console.log(`Senha atual incorreta para usuário ${req.user.userId}`);
       return res.status(400).json({ message: 'Senha atual incorreta' });
     }
     
     user.password = newPassword;
     await user.save();
     
+    console.log(`Senha alterada com sucesso para usuário ${req.user.userId}`);
     res.json({ message: 'Senha alterada com sucesso' });
   } catch (error) {
+    console.error(`Erro ao alterar senha do usuário ${req.user.userId}:`, error);
     res.status(400).json({ message: error.message });
   }
 });
 
 app.post('/api/toggle-2fa', authenticateToken, async (req, res) => {
   try {
+    console.log(`Alterando status 2FA para usuário ${req.user.userId}`);
     const user = await User.findById(req.user.userId);
     if (!user) {
+      console.log(`Usuário não encontrado: ${req.user.userId}`);
       return res.status(404).json({ message: 'Usuário não encontrado' });
     }
     
     user.twoFAEnabled = !user.twoFAEnabled;
     await user.save();
     
+    console.log(`Status 2FA alterado para ${user.twoFAEnabled ? 'ativado' : 'desativado'} para usuário ${req.user.userId}`);
     res.json({ enabled: user.twoFAEnabled });
   } catch (error) {
+    console.error(`Erro ao alterar status 2FA do usuário ${req.user.userId}:`, error);
     res.status(400).json({ message: error.message });
   }
 });
 
-// Cartões
 app.get('/api/user-cards', authenticateToken, async (req, res) => {
   try {
+    console.log(`Buscando cartões do usuário ${req.user.userId}`);
     const cards = await Card.find({ userId: req.user.userId });
+    console.log(`${cards.length} cartões encontrados para usuário ${req.user.userId}`);
     res.json(cards);
   } catch (error) {
+    console.error(`Erro ao buscar cartões do usuário ${req.user.userId}:`, error);
     res.status(500).json({ message: error.message });
   }
 });
 
 app.post('/api/add-card', authenticateToken, async (req, res) => {
   try {
+    console.log(`Adicionando cartão para usuário ${req.user.userId}`);
     const { cardNumber, cardHolderName, cardExpiryDate, cardCVV } = req.body;
+    
+    if (!cardNumber || !cardHolderName || !cardExpiryDate) {
+      return res.status(400).json({ message: 'Todos os campos do cartão são obrigatórios.' });
+    }
     
     let brand = 'other';
     if (/^4/.test(cardNumber)) {
@@ -529,32 +606,38 @@ app.post('/api/add-card', authenticateToken, async (req, res) => {
     });
     
     await newCard.save();
+    console.log(`Cartão adicionado com sucesso para usuário ${req.user.userId}`);
     res.status(201).json(newCard);
   } catch (error) {
+    console.error(`Erro ao adicionar cartão para usuário ${req.user.userId}:`, error);
     res.status(400).json({ message: error.message });
   }
 });
 
 app.delete('/api/delete-card/:id', authenticateToken, async (req, res) => {
   try {
+    console.log(`Removendo cartão ${req.params.id} para usuário ${req.user.userId}`);
     const card = await Card.findOneAndDelete({
       _id: req.params.id,
       userId: req.user.userId
     });
     
     if (!card) {
+      console.log(`Cartão ${req.params.id} não encontrado para usuário ${req.user.userId}`);
       return res.status(404).json({ message: 'Cartão não encontrado' });
     }
     
+    console.log(`Cartão ${req.params.id} removido com sucesso para usuário ${req.user.userId}`);
     res.json({ message: 'Cartão removido com sucesso' });
   } catch (error) {
+    console.error(`Erro ao remover cartão ${req.params.id} para usuário ${req.user.userId}:`, error);
     res.status(400).json({ message: error.message });
   }
 });
 
-// Tickets do usuário
 app.get('/api/user-tickets', authenticateToken, async (req, res) => {
   try {
+    console.log(`Buscando tickets do usuário ${req.user.userId}`);
     const tickets = await Chamado.find({ criador: req.user.userId })
       .populate('fotoId')
       .sort({ createdAt: -1 });
@@ -571,15 +654,17 @@ app.get('/api/user-tickets', authenticateToken, async (req, res) => {
       };
     });
 
+    console.log(`${ticketsFormatados.length} tickets encontrados para usuário ${req.user.userId}`);
     res.json(ticketsFormatados);
   } catch (error) {
+    console.error(`Erro ao buscar tickets do usuário ${req.user.userId}:`, error);
     res.status(500).json({ message: error.message });
   }
 });
 
-// Configurações de privacidade
 app.post('/api/privacy-settings', authenticateToken, async (req, res) => {
   try {
+    console.log(`Atualizando configurações de privacidade para usuário ${req.user.userId}`);
     const {
       profileVisibility,
       showEmail,
@@ -604,24 +689,80 @@ app.post('/api/privacy-settings', authenticateToken, async (req, res) => {
       { new: true }
     );
     
+    console.log(`Configurações de privacidade atualizadas com sucesso para usuário ${req.user.userId}`);
     res.json(user.privacySettings);
   } catch (error) {
+    console.error(`Erro ao atualizar configurações de privacidade para usuário ${req.user.userId}:`, error);
     res.status(400).json({ message: error.message });
   }
 });
 
-// Suporte
+const supportKnowledgeBase = {
+  senha: {
+    responses: [
+      "Para redefinir sua senha, você pode usar a opção 'Esqueci minha senha' na tela de login ou atualizar diretamente no seu perfil.",
+      "Problemas com senha? Você pode redefinir sua senha a qualquer momento através do seu perfil ou na tela de login."
+    ],
+    solutions: [
+      "Redefinir senha",
+      "Verificar requisitos de senha",
+      "Contatar administrador"
+    ]
+  },
+  cartao: {
+    responses: [
+      "Você pode gerenciar seus cartões na seção 'Métodos de Pagamento' do seu perfil.",
+      "Para adicionar um novo cartão, acesse seu perfil e vá para 'Métodos de Pagamento'."
+    ],
+    solutions: [
+      "Adicionar novo cartão",
+      "Remover cartão existente",
+      "Definir cartão padrão"
+    ]
+  },
+  dados: {
+    responses: [
+      "Seus dados pessoais podem ser atualizados a qualquer momento na seção 'Meu Perfil'.",
+      "Para atualizar suas informações, acesse 'Meu Perfil' e clique em 'Editar'."
+    ],
+    solutions: [
+      "Atualizar perfil",
+      "Configurar privacidade",
+      "Verificar dados cadastrais"
+    ]
+  },
+  sistema: {
+    responses: [
+      "Se o sistema estiver lento, tente limpar o cache do navegador ou reiniciar a aplicação.",
+      "Problemas técnicos? Verifique sua conexão com a internet e tente novamente em alguns minutos."
+    ],
+    solutions: [
+      "Limpar cache do navegador",
+      "Verificar conexão",
+      "Abrir chamado técnico"
+    ]
+  }
+};
+
 app.post('/api/support', authenticateToken, async (req, res) => {
   try {
+    console.log(`Nova mensagem de suporte do usuário ${req.user.userId}`);
     const { message } = req.body;
+    
+    if (!message) {
+      return res.status(400).json({ message: 'Mensagem é obrigatória.' });
+    }
+    
     const userId = req.user.userId;
 
     const intent = classifySupportIntent(message);
     const knowledge = supportKnowledgeBase[intent] || supportKnowledgeBase['sistema'];
     const response = knowledge.responses[Math.floor(Math.random() * knowledge.responses.length)];
     
+    console.log(`Intent identificada: ${intent}`);
     saveSupportConversation(userId, message, response, intent);
 
+    console.log(`Resposta enviada para usuário ${req.user.userId}`);
     res.json({
       response: response,
       solutions: knowledge.solutions,
@@ -629,7 +770,7 @@ app.post('/api/support', authenticateToken, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erro no suporte:', error);
+    console.error(`Erro no suporte para usuário ${req.user.userId}:`, error);
     res.status(500).json({ 
       response: "Desculpe, ocorreu um erro no sistema de suporte. Por favor, tente novamente mais tarde.",
       solutions: [],
@@ -663,26 +804,30 @@ async function saveSupportConversation(userId, userMessage, botResponse, intent)
       },
       { upsert: true, new: true }
     );
+    console.log(`Conversa de suporte salva para usuário ${userId}`);
   } catch (error) {
-    console.error('Erro ao salvar conversa de suporte:', error);
+    console.error(`Erro ao salvar conversa de suporte para usuário ${userId}:`, error);
   }
 }
 
 app.get('/api/support/history', authenticateToken, async (req, res) => {
   try {
+    console.log(`Buscando histórico de suporte para usuário ${req.user.userId}`);
     const conversations = await SupportConversation.find({ userId: req.user.userId })
       .sort({ updatedAt: -1 })
       .limit(5);
     
+    console.log(`${conversations.length} conversas encontradas para usuário ${req.user.userId}`);
     res.json(conversations);
   } catch (error) {
+    console.error(`Erro ao buscar histórico de suporte para usuário ${req.user.userId}:`, error);
     res.status(500).json({ message: error.message });
   }
 });
 
-// Pagamentos
 app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
   try {
+    console.log(`Confirmação de pagamento para usuário ${req.user.userId}`);
     const { orderId, paymentMethod, cardId, installments } = req.body;
     
     if (!orderId || !paymentMethod) {
@@ -690,10 +835,12 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
     }
     const pedido = await Pedido.findById(orderId);
     if (!pedido) {
+      console.log(`Pedido não encontrado: ${orderId}`);
       return res.status(404).json({ message: 'Pedido não encontrado' });
     }
 
     if (pedido.usuario.toString() !== req.user.userId) {
+      console.log(`Acesso não autorizado ao pedido ${orderId} pelo usuário ${req.user.userId}`);
       return res.status(403).json({ message: 'Acesso não autorizado' });
     }
 
@@ -701,6 +848,7 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
       if (cardId) {
         const card = await Card.findOne({ _id: cardId, userId: req.user.userId });
         if (!card) {
+          console.log(`Cartão não encontrado: ${cardId}`);
           return res.status(400).json({ message: 'Cartão não encontrado' });
         }
       }
@@ -722,6 +870,7 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
     }
 
     await pedido.save();
+    console.log(`Pagamento confirmado com sucesso para pedido ${orderId}`);
 
     res.json({
       success: true,
@@ -730,7 +879,7 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Erro ao confirmar pagamento:', error);
+    console.error(`Erro ao confirmar pagamento para usuário ${req.user.userId}:`, error);
     res.status(500).json({ 
       success: false,
       message: 'Erro ao processar pagamento: ' + error.message 
@@ -738,11 +887,12 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
   }
 });
 
-// Administração
 app.get('/api/users', authenticateToken, async (req, res) => {
   try {
+    console.log(`Acesso à lista de usuários por ${req.user.userId}`);
     const user = await User.findById(req.user.userId);
     if (!user || user.userType !== 'administrador') {
+      console.log(`Acesso não autorizado à lista de usuários por ${req.user.userId}`);
       return res.status(403).json({ message: 'Acesso não autorizado' });
     }
 
@@ -750,52 +900,74 @@ app.get('/api/users', authenticateToken, async (req, res) => {
       .select('-password -__v -twoFAEnabled -privacySettings')
       .populate('avatar');
 
+    console.log(`${users.length} usuários encontrados`);
     res.json(users);
   } catch (error) {
-    console.error('Erro ao buscar usuários:', error);
+    console.error(`Erro ao buscar usuários por ${req.user.userId}:`, error);
     res.status(500).json({ message: 'Erro ao buscar usuários' });
   }
 });
 
-// Redefinição de senha
 app.post('/reset-password', async (req, res) => {
   const { cpf, newPassword } = req.body;
 
+  if (!cpf || !newPassword) {
+    return res.status(400).json({ message: 'CPF e nova senha são obrigatórios.' });
+  }
+
   try {
+    console.log(`Tentativa de redefinição de senha para CPF: ${cpf}`);
     const user = await User.findOne({ cpf });
     if (user) {
       user.password = newPassword;
       await user.save();
+      console.log(`Senha redefinida com sucesso para CPF: ${cpf}`);
       res.status(200).json({ message: 'Senha redefinida com sucesso!' });
     } else {
+      console.log(`CPF não encontrado: ${cpf}`);
       res.status(404).json({ message: 'CPF não encontrado.' });
     }
   } catch (error) {
+    console.error(`Erro ao redefinir senha para CPF ${cpf}:`, error);
     res.status(500).json({ message: 'Erro ao redefinir senha: ' + error.message });
   }
 });
 
-// Rotas estáticas
 app.get('/suporte', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'SuporteUsuario.html'));
+});
+
+app.get('/chat', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'chat-assistente.html'));
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'TelaInicio.html'));
 });
 
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'TelaInicio.html'));
 });
 
-// Tratamento de erros
 app.use((err, req, res, next) => {
   console.error('Erro interno:', err.stack);
-  res.status(500).json({ message: 'Erro interno do servidor.' });
+  res.status(500).json({ 
+    message: 'Erro interno do servidor.', 
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  });
 });
 
-// Iniciar servidor
 app.listen(port, () => {
   console.log(`Servidor rodando em http://localhost:${port}`);
+  console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`MongoDB: ${mongoose.connection.readyState === 1 ? 'Conectado' : 'Desconectado'}`);
+  console.log(`Diretório público: ${path.join(__dirname, 'public')}`);
 });
 
 process.on('SIGINT', () => {
   console.log('Encerrando servidor...');
-  process.exit();
+  mongoose.connection.close(() => {
+    console.log('Conexão com MongoDB fechada');
+    process.exit(0);
+  });
 });

@@ -228,6 +228,34 @@ SOFTWARE.
 
 ---
 
+### **Como Executar O chat-Bot**
+
+- *Exietm 3 formas A primeira é Usando o Node*
+
+- No terminal navegue  até o projeto, utilizando cd, ou abrindo o terminal direto no VsCode
+
+- Utilizando o Comando "node server.js" ele ira iniciar o servidor Local, e um caminho HTTP
+
+- assim que o sistema for iniciado basta basta acessar a pagina de loguin criar um cadastro , apos isso tera um icone Escrito suporte
+
+- Certifiquice de ter node instalado e todas as dependenciasnecessarias
+
+- *E a 2 forma é utilizando o Lively server*
+
+- este 2° metodo é necessario baixar a extenção live server no VScode
+
+- Ir no arquivo chat-assistente.html   Caminho : public>chat-assistente.html
+
+- Esta é a versao de teste do chat mas funciona normalmente
+
+
+- *E a 3 etapa é seguindo este link*
+
+- [Sitema Funcional](https://resolve-q6k1.onrender.com)
+
+- Necessario se cadastrar e logar, "assim que o sistema for iniciado basta basta acessar a pagina de loguin criar um cadastro , apos isso tera um icone Escrito suporte"
+
+
 ## **Contato**
 Para mais informações, entre em contato com a equipe de desenvolvimento:
 
