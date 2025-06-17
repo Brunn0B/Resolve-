@@ -4,15 +4,15 @@
     "start_url": "/Loguin.html",
     "display": "standalone",
     "background_color": "#ffffff",
-    "theme_color": "#000000",
+    "theme_color": "#ffffff",
     "icons": [
       {
-        "src": "/img/Logo Novo.png",
+        "src": "/img/logo-preto.png",
         "sizes": "192x192",
         "type": "image/png"
       },
       {
-        "src": "/img/Logo Novo.png",
+        "src": "/img/logo-preto.png",
         "sizes": "512x512",
         "type": "image/png"
       }
