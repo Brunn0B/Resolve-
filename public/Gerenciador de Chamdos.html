@@ -1005,6 +1005,7 @@
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script>
         // Variáveis globais
         let currentUser = null;
@@ -1149,11 +1150,32 @@ function loadTicketDetails(ticketId) {
     })
     .catch(error => {
         console.error('Erro na requisição do chamado:', error);
+        throw new Error('Não foi possível carregar os detalhes do chamado. Tente novamente.');
+    });
+
+  
+    return fetch(`/api/chamados/${ticketId}/mensagens`, {
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message || 'Erro ao carregar chamado');
+            });
+        }
+        return response.json();
+    })
+    .catch(error => {
+        console.error('Erro na requisição do chamado:', error);
         throw error;
     });
-}
-        function loadTickets() {
-            return fetch('/buscar-chamados', {
+}        function loadTickets() {
+      
+    
+    return fetch('/buscar-chamados', {
                 headers: {
                     'Authorization': 'Bearer ' + localStorage.getItem('token')
                 }
@@ -1672,44 +1694,72 @@ function loadTicketDetails(ticketId) {
             });
         }
         
-        function addMessageToTicket() {
-            showLoading();
-            
-            const messageText = document.getElementById('messageText').value;
-            
-            if (!messageText) {
-                alert('Por favor, digite uma mensagem');
-                hideLoading();
-                return;
-            }
-            
-            fetch(`/adicionar-mensagem/${currentTicketId}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + localStorage.getItem('token')
-                },
-                body: JSON.stringify({ 
-                    texto: messageText 
-                })
-            })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao adicionar mensagem');
-                }
-                return response.json();
-            })
-            .then(data => {
-                document.getElementById('messageText').value = '';
-                viewTicketDetails(currentTicketId);
-            })
-            .catch(error => {
-                console.error('Erro ao adicionar mensagem:', error);
-                alert('Erro ao adicionar mensagem: ' + error.message);
-                hideLoading();
+    function addMessageToTicket() {
+    showLoading();
+    
+    const messageText = document.getElementById('messageText').value;
+    
+    if (!messageText) {
+        alert('Por favor, digite uma mensagem');
+        hideLoading();
+        return;
+    }
+    
+    fetch(`/adicionar-mensagem/${currentTicketId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify({ 
+            texto: messageText 
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => {
+                throw new Error(err.message || 'Erro ao adicionar mensagem');
             });
         }
+        return response.json();
+    })
+    .then(data => {
+        document.getElementById('messageText').value = '';
+        // Recarrega apenas as mensagens em vez de todo o chamado
+        return loadTicketDetails(currentTicketId);
+    })
+    .then(ticket => {
+        const messagesContainer = document.getElementById('ticketMessages');
+        messagesContainer.innerHTML = '';
         
+        if (ticket.mensagens && ticket.mensagens.length > 0) {
+            ticket.mensagens.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message-card';
+                
+                const senderName = message.criador && message.criador.name ? message.criador.name : 'Usuário Anônimo';
+                const messageTime = new Date(message.data).toLocaleString('pt-BR');
+                
+                messageDiv.innerHTML = `
+                    <div class="message-header">
+                        <strong>${senderName}</strong>
+                        <small class="message-time">${messageTime}</small>
+                    </div>
+                    <div class="message-body">
+                        ${message.texto}
+                    </div>
+                `;
+                messagesContainer.appendChild(messageDiv);
+            });
+        }
+        hideLoading();
+    })
+    .catch(error => {
+        console.error('Erro ao adicionar mensagem:', error);
+        hideLoading();
+        alert(error.message);
+    });
+} 
         function createNewUser() {
             showLoading();
             

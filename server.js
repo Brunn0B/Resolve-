@@ -1053,6 +1053,98 @@ app.get('/api/comprovante/:pedidoId', authenticateToken, async (req, res) => {
 });
 
 
+
+
+app.get('/api/chamados/:id/mensagens', authenticateToken, async (req, res) => {
+    try {
+        const chamado = await Chamado.findById(req.params.id)
+            .populate('criador', 'name')
+            .populate('mensagens.criador', 'name')
+            .populate('fotoId');
+
+        if (!chamado) {
+            return res.status(404).json({ message: 'Chamado não encontrado.' });
+        }
+
+        res.status(200).json(chamado);
+    } catch (error) {
+        console.error('Erro ao buscar chamado:', error);
+        res.status(500).json({ message: 'Erro ao buscar chamado: ' + error.message });
+    }
+});
+
+
+// Buscar um chamado específico com suas mensagens
+app.get('/buscar-chamados-com-mensagens/:id', authenticateToken, async (req, res) => {
+    try {
+        console.log(`Buscando chamado ${req.params.id} com mensagens`);
+        const chamado = await Chamado.findById(req.params.id)
+            .populate('criador', 'name email')
+            .populate('mensagens.criador', 'name email')
+            .populate('fotoId');
+
+        if (!chamado) {
+            console.log(`Chamado não encontrado: ${req.params.id}`);
+            return res.status(404).json({ message: 'Chamado não encontrado.' });
+        }
+
+        // Formatar a resposta
+        const chamadoFormatado = {
+            ...chamado.toObject(),
+            foto: chamado.fotoId ? `/image/${chamado.fotoId._id}` : chamado.foto
+        };
+
+        console.log(`Chamado ${req.params.id} encontrado com ${chamado.mensagens.length} mensagens`);
+        res.status(200).json(chamadoFormatado);
+    } catch (error) {
+        console.error(`Erro ao buscar chamado ${req.params.id}:`, error);
+        res.status(500).json({ 
+            message: 'Erro ao buscar chamado',
+            error: error.message 
+        });
+    }
+});
+
+
+// Adicionar mensagem a um chamado
+app.post('/adicionar-mensagem/:id', authenticateToken, async (req, res) => {
+    try {
+        const { texto } = req.body;
+        const userId = req.user.userId;
+        
+        if (!texto) {
+            return res.status(400).json({ message: 'O texto da mensagem é obrigatório.' });
+        }
+
+        const chamado = await Chamado.findByIdAndUpdate(
+            req.params.id,
+            {
+                $push: {
+                    mensagens: {
+                        texto,
+                        criador: userId
+                    }
+                }
+            },
+            { new: true }
+        ).populate('mensagens.criador', 'name email');
+
+        if (!chamado) {
+            return res.status(404).json({ message: 'Chamado não encontrado.' });
+        }
+
+        const novaMensagem = chamado.mensagens[chamado.mensagens.length - 1];
+        
+        res.status(201).json({
+            message: 'Mensagem adicionada com sucesso!',
+            mensagem: novaMensagem
+        });
+    } catch (error) {
+        console.error('Erro ao adicionar mensagem:', error);
+        res.status(500).json({ message: 'Erro ao adicionar mensagem: ' + error.message });
+    }
+});
+
 app.get('/suporte', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'SuporteUsuario.html'));
 });
