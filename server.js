@@ -887,6 +887,10 @@ app.post('/api/confirm-payment', authenticateToken, async (req, res) => {
   }
 });
 
+
+// Rota para lidar com endpoints API não encontrados
+
+
 app.get('/api/users', authenticateToken, async (req, res) => {
   try {
     console.log(`Acesso à lista de usuários por ${req.user.userId}`);
@@ -933,6 +937,122 @@ app.post('/reset-password', async (req, res) => {
   }
 });
 
+app.post('/api/pedidos', authenticateToken, async (req, res) => {
+    try {
+        const { servicos, metodoPagamento, status } = req.body;
+        const userId = req.user.userId;
+
+        // Calcular total
+        const total = servicos.reduce((sum, item) => sum + item.valor, 0);
+
+        const novoPedido = new Pedido({
+            usuario: userId,
+            servicos,
+            total,
+            metodoPagamento,
+            status
+        });
+
+        await novoPedido.save();
+        res.status(201).json(novoPedido);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+
+
+
+// Rotas para Serviços
+app.get('/api/servicos', authenticateToken, async (req, res) => {
+    try {
+        const servicos = await Servico.find();
+        res.json(servicos);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// Rota para buscar um pedido específico
+app.get('/api/pedidos/:id', authenticateToken, async (req, res) => {
+  try {
+    console.log(`Buscando pedido ${req.params.id}`);
+    const pedido = await Pedido.findById(req.params.id)
+      .populate('usuario', 'name email cpf')
+      .populate('servicos.servico');
+    
+    if (!pedido) {
+      console.log(`Pedido não encontrado: ${req.params.id}`);
+      return res.status(404).json({ message: 'Pedido não encontrado' });
+    }
+
+    // Verifica se o usuário tem permissão para ver este pedido
+    if (pedido.usuario._id.toString() !== req.user.userId) {
+      console.log(`Acesso não autorizado ao pedido ${req.params.id} pelo usuário ${req.user.userId}`);
+      return res.status(403).json({ message: 'Acesso não autorizado' });
+    }
+
+    console.log(`Pedido ${req.params.id} encontrado`);
+    res.json(pedido);
+  } catch (error) {
+    console.error(`Erro ao buscar pedido ${req.params.id}:`, error);
+    res.status(500).json({ message: 'Erro ao buscar pedido: ' + error.message });
+  }
+});
+
+// Rota para buscar os pedidos de um usuário (para a página de serviços contratados)
+app.get('/api/meus-pedidos', authenticateToken, async (req, res) => {
+  try {
+    console.log(`Buscando pedidos do usuário ${req.user.userId}`);
+    const pedidos = await Pedido.find({ usuario: req.user.userId })
+      .populate('servicos.servico')
+      .sort({ dataPedido: -1 });
+    
+    console.log(`${pedidos.length} pedidos encontrados para o usuário ${req.user.userId}`);
+    res.json(pedidos);
+  } catch (error) {
+    console.error(`Erro ao buscar pedidos do usuário ${req.user.userId}:`, error);
+    res.status(500).json({ message: 'Erro ao buscar pedidos: ' + error.message });
+  }
+});
+
+// Rota para confirmar pagamento (já existe no seu server.js)
+// app.post('/api/confirm-payment', authenticateToken, async (req, res) => { ... });
+
+// Rota para gerar comprovante de pagamento
+app.get('/api/comprovante/:pedidoId', authenticateToken, async (req, res) => {
+  try {
+    console.log(`Gerando comprovante para pedido ${req.params.pedidoId}`);
+    const pedido = await Pedido.findById(req.params.pedidoId)
+      .populate('usuario', 'name email cpf')
+      .populate('servicos.servico');
+    
+    if (!pedido) {
+      console.log(`Pedido não encontrado: ${req.params.pedidoId}`);
+      return res.status(404).json({ message: 'Pedido não encontrado' });
+    }
+
+    // Verifica se o usuário tem permissão para ver este pedido
+    if (pedido.usuario._id.toString() !== req.user.userId) {
+      console.log(`Acesso não autorizado ao pedido ${req.params.pedidoId} pelo usuário ${req.user.userId}`);
+      return res.status(403).json({ message: 'Acesso não autorizado' });
+    }
+
+    // Aqui você pode implementar a geração do PDF no servidor se preferir
+    // Por enquanto, apenas retornamos os dados do pedido
+    console.log(`Comprovante gerado para pedido ${req.params.pedidoId}`);
+    res.json({
+      success: true,
+      pedido: pedido,
+      message: 'Dados para geração do comprovante'
+    });
+  } catch (error) {
+    console.error(`Erro ao gerar comprovante para pedido ${req.params.pedidoId}:`, error);
+    res.status(500).json({ message: 'Erro ao gerar comprovante: ' + error.message });
+  }
+});
+
+
 app.get('/suporte', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'SuporteUsuario.html'));
 });
@@ -954,6 +1074,37 @@ app.use((err, req, res, next) => {
   res.status(500).json({ 
     message: 'Erro interno do servidor.', 
     error: process.env.NODE_ENV === 'development' ? err.message : undefined 
+  });
+});
+
+
+app.use('/api', (req, res) => {
+  res.status(404).json({ 
+    success: false,
+    message: 'Endpoint da API não encontrado' 
+  });
+});
+// Middleware para log de requisições
+app.use((req, res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+// Middleware para erro 404 API
+app.use('/api', (req, res, next) => {
+  res.status(404).json({ 
+    success: false,
+    message: 'Endpoint da API não encontrado' 
+  });
+});
+
+// Middleware para erro 500
+app.use((err, req, res, next) => {
+  console.error('Erro interno:', err.stack);
+  res.status(500).json({ 
+    success: false,
+    message: 'Erro interno do servidor',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
   });
 });
 

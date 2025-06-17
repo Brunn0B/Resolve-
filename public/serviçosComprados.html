@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviços Comprados</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
+            --accent-color: #3498db;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+            --success-color: #2ecc71;
+            --warning-color: #f39c12;
+            --danger-color: #e74c3c;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            padding-top: 56px; /* Espaço para navbar fixa */
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1030;
+        }
+        
+        .navbar-brand {
+            color: white;
+            font-weight: bold;
+        }
+        
+        .card {
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            border: none;
+            transition: transform 0.3s;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 10px 10px 0 0 !important;
+        }
+        
+        .service-card {
+            border-left: 4px solid var(--accent-color);
+        }
+        
+        .service-card.active {
+            border-left-color: var(--success-color);
+        }
+        
+        .service-card.expired {
+            border-left-color: var(--danger-color);
+        }
+        
+        .service-card.pending {
+            border-left-color: var(--warning-color);
+        }
+        
+        .badge {
+            padding: 5px 10px;
+            font-weight: 500;
+        }
+        
+        .badge-primary {
+            background-color: var(--accent-color);
+        }
+        
+        .badge-success {
+            background-color: var(--success-color);
+        }
+        
+        .badge-warning {
+            background-color: var(--warning-color);
+        }
+        
+        .badge-danger {
+            background-color: var(--danger-color);
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+        
+        .status-pendente {
+            background-color: var(--warning-color);
+        }
+        
+        .status-pago {
+            background-color: var(--success-color);
+        }
+        
+        .status-cancelado {
+            background-color: var(--danger-color);
+        }
+        
+        .payment-method {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+        
+        .payment-method.boleto {
+            color: var(--accent-color);
+        }
+        
+        .payment-method.pix {
+            color: var(--success-color);
+        }
+        
+        .payment-method.card {
+            color: var(--dark-color);
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+        
+        .loading-spinner {
+            color: white;
+            font-size: 2rem;
+        }
+        
+        .receipt-btn {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .receipt-btn:hover::after {
+            content: "Baixar Comprovante";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+        }
+        
+        /* Estilos para mobile */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 56px;
+            }
+            
+            .container {
+                padding-left: 15px;
+                padding-right: 15px;
+            }
+            
+            .row.mb-4 {
+                margin-bottom: 1rem !important;
+            }
+            
+            .card {
+                margin-bottom: 15px;
+            }
+            
+            .card-header {
+                padding: 12px 15px;
+            }
+            
+            /* Ajustes para os cards de resumo */
+            .col-md-4 {
+                margin-bottom: 15px;
+            }
+            
+            /* Ajustes para a tabela */
+            .table-responsive {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            #ordersTable {
+                width: 100%;
+                font-size: 0.85rem;
+            }
+            
+            #ordersTable th, 
+            #ordersTable td {
+                padding: 8px 5px;
+                white-space: nowrap;
+            }
+            
+            #ordersTable th:nth-child(2),
+            #ordersTable td:nth-child(2) {
+                display: none;
+            }
+            
+            #ordersTable th:nth-child(5),
+            #ordersTable td:nth-child(5) {
+                display: none;
+            }
+            
+            /* Ajustes para os botões de ação */
+            .btn-sm {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.75rem;
+            }
+            
+            /* Ajustes para os cards de serviços */
+            .col-md-4 {
+                flex: 0 0 100%;
+                max-width: 100%;
+            }
+            
+            .service-card .card-body p {
+                font-size: 0.9rem;
+            }
+            
+            /* Ajustes para o modal */
+            .modal-dialog {
+                margin: 10px;
+            }
+            
+            .modal-content {
+                padding: 15px;
+            }
+            
+            /* Ajustes para o botão de novo serviço */
+            .col-md-6.text-md-end {
+                text-align: left !important;
+                margin-top: 15px;
+            }
+            
+            /* Ajustes para o search box */
+            .search-box {
+                width: 100%;
+                margin-top: 10px;
+            }
+            
+            .search-box input {
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            /* Ajustes adicionais para telas muito pequenas */
+            .navbar-brand {
+                font-size: 1rem;
+            }
+            
+            h2 {
+                font-size: 1.5rem;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .search-box {
+                margin-top: 10px;
+                width: 100%;
+            }
+            
+            /* Ocultar mais colunas na tabela */
+            #ordersTable th:nth-child(3),
+            #ordersTable td:nth-child(3) {
+                display: none;
+            }
+            
+            /* Ajustar modal para telas pequenas */
+            .modal-dialog {
+                margin: 5px;
+            }
+            
+            .modal-body .row {
+                flex-direction: column;
+            }
+            
+            .modal-body .col-md-6 {
+                width: 100%;
+                margin-bottom: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark mb-4">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-cubes me-2"></i>Serviços Comprados
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="TelaChamados.html"><i class="fas fa-home me-1"></i> Início</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="Mensalidade.html"><i class="fas fa-shopping-cart me-1"></i> Serviços</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="PerfilUser.html"><i class="fas fa-user me-1"></i> Perfil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="index.html" id="logout"><i class="fas fa-sign-out-alt me-1"></i> Sair</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mb-5">
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <h2><i class="fas fa-shopping-cart me-2"></i> Meus Serviços</h2>
+                <p class="text-muted">Veja todos os serviços que você contratou</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <button class="btn btn-primary" onclick="window.location.href='Mensalidade.html'">
+                    <i class="fas fa-plus me-2"></i>Contratar Novo Serviço
+                </button>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title" id="totalServices">0</h3>
+                        <p class="card-text text-muted">Serviços Contratados</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title" id="activeServices">0</h3>
+                        <p class="card-text text-muted">Serviços Ativos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h3 class="card-title" id="monthlyCost">R$ 0,00</h3>
+                        <p class="card-text text-muted">Custo Mensal Total</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+                        <span>Histórico de Compras</span>
+                        <div class="search-box mt-2 mt-md-0">
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-search"></i></span>
+                                <input type="text" class="form-control" id="orderSearch" placeholder="Pesquisar pedidos...">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="ordersTable">
+                                <thead>
+                                    <tr>
+                                        <th>Pedido #</th>
+                                        <th class="d-none d-md-table-cell">Data</th>
+                                        <th class="d-none d-sm-table-cell">Serviços</th>
+                                        <th>Valor</th>
+                                        <th class="d-none d-md-table-cell">Pagamento</th>
+                                        <th>Status</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableBody">
+                                    <!-- Os pedidos serão inseridos aqui via JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header">
+                        <span>Meus Serviços Ativos</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="row" id="servicesContainer">
+                            <!-- Os serviços ativos serão inseridos aqui via JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para detalhes do pedido -->
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Detalhes do Pedido <span id="modalOrderId"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6>Informações do Pedido</h6>
+                                <p><strong>Data:</strong> <span id="modalOrderDate"></span></p>
+                                <p><strong>Status:</strong> <span id="modalOrderStatus"></span></p>
+                                <p><strong>Método de Pagamento:</strong> <span id="modalPaymentMethod"></span></p>
+                                <p><strong>Valor Total:</strong> <span id="modalOrderTotal"></span></p>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h6>Informações de Pagamento</h6>
+                                <div id="boletoInfo" style="display: none;">
+                                    <p><strong>Código do Boleto:</strong> <span id="modalBoletoCode"></span></p>
+                                    <p><strong>Vencimento:</strong> <span id="modalBoletoDueDate"></span></p>
+                                    <a href="#" id="modalBoletoUrl" class="btn btn-sm btn-outline-primary">Visualizar Boleto</a>
+                                </div>
+                                <div id="pixInfo" style="display: none;">
+                                    <p><strong>Chave PIX:</strong> <span id="modalPixKey"></span></p>
+                                    <p><strong>Expira em:</strong> <span id="modalPixExpiration"></span></p>
+                                    <img src="" id="modalPixQrCode" class="img-fluid mt-2" style="max-width: 200px;">
+                                </div>
+                                <div id="cardInfo" style="display: none;">
+                                    <p><strong>Cartão:</strong> <span id="modalCardLastFour"></span></p>
+                                    <p><strong>Bandeira:</strong> <span id="modalCardBrand"></span></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mb-3">Itens do Pedido</h6>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Serviço</th>
+                                    <th>Frequência</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody id="modalOrderItems">
+                                <!-- Itens do pedido serão inseridos aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                    <button type="button" class="btn btn-primary" id="printReceiptBtn">
+                        <i class="fas fa-print me-2"></i>Imprimir Comprovante
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span class="ms-2">Carregando...</span>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            checkAuth();
+            loadPurchasedServices();
+            
+            // Configurar eventos
+            $('#logout').click(function(e) {
+                e.preventDefault();
+                localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            });
+            
+            $('#orderSearch').on('keyup', function() {
+                const value = $(this).val().toLowerCase();
+                $('#ordersTableBody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+        });
+        
+        function checkAuth() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                window.location.href = 'login.html';
+            }
+        }
+        
+        function loadPurchasedServices() {
+            showLoading();
+            
+            // Primeiro carregamos os pedidos do usuário
+            fetch('/api/meus-pedidos', {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar pedidos');
+                }
+                return response.json();
+            })
+            .then(orders => {
+                populateOrdersTable(orders);
+                calculateSummary(orders);
+                
+                // Agora carregamos os serviços ativos
+                return fetch('/api/servicos', {
+                    headers: {
+                        'Authorization': 'Bearer ' + localStorage.getItem('token')
+                    }
+                });
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar serviços');
+                }
+                return response.json();
+            })
+            .then(services => {
+                // Aqui você pode filtrar os serviços ativos se necessário
+                populateActiveServices(services);
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar serviços comprados:', error);
+                hideLoading();
+                alert('Erro ao carregar serviços comprados. Por favor, recarregue a página.');
+            });
+        }
+        
+        function populateOrdersTable(orders) {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = '';
+            
+            if (orders.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center py-4 text-muted">
+                            <i class="fas fa-shopping-cart fa-2x mb-3"></i>
+                            <p>Nenhum pedido encontrado</p>
+                            <a href="Mensalidade.html" class="btn btn-sm btn-primary">Contratar Serviços</a>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            orders.sort((a, b) => new Date(b.dataPedido) - new Date(a.dataPedido));
+            
+            orders.forEach(order => {
+                const tr = document.createElement('tr');
+                const orderDate = new Date(order.dataPedido).toLocaleDateString('pt-BR');
+                const servicesCount = order.servicos.length;
+                const firstServiceName = order.servicos[0].servico.nome || 'Serviço não encontrado';
+                const servicesText = servicesCount === 1 ? firstServiceName : `${firstServiceName} + ${servicesCount - 1} outros`;
+                const total = order.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+                
+                tr.innerHTML = `
+                    <td>${order._id.substring(18, 24)}</td>
+                    <td class="d-none d-md-table-cell">${orderDate}</td>
+                    <td class="d-none d-sm-table-cell">${servicesText}</td>
+                    <td>${total}</td>
+                    <td class="d-none d-md-table-cell">
+                        <span class="payment-method ${order.metodoPagamento.toLowerCase()}">
+                            ${formatPaymentMethod(order.metodoPagamento)}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-indicator status-${order.status}"></span>
+                        ${formatOrderStatus(order.status)}
+                    </td>
+                    <td>
+                        <button class="btn btn-sm btn-outline-primary view-order-btn" data-id="${order._id}">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary receipt-btn" data-id="${order._id}">
+                            <i class="fas fa-receipt"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Configurar eventos dos botões
+            document.querySelectorAll('.view-order-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const orderId = this.getAttribute('data-id');
+                    showOrderDetails(orderId);
+                });
+            });
+            
+            document.querySelectorAll('.receipt-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const orderId = this.getAttribute('data-id');
+                    downloadReceipt(orderId);
+                });
+            });
+        }
+        
+        function populateActiveServices(services) {
+            const container = document.getElementById('servicesContainer');
+            container.innerHTML = '';
+            
+            if (services.length === 0) {
+                container.innerHTML = `
+                    <div class="col-12 text-center py-4 text-muted">
+                        <i class="fas fa-box-open fa-2x mb-3"></i>
+                        <p>Nenhum serviço ativo encontrado</p>
+                        <a href="Mensalidade.html" class="btn btn-sm btn-primary">Contratar Serviços</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            services.forEach(service => {
+                const col = document.createElement('div');
+                col.className = 'col-md-4 mb-4';
+                
+                col.innerHTML = `
+                    <div class="card service-card h-100">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">${service.nome}</h5>
+                            <span class="badge bg-primary">Ativo</span>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted"><small>${service.empresa}</small></p>
+                            <p>${service.descricao}</p>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h6>Mensal</h6>
+                                    <p class="text-success">R$ ${service.mensal.toFixed(2)}</p>
+                                </div>
+                                <div>
+                                    <h6>Anual</h6>
+                                    <p class="text-success">R$ ${service.anual.toFixed(2)}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-sm btn-outline-primary">
+                                    <i class="fas fa-cog"></i> Gerenciar
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger">
+                                    <i class="fas fa-times"></i> Cancelar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                container.appendChild(col);
+            });
+        }
+        
+        function calculateSummary(orders) {
+            const totalServices = orders.reduce((sum, order) => sum + order.servicos.length, 0);
+            const activeServices = orders
+                .filter(order => order.status === 'pago')
+                .reduce((sum, order) => sum + order.servicos.length, 0);
+            
+            const monthlyCost = orders
+                .filter(order => order.status === 'pago')
+                .reduce((sum, order) => {
+                    return sum + order.servicos.reduce((servSum, serv) => {
+                        return servSum + (serv.frequencia === 'mensal' ? serv.valor : serv.valor / 12);
+                    }, 0);
+                }, 0);
+            
+            document.getElementById('totalServices').textContent = totalServices;
+            document.getElementById('activeServices').textContent = activeServices;
+            document.getElementById('monthlyCost').textContent = monthlyCost.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+        }
+        
+        function showOrderDetails(orderId) {
+            showLoading();
+            
+            fetch(`/api/pedidos/${orderId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar detalhes do pedido');
+                }
+                return response.json();
+            })
+            .then(order => {
+                // Preencher informações básicas
+                document.getElementById('modalOrderId').textContent = order._id.substring(18, 24);
+                document.getElementById('modalOrderDate').textContent = new Date(order.dataPedido).toLocaleString('pt-BR');
+                document.getElementById('modalOrderStatus').textContent = formatOrderStatus(order.status);
+                document.getElementById('modalPaymentMethod').textContent = formatPaymentMethod(order.metodoPagamento);
+                document.getElementById('modalOrderTotal').textContent = order.total.toLocaleString('pt-BR', {
+                    style: 'currency',
+                    currency: 'BRL'
+                });
+                
+                // Preencher itens do pedido
+                const itemsTbody = document.getElementById('modalOrderItems');
+                itemsTbody.innerHTML = '';
+                
+                order.servicos.forEach(item => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${item.servico.nome || 'Serviço não encontrado'}</td>
+                        <td>${item.frequencia === 'mensal' ? 'Mensal' : 'Anual'}</td>
+                        <td>${item.valor.toLocaleString('pt-BR', {
+                            style: 'currency',
+                            currency: 'BRL'
+                        })}</td>
+                    `;
+                    itemsTbody.appendChild(tr);
+                });
+                
+                // Mostrar informações de pagamento específicas
+                document.getElementById('boletoInfo').style.display = 'none';
+                document.getElementById('pixInfo').style.display = 'none';
+                document.getElementById('cardInfo').style.display = 'none';
+                
+                if (order.metodoPagamento.toLowerCase().includes('boleto') && order.boleto) {
+                    document.getElementById('boletoInfo').style.display = 'block';
+                    document.getElementById('modalBoletoCode').textContent = order.boleto.codigo || 'N/A';
+                    document.getElementById('modalBoletoDueDate').textContent = 
+                        new Date(order.boleto.vencimento).toLocaleDateString('pt-BR');
+                    document.getElementById('modalBoletoUrl').href = order.boleto.url || '#';
+                } 
+                else if (order.metodoPagamento.toLowerCase() === 'pix' && order.pix) {
+                    document.getElementById('pixInfo').style.display = 'block';
+                    document.getElementById('modalPixKey').textContent = order.pix.key || 'N/A';
+                    document.getElementById('modalPixExpiration').textContent = 
+                        new Date(order.pix.expirationDate).toLocaleString('pt-BR');
+                    document.getElementById('modalPixQrCode').src = order.pix.qrCode || '';
+                }
+                else if (order.metodoPagamento.toLowerCase().includes('cartão') || 
+                         order.metodoPagamento.toLowerCase().includes('card')) {
+                    // Aqui você pode adicionar lógica para mostrar detalhes do cartão se disponível
+                    document.getElementById('cardInfo').style.display = 'block';
+                    document.getElementById('modalCardLastFour').textContent = '**** **** **** 1234'; // Substitua por dados reais
+                    document.getElementById('modalCardBrand').textContent = 'Visa'; // Substitua por dados reais
+                }
+                
+                // Mostrar o modal
+                const modal = new bootstrap.Modal(document.getElementById('orderDetailsModal'));
+                modal.show();
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar detalhes do pedido:', error);
+                hideLoading();
+                alert('Erro ao carregar detalhes do pedido');
+            });
+        }
+        
+        function downloadReceipt(orderId) {
+            showLoading();
+            
+            fetch(`/api/comprovante/${orderId}`, {
+                headers: {
+                    'Authorization': 'Bearer ' + localStorage.getItem('token')
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao gerar comprovante');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Aqui você pode implementar o download do PDF
+                // Por enquanto, apenas mostramos os dados em uma nova janela
+                const receiptWindow = window.open('', '_blank');
+                receiptWindow.document.write(`
+                    <html>
+                    <head>
+                        <title>Comprovante de Pagamento - Pedido ${orderId.substring(18, 24)}</title>
+                        <style>
+                            body { font-family: Arial, sans-serif; margin: 20px; }
+                            h1 { color: #2c3e50; }
+                            table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                            th { background-color: #f2f2f2; }
+                            .total { font-weight: bold; font-size: 1.2em; }
+                        </style>
+                    </head>
+                    <body>
+                        <h1>Comprovante de Pagamento</h1>
+                        <p><strong>Número do Pedido:</strong> ${orderId.substring(18, 24)}</p>
+                        <p><strong>Data:</strong> ${new Date().toLocaleString('pt-BR')}</p>
+                        <p><strong>Status:</strong> ${data.pedido.status}</p>
+                        <p><strong>Método de Pagamento:</strong> ${data.pedido.metodoPagamento}</p>
+                        
+                        <h2>Itens do Pedido</h2>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Serviço</th>
+                                    <th>Frequência</th>
+                                    <th>Valor</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${data.pedido.servicos.map(item => `
+                                    <tr>
+                                        <td>${item.servico.nome || 'Serviço não encontrado'}</td>
+                                        <td>${item.frequencia === 'mensal' ? 'Mensal' : 'Anual'}</td>
+                                        <td>${item.valor.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="2" class="total">Total</td>
+                                    <td class="total">${data.pedido.total.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                        
+                        <p>Agradecemos pela sua compra!</p>
+                    </body>
+                    </html>
+                `);
+                hideLoading();
+            })
+            .catch(error => {
+                console.error('Erro ao gerar comprovante:', error);
+                hideLoading();
+                alert('Erro ao gerar comprovante');
+            });
+        }
+        
+        function formatOrderStatus(status) {
+            const statusMap = {
+                'pendente': 'Pendente',
+                'pago': 'Pago',
+                'cancelado': 'Cancelado'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function formatPaymentMethod(method) {
+            if (method.toLowerCase().includes('boleto')) return 'Boleto';
+            if (method.toLowerCase() === 'pix') return 'PIX';
+            if (method.toLowerCase().includes('cartão') || method.toLowerCase().includes('card')) return 'Cartão';
+            return method;
+        }
+        
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

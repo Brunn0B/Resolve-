@@ -31,6 +31,7 @@
             background-color: #f5f7fa;
             color: var(--dark);
             line-height: 1.6;
+            overflow-x: hidden;
         }
         
         .app-container {
@@ -43,17 +44,25 @@
             background: white;
             padding: 20px 0;
             box-shadow: 2px 0 10px rgba(0,0,0,0.05);
-            position: sticky;
+            position: fixed;
             top: 0;
+            left: 0;
+            bottom: 0;
+            width: 240px;
             height: 100vh;
             display: flex;
             flex-direction: column;
+            z-index: 1000;
+            transition: transform 0.3s ease;
         }
         
         .sidebar-header {
             padding: 0 20px 20px;
             border-bottom: 1px solid var(--gray-light);
             margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         
         .app-name {
@@ -113,7 +122,6 @@
             margin-right: 10px;
         }
         
-        /* Header Atualizado */
         .app-header {
             background: white;
             padding: 15px 30px;
@@ -123,7 +131,8 @@
             box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             position: sticky;
             top: 0;
-            z-index: 10;
+            z-index: 100;
+            grid-column: 2;
         }
         
         .header-actions {
@@ -218,6 +227,7 @@
         .app-content {
             padding: 25px 30px;
             background-color: #f5f7fa;
+            grid-column: 2;
         }
         
         .content-header {
@@ -567,9 +577,40 @@
             box-shadow: 0 4px 12px rgba(76, 201, 240, 0.3);
         }
         
+        /* Menu Mobile */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        /* Responsividade */
         @media (max-width: 1200px) {
             .app-container {
                 grid-template-columns: 200px 1fr;
+            }
+            
+            .app-sidebar {
+                width: 200px;
+            }
+            
+            .app-content, .app-header {
+                grid-column: 2;
             }
         }
         
@@ -579,7 +620,25 @@
             }
             
             .app-sidebar {
-                display: none;
+                transform: translateX(-100%);
+                width: 280px;
+            }
+            
+            .app-sidebar.active {
+                transform: translateX(0);
+            }
+            
+            .sidebar-overlay.active {
+                display: block;
+            }
+            
+            .app-content, .app-header {
+                grid-column: 1;
+                margin-left: 0;
+            }
+            
+            .mobile-menu-btn {
+                display: block;
             }
             
             .services-grid {
@@ -613,6 +672,15 @@
             .user-profile .user-name {
                 display: none;
             }
+            
+            .filters-container {
+                gap: 8px;
+            }
+            
+            .filter-btn {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
         }
         
         @media (max-width: 576px) {
@@ -640,30 +708,43 @@
             .select-btn {
                 width: 100%;
             }
+            
+            .total-summary {
+                padding: 20px;
+            }
+            
+            .total-title {
+                font-size: 1.2rem;
+            }
+            
+            .total-value {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="app-container">
-       
-        <div class="app-sidebar">
+        <!-- Overlay para fechar o menu -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+        
+        <!-- Sidebar -->
+        <div class="app-sidebar" id="appSidebar">
             <div class="sidebar-header">
                 <div class="app-name">
-                  
-                    <span> Resolve+</span>
+                    <span>Resolve+</span>
                 </div>
+                <button class="mobile-menu-btn" id="closeSidebar">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
             
             <nav class="app-sidebar-nav">
                 <div class="nav-category">Menu Principal</div>
-                <a href="TelaChamados.html" class="app-sidebar-link active">
-                    <i class=" fas fa-ticket-alt"></i>
+                <a href="TelaChamados.html" class="app-sidebar-link">
+                    <i class="fas fa-ticket-alt"></i>
                     <span>Chamados</span>
                 </a>
-           <!-- <a href="#" class="app-sidebar-link">
-                    <i class="fas fa-tools"></i>
-                 <span>Serviços</span>
-                </a> --> 
                 <a href="sobre.html" class="app-sidebar-link">
                     <i class="fas fa-users"></i>
                     <span>Equipe</span>
@@ -684,15 +765,19 @@
                     <i class="fas fa-user-cog"></i>
                     <span>Perfil</span>
                 </a>
-                <a href="Configuracoes.html" class="app-sidebar-link">
-                    <i class="fas fa-cog"></i>
-                    <span>Configurações</span>
+                <a href="serviçosComprados.html" class="app-sidebar-link">
+                    <i class="fas fa-cubes"></i>
+                    <span>Serviços Comprados</span>
                 </a>
             </nav>
         </div>
 
         <div class="app-content">
             <div class="app-header">
+                <button class="mobile-menu-btn" id="openSidebar">
+                    <i class="fas fa-bars"></i>
+                </button>
+                
                 <div class="header-actions">
                     <div class="search-wrapper">
                         <input class="search-input" type="text" placeholder="Pesquisar serviços...">
@@ -724,9 +809,12 @@
                 <button class="filter-btn">Industrial</button>
                 <button class="filter-btn">Condomínios</button>
                 <button class="filter-btn">Emergencial</button>
+                <button class="filter-btn">Ar Condicionado</button>
+                <button class="filter-btn">Elétrica</button>
             </div>
             
             <div class="services-grid" id="services-container">
+                <!-- Serviços serão carregados dinamicamente aqui -->
             </div>
             
             <div class="total-summary">
@@ -748,503 +836,476 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const services = [
+    document.addEventListener('DOMContentLoaded', function() {
+        // Verificar autenticação
+        const token = localStorage.getItem('token');
+        if (!token) {
+            alert('Você precisa estar logado para acessar esta página.');
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Elementos do DOM
+        const servicesContainer = document.getElementById('services-container');
+        const selectedServicesContainer = document.getElementById('selected-services');
+        const totalValueElement = document.getElementById('total-value');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const checkoutBtn = document.querySelector('.checkout-btn');
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const appSidebar = document.getElementById('appSidebar');
+        
+        // Variáveis de estado
+        let selectedServices = [];
+        let currentFilter = 'all';
+        let services = [];
+
+        // Menu Mobile
+        function toggleSidebar() {
+            appSidebar.classList.toggle('active');
+            sidebarOverlay.classList.toggle('active');
+        }
+
+        openSidebarBtn.addEventListener('click', toggleSidebar);
+        closeSidebarBtn.addEventListener('click', toggleSidebar);
+        sidebarOverlay.addEventListener('click', toggleSidebar);
+
+        // Carregar serviços do servidor
+        async function loadServices() {
+            try {
+                console.log('Tentando carregar serviços da API...');
+                const response = await fetch('http://localhost:5000/api/servicos', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+                
+                services = await response.json();
+                console.log('Serviços carregados com sucesso:', services);
+                renderServices();
+            } catch (error) {
+                console.error('Erro ao carregar serviços da API:', error);
+                // Fallback para serviços locais caso a API falhe
+                loadLocalServices();
+            }
+        }
+
+        // Fallback para serviços locais
+        function loadLocalServices() {
+            console.log('Carregando serviços locais como fallback...');
+            services = [
                 {
-                    id: 1,
-                    title: "Manutenção Predial Completa",
-                    company: "Altura Segura Manutenções",
-                    location: "Sorocaba/SP",
-                    description: "Serviço completo de manutenção predial com equipe especializada em alpinismo industrial para áreas de difícil acesso.",
-                    features: [
-                        "Limpeza de fachadas",
-                        "Reparos estruturais",
-                        "Inspeções periódicas",
-                        "Equipe certificada"
-                    ],
+                    _id: '1',
+                    nome: "Manutenção Predial Completa",
+                    empresa: "Altura Segura Manutenções",
+                    descricao: "Serviço completo de manutenção predial com equipe especializada em alpinismo industrial para áreas de difícil acesso.",
+                    mensal: 2200,
+                    anual: 2200 * 12 * 0.85,
+                    categorias: ["predial", "emergencial"],
                     rating: 4.8,
                     ratingCount: 124,
-                    monthlyPrice: 2200,
-                    annualPrice: 2200 * 12 * 0.85,
-                    categories: ["predial", "emergencial"],
                     badge: "Popular"
                 },
                 {
-                    id: 2,
-                    title: "Manutenção de Áreas Comuns",
-                    company: "Condomínio Fácil",
-                    location: "Votorantim/SP",
-                    description: "Manutenção preventiva e corretiva de áreas comuns em condomínios residenciais e comerciais.",
-                    features: [
-                        "Jardins e piscinas",
-                        "Salões de festa",
-                        "Áreas esportivas",
-                        "Vistorias mensais"
-                    ],
+                    _id: '2',
+                    nome: "Manutenção de Áreas Comuns",
+                    empresa: "Condomínio Fácil",
+                    descricao: "Manutenção preventiva e corretiva de áreas comuns em condomínios residenciais e comerciais.",
+                    mensal: 1800,
+                    anual: 1800 * 12 * 0.9,
+                    categorias: ["condomínios"],
                     rating: 4.6,
                     ratingCount: 89,
-                    monthlyPrice: 1800,
-                    annualPrice: 1800 * 12 * 0.9, 
-                    categories: ["condomínios"],
                     badge: "Oferta"
                 },
                 {
-                    id: 3,
-                    title: "Manutenção Residencial Premium",
-                    company: "Casa & Conforto",
-                    location: "Sorocaba/SP",
-                    description: "Pacote completo para manutenção residencial com atendimento 24h para emergências.",
-                    features: [
-                        "Serviços elétricos",
-                        "Reparos hidráulicos",
-                        "Pintura e pequenos reparos",
-                        "Atendimento 24h"
-                    ],
+                    _id: '3',
+                    nome: "Manutenção Residencial Premium",
+                    empresa: "Casa & Conforto",
+                    descricao: "Pacote completo para manutenção residencial com atendimento 24h para emergências.",
+                    mensal: 1200,
+                    anual: 1200 * 12 * 0.88,
+                    categorias: ["residencial", "emergencial"],
                     rating: 4.9,
                     ratingCount: 215,
-                    monthlyPrice: 1200,
-                    annualPrice: 1200 * 12 * 0.88, 
-                    categories: ["residencial", "emergencial"],
                     badge: "Top"
                 },
                 {
-                    id: 4,
-                    title: "Manutenção Industrial Especializada",
-                    company: "IndManutenção",
-                    location: "Itu/SP",
-                    description: "Serviços especializados para indústrias da região de Sorocaba.",
-                    features: [
-                        "Manutenção de máquinas",
-                        "Estruturas metálicas",
-                        "Sistemas elétricos",
-                        "Prevenção contra incêndios"
-                    ],
+                    _id: '4',
+                    nome: "Manutenção de Ar Condicionado",
+                    empresa: "Clima Control",
+                    descricao: "Serviço especializado em manutenção preventiva e corretiva de ar condicionado para todos os modelos.",
+                    mensal: 850,
+                    anual: 850 * 12 * 0.9,
+                    categorias: ["residencial", "predial", "industrial"],
                     rating: 4.7,
-                    ratingCount: 76,
-                    monthlyPrice: 3500,
-                    annualPrice: 3500 * 12 * 0.8, 
-                    categories: ["industrial"],
+                    ratingCount: 156,
                     badge: "Especializado"
                 },
                 {
-                    id: 5,
-                    title: "Limpeza e Conservação de Fachadas",
-                    company: "Limpeza Top",
-                    location: "Sorocaba/SP",
-                    description: "Serviço especializado em limpeza e conservação de fachadas de prédios.",
-                    features: [
-                        "Técnicas por cordas",
-                        "Produtos ecológicos",
-                        "Lavagem profissional",
-                        "Impermeabilização"
-                    ],
-                    rating: 4.5,
-                    ratingCount: 92,
-                    monthlyPrice: 1500,
-                    annualPrice: 1500 * 12 * 0.9,
-                    categories: ["predial"],
-                    badge: null
-                },
-                {
-                    id: 6,
-                    title: "Manutenção de Redes Elétricas",
-                    company: "EletroSafe",
-                    location: "Sorocaba/SP",
-                    description: "Serviços especializados em manutenção de redes elétricas prediais e industriais.",
-                    features: [
-                        "Equipe altamente qualificada",
-                        "Preventiva e corretiva",
-                        "Atendimento rápido",
-                        "Laudo técnico"
-                    ],
+                    _id: '5',
+                    nome: "Alpinismo Industrial",
+                    empresa: "Vertical Segura",
+                    descricao: "Serviços de alpinismo industrial para manutenção em altura, limpeza de fachadas e instalações.",
+                    mensal: 3200,
+                    anual: 3200 * 12 * 0.8,
+                    categorias: ["predial", "industrial", "emergencial"],
                     rating: 4.8,
-                    ratingCount: 118,
-                    monthlyPrice: 1900,
-                    annualPrice: 1900 * 12 * 0.85,
-                    categories: ["predial", "industrial", "emergencial"],
-                    badge: "Recomendado"
-                },
-                {
-                    id: 7,
-                    title: "Manutenção de Sistemas Hidráulicos",
-                    company: "Água Certa",
-                    location: "Salto/SP",
-                    description: "Pacote completo para manutenção de sistemas hidráulicos residenciais e comerciais.",
-                    features: [
-                        "Detecção de vazamentos",
-                        "Reparos hidráulicos",
-                        "Limpeza de caixas d'água",
-                        "Desentupimentos"
-                    ],
-                    rating: 4.7,
-                    ratingCount: 104,
-                    monthlyPrice: 1600,
-                    annualPrice: 1600 * 12 * 0.9,
-                    categories: ["residencial", "condomínios"],
-                    badge: null
-                },
-                {
-                    id: 8,
-                    title: "Manutenção de Jardins e Áreas Verdes",
-                    company: "Verde Vivo Paisagismo",
-                    location: "Sorocaba/SP",
-                    description: "Serviço completo de manutenção de jardins e áreas verdes para condomínios e residências.",
-                    features: [
-                        "Podas e adubação",
-                        "Sistema de irrigação",
-                        "Controle de pragas",
-                        "Projeto paisagístico"
-                    ],
-                    rating: 4.6,
-                    ratingCount: 87,
-                    monthlyPrice: 900,
-                    annualPrice: 900 * 12 * 0.9,
-                    categories: ["condomínios", "residencial"],
-                    badge: null
-                },
-                {
-                    id: 9,
-                    title: "Manutenção de Sistemas de Ar Condicionado",
-                    company: "Clima Control",
-                    location: "Sorocaba/SP",
-                    description: "Manutenção preventiva e corretiva de sistemas de ar condicionado.",
-                    features: [
-                        "Limpeza profissional",
-                        "Recarga de gás",
-                        "Reparos em unidades",
-                        "Manutenção preventiva"
-                    ],
-                    rating: 4.8,
-                    ratingCount: 132,
-                    monthlyPrice: 1400,
-                    annualPrice: 1400 * 12 * 0.85,
-                    categories: ["predial", "condomínios", "industrial"],
-                    badge: null
-                },
-                {
-                    id: 10,
-                    title: "Manutenção Emergencial 24h",
-                    company: "SOS Reparos",
-                    location: "Região de Sorocaba",
-                    description: "Serviço de pronto atendimento 24 horas para emergências em residências e empresas.",
-                    features: [
-                        "Atendimento 24/7",
-                        "Equipe rápida",
-                        "Vazamentos e elétrica",
-                        "Soluções imediatas"
-                    ],
-                    rating: 4.9,
-                    ratingCount: 203,
-                    monthlyPrice: 2500,
-                    annualPrice: 2500 * 12 * 0.8,
-                    categories: ["emergencial", "residencial", "predial"],
-                    badge: "Emergência"
-                },
-                {
-                    id: 11,
-                    title: "Manutenção de Vias e Calçadas",
-                    company: "Via Segura",
-                    location: "Sorocaba/SP",
-                    description: "Serviços especializados em manutenção de vias internas, calçadas e acessos.",
-                    features: [
-                        "Reparos em asfalto",
-                        "Nivelamento de piso",
-                        "Sinalização",
-                        "Acessibilidade"
-                    ],
-                    rating: 4.5,
-                    ratingCount: 64,
-                    monthlyPrice: 2000,
-                    annualPrice: 2000 * 12 * 0.85,
-                    categories: ["condomínios", "industrial"],
-                    badge: null
-                },
-                {
-                    id: 12,
-                    title: "Manutenção Preventiva Completa",
-                    company: "Prevent Manutenções",
-                    location: "Sorocaba/SP",
-                    description: "Pacote completo de manutenção preventiva para residências e empresas.",
-                    features: [
-                        "Inspeções mensais",
-                        "Relatórios detalhados",
-                        "Checklist completo",
-                        "Prevenção de falhas"
-                    ],
-                    rating: 4.7,
                     ratingCount: 98,
-                    monthlyPrice: 1800,
-                    annualPrice: 1800 * 12 * 0.82,
-                    categories: ["residencial", "predial"],
-                    badge: "Preventivo"
+                    badge: "Especial"
+                },
+                {
+                    _id: '6',
+                    nome: "Manutenção Elétrica Residencial",
+                    empresa: "Eletro Segurança",
+                    descricao: "Serviços elétricos residenciais com garantia e atendimento emergencial 24h.",
+                    mensal: 950,
+                    anual: 950 * 12 * 0.85,
+                    categorias: ["residencial", "emergencial"],
+                    rating: 4.6,
+                    ratingCount: 187,
+                    badge: "Garantia"
+                },
+                {
+                    _id: '7',
+                    nome: "Manutenção de Elevadores",
+                    empresa: "Eleva Manutenções",
+                    descricao: "Manutenção preventiva e corretiva de elevadores com equipe especializada e peças originais.",
+                    mensal: 2800,
+                    anual: 2800 * 12 * 0.85,
+                    categorias: ["predial", "condomínios"],
+                    rating: 4.9,
+                    ratingCount: 76,
+                    badge: "Premium"
+                },
+                {
+                    _id: '8',
+                    nome: "Manutenção de Piscinas",
+                    empresa: "Água Limpa",
+                    descricao: "Serviço completo de manutenção de piscinas residenciais e condominiais.",
+                    mensal: 1200,
+                    anual: 1200 * 12 * 0.88,
+                    categorias: ["residencial", "condomínios"],
+                    rating: 4.5,
+                    ratingCount: 112,
+                    badge: "Oferta"
+                },
+                {
+                    _id: '9',
+                    nome: "Manutenção de Sistemas Hidráulicos",
+                    empresa: "Hidro Soluções",
+                    descricao: "Manutenção e reparo em sistemas hidráulicos com garantia e atendimento rápido.",
+                    mensal: 1500,
+                    anual: 1500 * 12 * 0.85,
+                    categorias: ["residencial", "predial", "emergencial"],
+                    rating: 4.7,
+                    ratingCount: 134,
+                    badge: "Rápido"
+                },
+                {
+                    _id: '10',
+                    nome: "Manutenção de Jardins e Áreas Verdes",
+                    empresa: "Natureza Viva",
+                    descricao: "Serviço completo de jardinagem e manutenção de áreas verdes para condomínios e residências.",
+                    mensal: 900,
+                    anual: 900 * 12 * 0.9,
+                    categorias: ["residencial", "condomínios"],
+                    rating: 4.4,
+                    ratingCount: 89,
+                    badge: "Ecológico"
                 }
             ];
+            
+            renderServices();
+        }
 
-            const servicesContainer = document.getElementById('services-container');
-            const selectedServicesContainer = document.getElementById('selected-services');
-            const totalValueElement = document.getElementById('total-value');
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            const checkoutBtn = document.querySelector('.checkout-btn');
-            
-            let selectedServices = [];
-            let currentFilter = 'all';
-
-            function renderServices() {
-                servicesContainer.innerHTML = '';
-                
-                const filteredServices = currentFilter === 'all' 
-                    ? services 
-                    : services.filter(service => service.categories.includes(currentFilter));
-                
-                filteredServices.forEach(service => {
-                    const isSelected = selectedServices.some(s => s.id === service.id);
-                    const selectedFrequency = isSelected 
-                        ? selectedServices.find(s => s.id === service.id).frequency 
-                        : 'monthly';
-                    
-                    const serviceCard = document.createElement('div');
-                    serviceCard.className = `service-card ${isSelected ? 'selected' : ''}`;
-                    serviceCard.innerHTML = `
-                        <div class="service-header">
-                            ${service.badge ? `<span class="service-badge">${service.badge}</span>` : ''}
-                            <h3 class="service-title">${service.title}</h3>
-                            <p class="service-company">
-                                ${service.company}
-                                <i class="fas fa-check-circle verified-badge" title="Empresa verificada"></i>
-                            </p>
-                            <p class="service-location">
-                                <i class="fas fa-map-marker-alt"></i> ${service.location}
-                            </p>
-                        </div>
-                        <div class="service-body">
-                            <p class="service-description">${service.description}</p>
-                            
-                            <div class="service-features">
-                                ${service.features.map(feature => `
-                                    <div class="feature-item">
-                                        <i class="fas fa-check"></i>
-                                        <span>${feature}</span>
-                                    </div>
-                                `).join('')}
-                            </div>
-                            
-                            <div class="service-rating">
-                                <div class="stars">
-                                    ${renderStars(service.rating)}
-                                </div>
-                                <span class="rating-value">${service.rating.toFixed(1)}</span>
-                                <span class="rating-count">(${service.ratingCount} avaliações)</span>
-                            </div>
-                            
-                            <div class="service-pricing">
-                                <div class="price-option">
-                                    <span class="price-label">Plano Mensal:</span>
-                                    <span class="price-value monthly-price">R$ ${service.monthlyPrice.toFixed(2)}</span>
-                                </div>
-                                <div class="price-option">
-                                    <span class="price-label">Plano Anual:</span>
-                                    <span class="price-value annual-price">R$ ${service.annualPrice.toFixed(2)}</span>
-                                    <span class="price-discount">${getDiscount(service.monthlyPrice, service.annualPrice)}% OFF</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="service-footer">
-                            <select class="frequency-select" id="frequency-${service.id}">
-                                <option value="monthly" ${selectedFrequency === 'monthly' ? 'selected' : ''}>Mensal</option>
-                                <option value="annual" ${selectedFrequency === 'annual' ? 'selected' : ''}>Anual</option>
-                            </select>
-                            <button class="select-btn ${isSelected ? 'selected' : ''}" onclick="toggleService(${service.id})">
-                                ${isSelected ? '<i class="fas fa-check"></i> Selecionado' : 'Selecionar'}
-                            </button>
-                        </div>
-                    `;
-                    
-                    servicesContainer.appendChild(serviceCard);
-                });
-            }
-            
-            function renderStars(rating) {
-                let stars = '';
-                const fullStars = Math.floor(rating);
-                const hasHalfStar = rating % 1 >= 0.5;
-                
-                for (let i = 0; i < fullStars; i++) {
-                    stars += '<i class="fas fa-star"></i>';
-                }
-                
-                if (hasHalfStar) {
-                    stars += '<i class="fas fa-star-half-alt"></i>';
-                }
-                
-                const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
-                for (let i = 0; i < emptyStars; i++) {
-                    stars += '<i class="far fa-star"></i>';
-                }
-                
-                return stars;
-            }
-            
-            function getDiscount(monthly, annual) {
-                return Math.round((1 - annual / (monthly * 12)) * 100);
-            }
-            
-            function updateOrderSummary() {
-                if (selectedServices.length === 0) {
-                    selectedServicesContainer.innerHTML = '<p style="color: #666; text-align: center;">Nenhum serviço selecionado</p>';
-                    totalValueElement.textContent = '0,00';
-                    checkoutBtn.disabled = true;
-                    return;
-                }
-                
-                let total = 0;
-                let summaryHTML = '';
-                
-                selectedServices.forEach(service => {
-                    const serviceData = services.find(s => s.id === service.id);
-                    const price = service.frequency === 'annual' ? serviceData.annualPrice : serviceData.monthlyPrice;
-                    total += price;
-                    
-                    summaryHTML += `
-                        <div class="selected-service">
-                            <div class="service-info">
-                                <span class="service-name">${serviceData.title}</span>
-                                <span class="service-frequency">${service.frequency === 'annual' ? 'Plano Anual' : 'Plano Mensal'}</span>
-                            </div>
-                            <span class="service-price">R$ ${price.toFixed(2)}</span>
-                        </div>
-                    `;
-                });
-                
-                selectedServicesContainer.innerHTML = summaryHTML;
-                totalValueElement.textContent = total.toFixed(2);
-                checkoutBtn.disabled = false;
-            }
-            
-            window.toggleService = function(id) {
-                const frequencySelect = document.getElementById(`frequency-${id}`);
-                const frequency = frequencySelect.value;
-                
-                const index = selectedServices.findIndex(s => s.id === id);
-                
-                if (index === -1) {
-                    selectedServices.push({ 
-                        id, 
-                        frequency,
-                        servicoId: id,
-                        valor: frequency === 'annual' 
-                            ? services.find(s => s.id === id).annualPrice 
-                            : services.find(s => s.id === id).monthlyPrice
-                    });
-                } else {
-                    if (selectedServices[index].frequency === frequency) {
-                        selectedServices.splice(index, 1);
-                    } else {
-                        selectedServices[index].frequency = frequency;
-                        selectedServices[index].valor = frequency === 'annual' 
-                            ? services.find(s => s.id === id).annualPrice 
-                            : services.find(s => s.id === id).monthlyPrice;
-                    }
-                }
-                
-                renderServices();
-                updateOrderSummary();
+        // Formatar categoria para exibição
+        function formatCategory(category) {
+            const categoriesMap = {
+                'predial': 'Manutenção Predial',
+                'residencial': 'Manutenção Residencial',
+                'industrial': 'Manutenção Industrial',
+                'condomínios': 'Condomínios',
+                'emergencial': 'Atendimento Emergencial',
+                'elétrica': 'Elétrica',
+                'ar condicionado': 'Ar Condicionado'
             };
+            return categoriesMap[category] || category;
+        }
+        
+        // Renderizar estrelas de avaliação
+        function renderStars(rating) {
+            let stars = '';
+            const fullStars = Math.floor(rating);
+            const hasHalfStar = rating % 1 >= 0.5;
             
-            filterButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    
-                    currentFilter = button.textContent.toLowerCase();
-                    if (currentFilter === 'todos') currentFilter = 'all';
-                    if (currentFilter === 'condomínios') currentFilter = 'condominios';
-                    
-                    renderServices();
-                });
+            for (let i = 0; i < fullStars; i++) {
+                stars += '<i class="fas fa-star"></i>';
+            }
+            
+            if (hasHalfStar) {
+                stars += '<i class="fas fa-star-half-alt"></i>';
+            }
+            
+            const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+            for (let i = 0; i < emptyStars; i++) {
+                stars += '<i class="far fa-star"></i>';
+            }
+            
+            return stars;
+        }
+        
+        // Calcular desconto
+        function getDiscount(monthly, annual) {
+            return Math.round((1 - annual / (monthly * 12)) * 100);
+        }
+        
+        // Atualizar resumo do pedido
+        function updateOrderSummary() {
+            if (selectedServices.length === 0) {
+                selectedServicesContainer.innerHTML = '<p style="color: #666; text-align: center;">Nenhum serviço selecionado</p>';
+                totalValueElement.textContent = '0,00';
+                checkoutBtn.disabled = true;
+                return;
+            }
+            
+            let total = 0;
+            let summaryHTML = '';
+            
+            selectedServices.forEach(service => {
+                const serviceData = services.find(s => s._id === service.id);
+                const price = service.frequency === 'annual' ? serviceData.anual : serviceData.mensal;
+                total += price;
+                
+                summaryHTML += `
+                    <div class="selected-service">
+                        <div class="service-info">
+                            <span class="service-name">${serviceData.nome}</span>
+                            <span class="service-frequency">${service.frequency === 'annual' ? 'Plano Anual' : 'Plano Mensal'}</span>
+                        </div>
+                        <span class="service-price">R$ ${price.toFixed(2)}</span>
+                    </div>
+                `;
             });
             
-            function checkAuth() {
-                const token = localStorage.getItem('token');
-                if (!token) {
-                    alert('Você precisa estar logado para acessar esta página.');
-                    window.location.href = 'login.html';
-                    return false;
+            selectedServicesContainer.innerHTML = summaryHTML;
+            totalValueElement.textContent = total.toFixed(2);
+            checkoutBtn.disabled = false;
+        }
+        
+        // Alternar seleção de serviço
+        window.toggleService = function(id) {
+            const frequencySelect = document.getElementById(`frequency-${id}`);
+            const frequency = frequencySelect.value;
+            
+            const index = selectedServices.findIndex(s => s.id === id);
+            
+            if (index === -1) {
+                selectedServices.push({ 
+                    id, 
+                    frequency,
+                    servico: id,
+                    valor: frequency === 'annual' 
+                        ? services.find(s => s._id === id).anual 
+                        : services.find(s => s._id === id).mensal
+                });
+            } else {
+                if (selectedServices[index].frequency === frequency) {
+                    selectedServices.splice(index, 1);
+                } else {
+                    selectedServices[index].frequency = frequency;
+                    selectedServices[index].valor = frequency === 'annual' 
+                        ? services.find(s => s._id === id).anual 
+                        : services.find(s => s._id === id).mensal;
                 }
-                return true;
             }
             
-            window.finalizarCompra = async function() {
-                if (selectedServices.length === 0) {
-                    alert('Por favor, selecione pelo menos um serviço antes de finalizar a compra.');
-                    return;
+            renderServices();
+            updateOrderSummary();
+        };
+        
+        // Renderizar serviços na tela
+        function renderServices() {
+            servicesContainer.innerHTML = '';
+            
+            const filteredServices = currentFilter === 'all' 
+                ? services 
+                : services.filter(service => 
+                    service.categorias.some(cat => 
+                        cat.toLowerCase() === currentFilter.toLowerCase()
+                    )
+                );
+            
+            filteredServices.forEach(service => {
+                const isSelected = selectedServices.some(s => s.id === service._id);
+                const selectedFrequency = isSelected 
+                    ? selectedServices.find(s => s.id === service._id).frequency 
+                    : 'monthly';
+                
+                const serviceCard = document.createElement('div');
+                serviceCard.className = `service-card ${isSelected ? 'selected' : ''}`;
+                serviceCard.innerHTML = `
+                    <div class="service-header">
+                        ${service.badge ? `<span class="service-badge">${service.badge}</span>` : ''}
+                        <h3 class="service-title">${service.nome}</h3>
+                        <p class="service-company">
+                            ${service.empresa}
+                            <i class="fas fa-check-circle verified-badge" title="Empresa verificada"></i>
+                        </p>
+                        <p class="service-location">
+                            <i class="fas fa-map-marker-alt"></i> Sorocaba/SP
+                        </p>
+                    </div>
+                    <div class="service-body">
+                        <p class="service-description">${service.descricao}</p>
+                        
+                        <div class="service-features">
+                            ${service.categorias.map(cat => `
+                                <div class="feature-item">
+                                    <i class="fas fa-check"></i>
+                                    <span>${formatCategory(cat)}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        
+                        <div class="service-rating">
+                            <div class="stars">
+                                ${renderStars(service.rating)}
+                            </div>
+                            <span class="rating-value">${service.rating.toFixed(1)}</span>
+                            <span class="rating-count">(${service.ratingCount} avaliações)</span>
+                        </div>
+                        
+                        <div class="service-pricing">
+                            <div class="price-option">
+                                <span class="price-label">Plano Mensal:</span>
+                                <span class="price-value monthly-price">R$ ${service.mensal.toFixed(2)}</span>
+                            </div>
+                            <div class="price-option">
+                                <span class="price-label">Plano Anual:</span>
+                                <span class="price-value annual-price">R$ ${service.anual.toFixed(2)}</span>
+                                <span class="price-discount">${getDiscount(service.mensal, service.anual)}% OFF</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="service-footer">
+                        <select class="frequency-select" id="frequency-${service._id}">
+                            <option value="monthly" ${selectedFrequency === 'monthly' ? 'selected' : ''}>Mensal</option>
+                            <option value="annual" ${selectedFrequency === 'annual' ? 'selected' : ''}>Anual</option>
+                        </select>
+                        <button class="select-btn ${isSelected ? 'selected' : ''}" onclick="toggleService('${service._id}')">
+                            ${isSelected ? '<i class="fas fa-check"></i> Selecionado' : 'Selecionar'}
+                        </button>
+                    </div>
+                `;
+                
+                servicesContainer.appendChild(serviceCard);
+            });
+        }
+
+        // Finalizar compra - Versão corrigida
+        window.finalizarCompra = async function() {
+            if (selectedServices.length === 0) {
+                alert('Por favor, selecione pelo menos um serviço antes de finalizar a compra.');
+                return;
+            }
+            
+            try {
+                // Mostrar loading
+                checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+                checkoutBtn.disabled = true;
+                
+                // Preparar dados para enviar
+                const payload = {
+                    servicos: selectedServices.map(service => ({
+                        servico: service.id,
+                        frequencia: service.frequency === 'annual' ? 'anual' : 'mensal',
+                        valor: service.valor
+                    })),
+                    metodoPagamento: 'boleto',
+                    status: 'pendente'
+                };
+
+                console.log('Enviando pedido para API:', payload);
+                
+                const response = await fetch('http://localhost:5000/api/pedidos', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Resposta de erro da API:', errorText);
+                    throw new Error(`Erro HTTP ${response.status}: ${errorText}`);
                 }
                 
-                try {
-                    const token = localStorage.getItem('token');
-                    if (!token) {
-                        alert('Você precisa estar logado para finalizar a compra.');
-                        window.location.href = 'login.html';
-                        return;
-                    }
-                    
-                    // Calcular total
-                    const total = selectedServices.reduce((sum, service) => {
-                        const serviceData = services.find(s => s.id === service.id);
-                        return sum + (service.frequency === 'annual' ? serviceData.annualPrice : serviceData.monthlyPrice);
-                    }, 0);
-                    
-                    const response = await fetch('/api/pedidos', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            servicosSelecionados: selectedServices.map(service => ({
-                                servico: service.servicoId,
-                                frequencia: service.frequency === 'annual' ? 'anual' : 'mensal',
-                                valor: service.valor
-                            })),
-                            metodoPagamento: 'boleto'
-                        })
-                    });
-                    
-                    if (!response.ok) {
-                        const error = await response.json();
-                        throw new Error(error.message || 'Erro ao criar pedido');
-                    }
-                    
-                    const pedido = await response.json();
-                    window.location.href = `Pagamento.html?pedidoId=${pedido._id}`;
-                    
-                } catch (error) {
-                    console.error('Erro ao finalizar compra:', error);
-                    alert(`Erro ao finalizar compra: ${error.message}`);
+                const data = await response.json();
+                console.log('Resposta da API:', data);
+                
+                if (!data._id) {
+                    throw new Error('Pedido criado mas sem ID retornado');
                 }
-            };
-            
-            if (checkAuth()) {
-                renderServices();
-                updateOrderSummary();
+                
+                // Armazenar dados para a página de pagamento
+                localStorage.setItem('currentOrder', JSON.stringify({
+                    orderId: data._id,
+                    services: selectedServices,
+                    total: selectedServices.reduce((sum, s) => sum + s.valor, 0)
+                }));
+                
+                // Redirecionar para página de pagamento
+                window.location.href = `Pagamento.html?pedidoId=${data._id}`;
+                
+            } catch (error) {
+                console.error('Erro completo ao finalizar compra:', error);
+                
+                // Restaurar botão
+                checkoutBtn.innerHTML = '<i class="fas fa-check-circle"></i> Finalizar Compra';
+                checkoutBtn.disabled = false;
+                
+                // Mensagem de erro mais detalhada
+                let errorMessage = 'Erro ao finalizar compra';
+                if (error.message.includes('404')) {
+                    errorMessage = 'Serviço de pedidos indisponível no momento.';
+                } else if (error.message.includes('500')) {
+                    errorMessage = 'Erro interno no servidor. Tente novamente mais tarde.';
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Sem conexão com o servidor. Verifique sua internet.';
+                }
+                
+                alert(`${errorMessage}\n\nDetalhes: ${error.message}`);
             }
-            
-            document.addEventListener('change', function(e) {
-                if (e.target.classList.contains('frequency-select')) {
-                    const id = parseInt(e.target.id.replace('frequency-', ''));
-                    const frequency = e.target.value;
-                    
-                    const serviceIndex = selectedServices.findIndex(s => s.id === id);
-                    if (serviceIndex !== -1) {
-                        const serviceData = services.find(s => s.id === id);
-                        selectedServices[serviceIndex].frequency = frequency;
-                        selectedServices[serviceIndex].valor = frequency === 'annual' 
-                            ? serviceData.annualPrice 
-                            : serviceData.monthlyPrice;
-                        updateOrderSummary();
-                    }
-                }
+        };
+
+        // Configurar filtros
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                currentFilter = button.textContent.toLowerCase();
+                if (currentFilter === 'todos') currentFilter = 'all';
+                if (currentFilter === 'condomínios') currentFilter = 'condomínios';
+                if (currentFilter === 'ar condicionado') currentFilter = 'ar condicionado';
+                if (currentFilter === 'elétrica') currentFilter = 'elétrica';
+                
+                renderServices();
             });
         });
-    </script>
+
+        // Inicializar
+        loadServices();
+    });
+</script>
 </body>
 </html>

@@ -36,7 +36,7 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 30px 20px;
+            padding: 20px;
         }
         
         .checkout-header {
@@ -118,19 +118,25 @@
         
         .checkout-content {
             display: grid;
-            grid-template-columns: 1fr 350px;
-            gap: 30px;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        @media (min-width: 992px) {
+            .checkout-content {
+                grid-template-columns: 1fr 350px;
+            }
         }
         
         .main-section {
             background: white;
             border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
         
         .section-title {
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             margin-bottom: 20px;
             color: var(--dark);
             font-weight: 600;
@@ -144,7 +150,7 @@
         }
         
         .payment-methods {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         .payment-option {
@@ -195,7 +201,7 @@
         .card-form {
             display: none;
             margin-top: 20px;
-            padding: 20px;
+            padding: 15px;
             background-color: var(--gray-light);
             border-radius: 8px;
         }
@@ -221,8 +227,14 @@
         
         .card-row {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 15px;
+        }
+        
+        @media (min-width: 576px) {
+            .card-row {
+                grid-template-columns: 1fr 1fr;
+            }
         }
         
         .card-images {
@@ -242,25 +254,25 @@
         
         .confirmation-message {
             text-align: center;
-            padding: 30px 0;
+            padding: 20px 0;
         }
         
         .confirmation-icon {
-            font-size: 5rem;
+            font-size: 4rem;
             color: var(--success);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .confirmation-title {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             margin-bottom: 15px;
             color: var(--dark);
         }
         
         .confirmation-text {
-            font-size: 1.1rem;
+            font-size: 1rem;
             color: var(--gray);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
@@ -269,8 +281,8 @@
         .order-details {
             background-color: var(--gray-light);
             border-radius: 8px;
-            padding: 20px;
-            margin-top: 30px;
+            padding: 15px;
+            margin-top: 20px;
         }
         
         .detail-item {
@@ -289,13 +301,20 @@
         
         .action-buttons {
             display: flex;
-            gap: 15px;
-            margin-top: 30px;
-            justify-content: center;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        @media (min-width: 576px) {
+            .action-buttons {
+                flex-direction: row;
+                justify-content: center;
+            }
         }
         
         .btn {
-            padding: 12px 25px;
+            padding: 12px 20px;
             border-radius: 6px;
             font-weight: 500;
             cursor: pointer;
@@ -305,6 +324,8 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            text-align: center;
+            justify-content: center;
         }
         
         .btn-primary {
@@ -338,14 +359,14 @@
         .sidebar-section {
             background: white;
             border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             position: sticky;
-            top: 30px;
+            top: 20px;
         }
         
         .order-summary {
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         
         .order-item {
@@ -368,62 +389,52 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 15px;
             color: var(--gray);
             font-size: 0.9rem;
         }
         
-        @media (max-width: 768px) {
-            .checkout-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .sidebar-section {
-                position: static;
-            }
-            
-            .card-row {
-                grid-template-columns: 1fr;
-            }
-            
-            .action-buttons {
-                flex-direction: column;
-            }
-        }
-
-        .boleto-preview {
+        .boleto-preview, .pix-preview {
             background-color: white;
             border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            margin-top: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
             display: none;
         }
         
-        .boleto-code-container {
+        .boleto-code-container, .pix-key-container {
             display: flex;
             align-items: center;
             gap: 10px;
-            margin: 15px 0;
+            margin: 10px 0;
         }
         
-        #boleto-code {
+        #boleto-code, #pix-key {
             font-family: monospace;
-            font-size: 1.1rem;
-            padding: 10px;
+            font-size: 1rem;
+            padding: 8px;
             background-color: var(--gray-light);
             border-radius: 4px;
             flex: 1;
+            word-break: break-all;
         }
         
-        .boleto-actions {
+        .boleto-actions, .pix-actions {
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            margin-top: 20px;
+            margin-top: 15px;
         }
         
-        .boleto-qrcode {
-            margin: 20px auto;
+        @media (min-width: 576px) {
+            .boleto-actions, .pix-actions {
+                flex-direction: row;
+            }
+        }
+        
+        .boleto-qrcode, .pix-qrcode {
+            margin: 15px auto;
             text-align: center;
         }
         
@@ -466,6 +477,7 @@
         .card-number {
             margin-left: auto;
             color: var(--gray);
+            font-size: 0.9rem;
         }
         
         .no-cards-message {
@@ -481,53 +493,13 @@
             width: 100%;
         }
 
-        /* Estilos para o PIX */
-        .pix-preview {
-            background-color: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin-top: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            display: none;
-            text-align: center;
-        }
-        
-        .pix-key-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin: 15px 0;
-        }
-        
-        #pix-key {
-            font-family: monospace;
-            font-size: 1.1rem;
-            padding: 10px;
-            background-color: var(--gray-light);
-            border-radius: 4px;
-            flex: 1;
-        }
-        
-        .pix-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            justify-content: center;
-        }
-        
-        .pix-qrcode {
-            margin: 20px auto;
-            text-align: center;
-        }
-
-        /* Estilo para o código de barras */
         .barcode-container {
-            margin: 15px 0;
+            margin: 10px 0;
             text-align: center;
         }
         
         .barcode {
-            height: 50px;
+            height: 40px;
         }
     </style>
 </head>
@@ -692,7 +664,7 @@
                     </div>
                 </div>
                 
-                <button id="confirm-payment-btn" class="btn btn-primary" style="width: 100%; padding: 14px; margin-top: 20px;">
+                <button id="confirm-payment-btn" class="btn btn-primary" style="width: 100%; padding: 12px; margin-top: 15px;">
                     <i class="fas fa-check-circle"></i> Confirmar Pagamento
                 </button>
             </div>
@@ -731,9 +703,9 @@
                         <a href="Mensalidade.html" class="btn btn-primary">
                             <i class="fas fa-home"></i> Voltar ao Início
                         </a>
-                        <a href="#" class="btn btn-outline">
-                            <i class="fas fa-file-alt"></i> Ver Contrato
-                        </a>
+                        <button class="btn btn-outline" id="download-invoice-btn">
+                            <i class="fas fa-file-pdf"></i> Baixar Nota Fiscal
+                        </button>
                     </div>
                 </div>
             </div>
@@ -745,6 +717,7 @@
                 </h2>
                 
                 <div class="order-summary" id="order-summary">
+                    <!-- Itens do pedido serão inseridos aqui -->
                 </div>
                 
                 <div class="order-total">
@@ -806,7 +779,7 @@
                         format: "CODE128",
                         lineColor: "#000000",
                         width: 2,
-                        height: 50,
+                        height: 40,
                         displayValue: false
                     });
                 }
@@ -832,6 +805,96 @@
             }).format(value);
         }
         
+        function generateInvoicePDF() {
+            if (!currentOrder || !currentUser) return;
+            
+            const doc = new jsPDF();
+            
+            // Configurações iniciais
+            doc.setFont('helvetica');
+            
+            // Cabeçalho
+            doc.setFontSize(16);
+            doc.setTextColor(0, 0, 0);
+            doc.text('NOTA FISCAL', 105, 20, { align: 'center' });
+            
+            // Logo e informações da empresa
+            doc.setFontSize(12);
+            doc.text('Resolve+', 20, 30);
+            doc.setFontSize(10);
+            doc.text('Soluções em Serviços', 20, 35);
+            doc.text('CNPJ: 12.345.678/0001-99', 20, 40);
+            doc.text('Projeto Universitário FACENS', 20, 45);
+            
+            // Linha divisória
+            doc.setDrawColor(0);
+            doc.setLineWidth(0.5);
+            doc.line(20, 50, 190, 50);
+            
+            // Informações do cliente
+            doc.setFontSize(12);
+            doc.text('Cliente:', 20, 60);
+            doc.text(currentUser.name, 50, 60);
+            
+            doc.text('CPF:', 20, 65);
+            doc.text(currentUser.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'), 50, 65);
+            
+            doc.text('Email:', 20, 70);
+            doc.text(currentUser.email, 50, 70);
+            
+            // Informações do pedido
+            doc.text('Número do Pedido:', 20, 80);
+            doc.text(currentOrder._id, 50, 80);
+            
+            doc.text('Data:', 20, 85);
+            doc.text(formatDate(currentOrder.dataPedido), 50, 85);
+            
+            doc.text('Método de Pagamento:', 20, 90);
+            doc.text(currentOrder.metodoPagamento, 50, 90);
+            
+            // Itens do pedido
+            doc.setFontSize(12);
+            doc.text('Itens do Pedido', 105, 100, { align: 'center' });
+            
+            // Cabeçalho da tabela
+            doc.setFontSize(10);
+            doc.text('Descrição', 20, 110);
+            doc.text('Frequência', 100, 110);
+            doc.text('Valor', 170, 110, { align: 'right' });
+            
+            // Linha divisória
+            doc.line(20, 115, 190, 115);
+            
+            let yPosition = 125;
+            currentOrder.servicos.forEach((servico, index) => {
+                if (yPosition > 250) {
+                    doc.addPage();
+                    yPosition = 20;
+                }
+                
+                doc.text(servico.servico?.nome || 'Serviço', 20, yPosition);
+                doc.text(servico.frequencia === 'anual' ? 'Anual' : 'Mensal', 100, yPosition);
+                doc.text(formatCurrency(servico.valor), 170, yPosition, { align: 'right' });
+                
+                yPosition += 10;
+            });
+            
+            // Total
+            doc.setFontSize(12);
+            doc.text('Total:', 150, yPosition + 10);
+            doc.text(formatCurrency(currentOrder.total), 170, yPosition + 10, { align: 'right' });
+            
+            // Observações
+            doc.setFontSize(10);
+            doc.setTextColor(100, 100, 100);
+            doc.text('Este boleto é um teste de compra. Não haverá nenhuma cobrança real.', 20, yPosition + 30);
+            doc.text('Este teste faz parte de um projeto universitário da instituição FACENS.', 20, yPosition + 35);
+            doc.text('Plataforma Resolve+ - Proprietário: Croesus', 20, yPosition + 40);
+            
+            // Salva o PDF
+            doc.save(`nota-fiscal-resolveplus-${currentOrder._id}.pdf`);
+        }
+        
         function generateBoletoPDF() {
             if (!currentOrder || !currentOrder.boleto || !currentUser) return;
             
@@ -840,63 +903,64 @@
             // Cabeçalho
             doc.setFontSize(16);
             doc.setTextColor(0, 0, 0);
-            doc.text('BOLETO BANCÁRIO', 105, 20, null, null, 'center');
+            doc.text('BOLETO BANCÁRIO', 105, 20, { align: 'center' });
             
             // Logo (simulado)
             doc.setFontSize(12);
             doc.text('Resolve+', 20, 30);
             doc.setFontSize(10);
             doc.text('Soluções em Serviços', 20, 35);
+            doc.text('Projeto Universitário FACENS', 20, 40);
             
             // Linha divisória
             doc.setDrawColor(0);
             doc.setLineWidth(0.5);
-            doc.line(20, 40, 190, 40);
+            doc.line(20, 45, 190, 45);
             
             // Dados do beneficiário
             doc.setFontSize(10);
-            doc.text('Beneficiário:', 20, 50);
-            doc.text('Resolve+ Soluções em Serviços LTDA', 50, 50);
+            doc.text('Beneficiário:', 20, 55);
+            doc.text('Resolve+ Soluções em Serviços LTDA', 50, 55);
             
-            doc.text('CNPJ:', 20, 55);
-            doc.text('12.345.678/0001-99', 50, 55);
+            doc.text('CNPJ:', 20, 60);
+            doc.text('12.345.678/0001-99', 50, 60);
             
             // Dados do pagador
-            doc.text('Pagador:', 20, 65);
-            doc.text(currentUser.name, 50, 65);
+            doc.text('Pagador:', 20, 70);
+            doc.text(currentUser.name, 50, 70);
             
-            doc.text('CPF:', 20, 70);
-            doc.text(currentUser.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'), 50, 70);
+            doc.text('CPF:', 20, 75);
+            doc.text(currentUser.cpf.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4'), 50, 75);
             
             // Dados do boleto
-            doc.text('Vencimento:', 20, 80);
-            doc.text(formatDate(currentOrder.boleto.vencimento), 50, 80);
+            doc.text('Vencimento:', 20, 85);
+            doc.text(formatDate(currentOrder.boleto.vencimento), 50, 85);
             
-            doc.text('Valor:', 20, 85);
-            doc.text(formatCurrency(currentOrder.total), 50, 85);
+            doc.text('Valor:', 20, 90);
+            doc.text(formatCurrency(currentOrder.total), 50, 90);
             
-            doc.text('Número do Documento:', 20, 90);
-            doc.text(currentOrder._id, 50, 90);
+            doc.text('Número do Documento:', 20, 95);
+            doc.text(currentOrder._id, 50, 95);
             
             // Código de barras
             doc.setFontSize(8);
-            doc.text('Código de barras:', 20, 100);
+            doc.text('Código de barras:', 20, 105);
             
             // Adiciona o código de barras (simulado)
             const barcodeText = currentOrder.boleto.codigo.replace(/\s/g, '');
             doc.setFontSize(12);
-            doc.text(barcodeText, 20, 105);
+            doc.text(barcodeText, 20, 110);
             
             // Linha de corte
             doc.setFontSize(8);
             doc.setTextColor(150, 150, 150);
-            doc.text('-------------------------------------------------------------------', 105, 150, null, null, 'center');
-            doc.text('Corte aqui', 105, 155, null, null, 'center');
+            doc.text('-------------------------------------------------------------------', 105, 150, { align: 'center' });
+            doc.text('Corte aqui', 105, 155, { align: 'center' });
             
             // Recibo do pagador
             doc.setFontSize(10);
             doc.setTextColor(0, 0, 0);
-            doc.text('Recibo do Pagador', 105, 165, null, null, 'center');
+            doc.text('Recibo do Pagador', 105, 165, { align: 'center' });
             
             doc.setFontSize(8);
             doc.text('Nome: ___________________________________________________', 20, 175);
@@ -904,14 +968,13 @@
             doc.text('Endereço: ______________________________________________', 20, 185);
             doc.text('Data: ____/____/________   Assinatura: _________________', 20, 190);
             
-            // Instruções
+            // Observações
             doc.setFontSize(8);
             doc.setTextColor(100, 100, 100);
-            doc.text('Instruções:', 20, 200);
-            doc.text('- Pagável em qualquer banco até o vencimento', 20, 205);
-            doc.text('- Após o vencimento, pagável apenas na Resolve+', 20, 210);
-            doc.text('- Multa de 2% após o vencimento', 20, 215);
-            doc.text('- Juros de 1% ao mês', 20, 220);
+            doc.text('Observações:', 20, 200);
+            doc.text('- Este boleto é um teste de compra. Não haverá nenhuma cobrança real.', 20, 205);
+            doc.text('- Este teste faz parte de um projeto universitário da instituição FACENS.', 20, 210);
+            doc.text('- Plataforma Resolve+ - Proprietário: Croesus', 20, 215);
             
             // Salva o PDF
             doc.save(`boleto-resolveplus-${currentOrder._id}.pdf`);
@@ -993,6 +1056,12 @@
                     <span class="card-brand">${card.holderName}</span>
                     <span class="card-number">**** **** **** ${card.lastFour}</span>
                 `;
+                
+                cardElement.addEventListener('click', () => {
+                    document.querySelectorAll('.saved-card').forEach(c => c.classList.remove('selected'));
+                    cardElement.classList.add('selected');
+                    selectedCard = card;
+                });
                 
                 container.appendChild(cardElement);
             });
@@ -1132,64 +1201,74 @@
         }
         
         async function confirmPayment() {
-  if (selectedPaymentMethod === 'card' && !await validateCard()) {
-    return;
-  }
-  
-  const btn = document.getElementById('confirm-payment-btn');
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
-  btn.disabled = true;
-  
-  try {
-    const token = localStorage.getItem('token');
-    const response = await fetch('/api/confirm-payment', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      },
-      body: JSON.stringify({
-        orderId: currentOrder._id,
-        paymentMethod: selectedPaymentMethod,
-        cardId: selectedCard?._id,
-        installments: document.getElementById('installments').value
-      })
-    });
-    
-    if (!response.ok) {
-      // Tentar extrair a mensagem de erro do JSON, se possível
-      let errorMsg = 'Erro ao confirmar pagamento';
-      try {
-        const errorData = await response.json();
-        errorMsg = errorData.message || errorMsg;
-      } catch (e) {
-        // Se não conseguir parsear como JSON, usar o status text
-        errorMsg = response.statusText || errorMsg;
-      }
-      throw new Error(errorMsg);
-    }
-    
-    const result = await response.json();
-    
-    
-  } catch (error) {
-    console.error('Erro ao confirmar pagamento:', error);
-    
-    let errorMessage = error.message;
-    if (error.message.includes('Failed to fetch')) {
-      errorMessage = 'Erro de conexão com o servidor. Verifique sua internet.';
-    } else if (error.message.includes('404')) {
-      errorMessage = 'Serviço indisponível no momento. Tente novamente mais tarde.';
-    }
-    
-    alert('Erro ao confirmar pagamento: ' + errorMessage);
-  } finally {
-    btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pagamento';
-    btn.disabled = false;
-  }
-}
+            if (selectedPaymentMethod === 'card' && !await validateCard()) {
+                return;
+            }
+            
+            const btn = document.getElementById('confirm-payment-btn');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+            btn.disabled = true;
+            
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch('/api/confirm-payment', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({
+                        orderId: currentOrder._id,
+                        paymentMethod: selectedPaymentMethod,
+                        cardId: selectedCard?._id,
+                        installments: document.getElementById('installments').value
+                    })
+                });
+                
+                if (!response.ok) {
+                    let errorMsg = 'Erro ao confirmar pagamento';
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.message || errorMsg;
+                    } catch (e) {
+                        errorMsg = response.statusText || errorMsg;
+                    }
+                    throw new Error(errorMsg);
+                }
+                
+                const result = await response.json();
+                currentOrder = result.order;
+                
+                // Atualiza a interface para mostrar confirmação
+                document.getElementById('payment-section').style.display = 'none';
+                document.getElementById('confirmation-section').style.display = 'block';
+                
+                document.getElementById('order-number').textContent = currentOrder._id;
+                document.getElementById('order-date').textContent = formatDate(currentOrder.dataPedido);
+                document.getElementById('payment-method').textContent = currentOrder.metodoPagamento;
+                document.getElementById('order-total').textContent = formatCurrency(currentOrder.total);
+                
+                updateProgress(100);
+                
+            } catch (error) {
+                console.error('Erro ao confirmar pagamento:', error);
+                
+                let errorMessage = error.message;
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'Erro de conexão com o servidor. Verifique sua internet.';
+                } else if (error.message.includes('404')) {
+                    errorMessage = 'Serviço indisponível no momento. Tente novamente mais tarde.';
+                }
+                
+                alert('Erro ao confirmar pagamento: ' + errorMessage);
+            } finally {
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirmar Pagamento';
+                btn.disabled = false;
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async function() {
-          
+            // Event listeners
             document.querySelectorAll('.payment-option').forEach(option => {
                 option.addEventListener('click', () => {
                     const method = option.getAttribute('data-method');
@@ -1215,6 +1294,7 @@
             });
 
             document.getElementById('confirm-payment-btn').addEventListener('click', confirmPayment);
+            document.getElementById('download-invoice-btn').addEventListener('click', generateInvoicePDF);
 
             document.getElementById('add-card-btn')?.addEventListener('click', () => {
                 document.getElementById('card-number').value = '';
@@ -1268,6 +1348,7 @@
                 e.target.value = value;
             });
 
+            // Carrega dados do pedido e usuário
             const urlParams = new URLSearchParams(window.location.search);
             const pedidoId = urlParams.get('pedidoId');
             
@@ -1281,6 +1362,7 @@
                 currentUser = await loadUserProfile();
                 currentOrder = await loadOrder(pedidoId);
                 
+                // Atualiza resumo do pedido
                 const resumoContainer = document.getElementById('order-summary');
                 resumoContainer.innerHTML = '';
                 
@@ -1295,26 +1377,23 @@
                 });
                 
                 document.getElementById('order-total-sidebar').textContent = formatCurrency(currentOrder.total);
-                document.getElementById('order-total').textContent = formatCurrency(currentOrder.total);
-                
-                document.getElementById('order-number').textContent = currentOrder._id;
-                document.getElementById('order-date').textContent = formatDate(currentOrder.dataPedido);
                 
                 updateInstallments(currentOrder.total);
                 
+                // Seleciona método de pagamento padrão
                 const defaultMethod = currentOrder.metodoPagamento || 'boleto';
                 const defaultOption = document.querySelector(`.payment-option[data-method="${defaultMethod}"]`);
                 if (defaultOption) {
                     selectPaymentMethod(defaultOption, defaultMethod);
                 }
                 
+                updateProgress(66);
+                
             } catch (error) {
                 console.error('Erro:', error);
                 alert('Erro ao carregar dados: ' + error.message);
-                window.location.href = 'servicos.html';
+                window.location.href = 'Mensalidade.html';
             }
-
-            updateProgress(66);
         });
     </script>
 </body>
